@@ -4,11 +4,9 @@ import { SpaceTables } from '@/core/db/store-constants';
 import { AnyData } from '@/core/db/types';
 import {
   minimizeAnnotForStorage,
-  MinimizedDocAnnotation,
   unminimizeAnnotFromStorage
 } from '@/domain/collection/compress-annotations';
 import {
-  MinimizedCollectionItem,
   minimizeItemsForStorage,
   unminimizeItemsFromStorage
 } from '@/domain/collection/compress-collection';
@@ -45,7 +43,6 @@ import { LocalChangeResult } from '@/domain/synchronization/local-changes';
 import localChangesService from '@/domain/synchronization/local-changes.service';
 import { ReplicaState } from '@/domain/synchronization/replica-state';
 import {
-  MinimizedUserPref,
   minimizePrefsForStorage,
   unminimizePrefsFromStorage
 } from '@/domain/user-preferences/compress-user-prefs';
@@ -53,19 +50,13 @@ import {
   CloudStorageSynchronizer,
   RemoteRepresentation
 } from './abstract-synchronizer';
-
-export type RemoteCollectionFileContent = {
-  i: MinimizedCollectionItem[]; // the items
-  a?: MinimizedDocAnnotation[]; // the document annotations
-  o?: MinimizedUserPref[]; // the user preferences / options
-  u: number; // last content change
-  _v?: number; // the schema version (!= app version)
-  _av?: string; // the app version
-};
+import {
+  applyRemoteSchemaMigration,
+  REMOTE_COLLECTION_SCHEMA_VERSION,
+  RemoteCollectionFileContent
+} from './collection-synchronizer-schema';
 
 type RemoteContentRepresentation = SpacePortableData;
-
-export const REMOTE_COLLECTION_SCHEMA_VERSION = 1; // increment each breaking change
 
 const COL = 'collectionInfo';
 export class CollectionSynchronizer extends CloudStorageSynchronizer {
@@ -200,16 +191,13 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
       // TODO can't avoid calling driver.fetchFilesInfo twice for now
       const { success, didPull, data } =
         await this.cloudFS.fetchChanges(lastPulled);
+      const remoteFileContent = data as RemoteCollectionFileContent;
       const hasNewChanges = success && didPull;
       if (hasNewChanges) {
-        const remoteContent = this.toRepresentation(
-          data as RemoteCollectionFileContent
-        );
-        if (remoteContent.schemaVersion !== REMOTE_COLLECTION_SCHEMA_VERSION) {
-          throw new Error(
-            `Version mismatch on remote collection filesystem: expected ${REMOTE_COLLECTION_SCHEMA_VERSION}, got ${remoteContent.schemaVersion}`
-          );
+        if (remoteFileContent._v !== REMOTE_COLLECTION_SCHEMA_VERSION) {
+          applyRemoteSchemaMigration(remoteFileContent);
         }
+        const remoteContent = this.toRepresentation(remoteFileContent);
         return remoteContent;
       }
     }
@@ -275,15 +263,14 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
 
   private applyMergeLocal(
     localChanges: LocalChangeResult[],
-    remoteContent: RemoteCollectionFileContent,
+    remoteFileContent: RemoteCollectionFileContent,
     force: boolean
   ) {
-    if (remoteContent._v !== REMOTE_COLLECTION_SCHEMA_VERSION) {
-      throw new Error(
-        `Version mismatch on remote collection filesystem: expected ${REMOTE_COLLECTION_SCHEMA_VERSION}, got ${remoteContent._v}`
-      );
+    if (remoteFileContent._v !== REMOTE_COLLECTION_SCHEMA_VERSION) {
+      applyRemoteSchemaMigration(remoteFileContent);
     }
 
+    const remoteContent = this.toRepresentation(remoteFileContent);
     const resp = this.computeDataToMergeLocally(
       storageService.getSpaceRepresentation(),
       localChanges,
@@ -300,15 +287,13 @@ export class CollectionSynchronizer extends CloudStorageSynchronizer {
   private computeDataToMergeLocally(
     localContent: SpacePortableData,
     localChanges: LocalChangeResult[],
-    obj: RemoteCollectionFileContent,
+    remoteContent: SpacePortableData,
     force: boolean
   ): {
     content: SpacePortableData;
     discardedChanges: LocalChangeResult[];
     changes: AfterMergeChange[];
   } {
-    const remoteContent = this.toRepresentation(obj);
-
     const { newLocalContent, discardedChanges } = chainMerge(localContent, [
       res =>
         applyLocalChangesToPull(

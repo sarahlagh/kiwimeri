@@ -66,6 +66,17 @@ const S = SpaceTables.Stats;
 const CC = SpaceDocContentTables.CollectionContent;
 const AC = SpaceDocContentTables.AnnotationContent;
 
+/**
+  // 0.4.1 => changes display_opts -> settings field among other, not accepted for restoreJson (schemaVersion=0)
+  // 0.4.2 => no change on exported tables (schemaVersion=1)
+  // 0.4.3 => moves history content to store but has no incidence on exported schema
+  // 0.4.4 => no change on exported tables
+  // 0.4.5 => content moved to CollectionContent & AnnotationContent tables
+  //          + exports schemaVersion=2 and appVersion (schemaVersion=2)
+  // 0.4.6 => content is no longer minimized (schemaVersion=3)
+  // 0.5.0 => sort.by no longer accepts updatedAt, becomes lastActivityAt (schemaVersion=4)
+  // oldest accepted version = 0.4.2 / 1
+ */
 enum Versions {
   INITIAL_0_4 = 0,
   WITH_SETTINGS_AND_OBJS_1 = 1,
@@ -190,15 +201,6 @@ class StorageMergeService {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private guessSchemaVersion(tables: any, values?: any) {
-    // 0.4.1 => changes display_opts -> settings field among other, not accepted for restoreJson (schemaVersion=0)
-    // 0.4.2 => no change on exported tables (schemaVersion=1)
-    // 0.4.3 => moves history content to store but has no incidence on exported schema
-    // 0.4.4 => no change on exported tables
-    // 0.4.5 => content moved to CollectionContent & AnnotationContent tables
-    //          + exports schemaVersion=2 and appVersion (schemaVersion=2)
-    // 0.4.6 => content is no longer minimized (schemaVersion=3)
-    // 0.5.0 => sort.by no longer accepts updatedAt, becomes lastActivityAt (schemaVersion=4)
-    // oldest accepted version = 0.4.2 / 1
     let schemaVersion = values?.schemaVersion;
     // attempt to guess schemaVersion
     if (typeof schemaVersion === 'string') return Versions.INITIAL_0_4;

@@ -4,16 +4,17 @@ import { SpaceDocContentTables, SpaceTables } from '@/core/db/store-constants';
 import { setMetaField } from '@/core/db/types';
 import { CollectionItemType } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
+import { minimizeItemsForStorage } from '@/domain/collection/compress-collection';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { historyService } from '@/domain/history/history.service';
 import { conflictsService } from '@/domain/space-merging/conflicts.service';
 import { LocalChangeType } from '@/domain/synchronization/local-changes';
 import localChangesService from '@/domain/synchronization/local-changes.service';
+import { CollectionSynchronizer } from '@/domain/synchronization/synchronizers/collection-synchronizer';
 import {
-  CollectionSynchronizer,
   REMOTE_COLLECTION_SCHEMA_VERSION,
   RemoteCollectionFileContent
-} from '@/domain/synchronization/synchronizers/collection-synchronizer';
+} from '@/domain/synchronization/synchronizers/collection-synchronizer-schema';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import useItemsConflictMixIn from '@/features/collection-browser/hooks/useItemsConflictMixIn';
 import fetchBrowsableItemsQuery from '@/features/collection-browser/queries/fetchBrowsableItemsQuery';
@@ -1178,7 +1179,7 @@ describe('collection synchronizer', () => {
   });
 
   describe('should handle remote schema version change', () => {
-    test('client on newest version cannot pull remote file without version', async () => {
+    test('client cannot pull remote file without version', async () => {
       const remoteContent: RemoteCollectionFileContent = {
         i: [],
         u: Date.now()
@@ -1190,11 +1191,11 @@ describe('collection synchronizer', () => {
       expect(resp.didPull).toBe(true);
     });
 
-    test('client on newest version cannot pull remote file with old version', async () => {
+    test('client cannot pull remote file with version < min', async () => {
       const remoteContent: RemoteCollectionFileContent = {
         i: [],
         u: Date.now(),
-        _v: REMOTE_COLLECTION_SCHEMA_VERSION - 1
+        _v: 0
       };
       driver.setContent(remoteContent);
 
@@ -1203,7 +1204,33 @@ describe('collection synchronizer', () => {
       expect(resp.didPull).toBe(true);
     });
 
-    test('client on newest version cannot force pull remote file without version', async () => {
+    test('client cannot pull remote file with version > current', async () => {
+      const remoteContent: RemoteCollectionFileContent = {
+        i: [],
+        u: Date.now(),
+        _v: REMOTE_COLLECTION_SCHEMA_VERSION + 1
+      };
+      driver.setContent(remoteContent);
+
+      const resp = await synchronizer.pull();
+      expect(resp.success).toBe(false);
+      expect(resp.didPull).toBe(true);
+    });
+
+    test('client can pull remote file with version = current', async () => {
+      const remoteContent: RemoteCollectionFileContent = {
+        i: [],
+        u: Date.now(),
+        _v: REMOTE_COLLECTION_SCHEMA_VERSION
+      };
+      driver.setContent(remoteContent);
+
+      const resp = await synchronizer.pull();
+      expect(resp.success).toBe(true);
+      expect(resp.didPull).toBe(true);
+    });
+
+    test('client cannot force pull remote file without version', async () => {
       const remoteContent: RemoteCollectionFileContent = {
         i: [],
         u: Date.now()
@@ -1215,11 +1242,11 @@ describe('collection synchronizer', () => {
       expect(resp.didPull).toBe(true);
     });
 
-    test('client on newest version cannot force pull remote file with old version', async () => {
+    test('client cannot force pull remote file with version < min', async () => {
       const remoteContent: RemoteCollectionFileContent = {
         i: [],
         u: Date.now(),
-        _v: REMOTE_COLLECTION_SCHEMA_VERSION - 1
+        _v: 0
       };
       driver.setContent(remoteContent);
 
@@ -1228,7 +1255,34 @@ describe('collection synchronizer', () => {
       expect(resp.didPull).toBe(true);
     });
 
-    test('client on newest version cannot push to remote file without version', async () => {
+    test('client cannot force pull remote file with version > current', async () => {
+      const remoteContent: RemoteCollectionFileContent = {
+        i: [],
+        u: Date.now(),
+        _v: REMOTE_COLLECTION_SCHEMA_VERSION + 1
+      };
+      driver.setContent(remoteContent);
+
+      const resp = await synchronizer.pull(true);
+      expect(resp.success).toBe(false);
+      expect(resp.didPull).toBe(true);
+    });
+
+    test('client can force pull remote file with version = current', async () => {
+      const remoteContent: RemoteCollectionFileContent = {
+        i: [],
+        u: Date.now(),
+        _v: REMOTE_COLLECTION_SCHEMA_VERSION
+      };
+      driver.setContent(remoteContent);
+
+      const resp = await synchronizer.pull(true);
+      expect(resp.success).toBe(true);
+      expect(resp.didPull).toBe(true);
+    });
+
+    test('client cannot push to remote file without version', async () => {
+      collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       const remoteContent: RemoteCollectionFileContent = {
         i: [],
         u: Date.now()
@@ -1240,11 +1294,12 @@ describe('collection synchronizer', () => {
       expect(resp.didPush).toBe(false);
     });
 
-    test('client on newest version cannot push to remote file with old version', async () => {
+    test('client cannot push to remote file with version < min', async () => {
+      collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       const remoteContent: RemoteCollectionFileContent = {
         i: [],
         u: Date.now(),
-        _v: REMOTE_COLLECTION_SCHEMA_VERSION - 1
+        _v: 0
       };
       driver.setContent(remoteContent);
 
@@ -1253,7 +1308,36 @@ describe('collection synchronizer', () => {
       expect(resp.didPush).toBe(false);
     });
 
-    test('client on newest version can force push to remote file without version', async () => {
+    test('client cannot push to remote file with version > current', async () => {
+      collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const remoteContent: RemoteCollectionFileContent = {
+        i: [],
+        u: Date.now(),
+        _v: REMOTE_COLLECTION_SCHEMA_VERSION + 1
+      };
+      driver.setContent(remoteContent);
+
+      const resp = await synchronizer.push();
+      expect(resp.success).toBe(false);
+      expect(resp.didPush).toBe(false);
+    });
+
+    test('client can push to remote file with version = current', async () => {
+      collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const remoteContent: RemoteCollectionFileContent = {
+        i: [],
+        u: Date.now(),
+        _v: REMOTE_COLLECTION_SCHEMA_VERSION
+      };
+      driver.setContent(remoteContent);
+
+      const resp = await synchronizer.push();
+      expect(resp.success).toBe(true);
+      expect(resp.didPush).toBe(true);
+    });
+
+    test('client can force push to remote file without version', async () => {
+      collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       const remoteContent: RemoteCollectionFileContent = {
         i: [],
         u: Date.now()
@@ -1268,11 +1352,12 @@ describe('collection synchronizer', () => {
       expect(content.schemaVersion).toBe(REMOTE_COLLECTION_SCHEMA_VERSION);
     });
 
-    test('client on newest version can force push to remote file with old version', async () => {
+    test('client can force push to remote file with version < min', async () => {
+      collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       const remoteContent: RemoteCollectionFileContent = {
         i: [],
         u: Date.now(),
-        _v: REMOTE_COLLECTION_SCHEMA_VERSION - 1
+        _v: 0
       };
       driver.setContent(remoteContent);
 
@@ -1282,49 +1367,11 @@ describe('collection synchronizer', () => {
 
       const content = await driver.getParsedCollectionContent();
       expect(content.schemaVersion).toBe(REMOTE_COLLECTION_SCHEMA_VERSION);
-    });
-
-    test('client on old version cannot pull remote file on newest version', async () => {
-      const remoteContent: RemoteCollectionFileContent = {
-        i: [],
-        u: Date.now(),
-        _v: REMOTE_COLLECTION_SCHEMA_VERSION + 1
-      };
-      driver.setContent(remoteContent);
-
-      const resp = await synchronizer.pull();
-      expect(resp.success).toBe(false);
-      expect(resp.didPull).toBe(true);
-    });
-
-    test('client on old version cannot force pull remote file on newest version', async () => {
-      const remoteContent: RemoteCollectionFileContent = {
-        i: [],
-        u: Date.now(),
-        _v: REMOTE_COLLECTION_SCHEMA_VERSION + 1
-      };
-      driver.setContent(remoteContent);
-
-      const resp = await synchronizer.pull(true);
-      expect(resp.success).toBe(false);
-      expect(resp.didPull).toBe(true);
-    });
-
-    test('client on old version cannot push remote file on newest version', async () => {
-      const remoteContent: RemoteCollectionFileContent = {
-        i: [],
-        u: Date.now(),
-        _v: REMOTE_COLLECTION_SCHEMA_VERSION + 1
-      };
-      driver.setContent(remoteContent);
-
-      const resp = await synchronizer.push();
-      expect(resp.success).toBe(false);
-      expect(resp.didPush).toBe(false);
     });
 
     // can't be helped, or I'd have to pull file even on force push
-    test('client on old version can force push remote file on newest version (!!!!)', async () => {
+    test('client can force push to remote file with version > current', async () => {
+      collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       const remoteContent: RemoteCollectionFileContent = {
         i: [],
         u: Date.now(),
@@ -1335,6 +1382,76 @@ describe('collection synchronizer', () => {
       const resp = await synchronizer.push(true);
       expect(resp.success).toBe(true);
       expect(resp.didPush).toBe(true);
+
+      const content = await driver.getParsedCollectionContent();
+      expect(content.schemaVersion).toBe(REMOTE_COLLECTION_SCHEMA_VERSION);
+    });
+
+    test('client can force push to remote file with version = current', async () => {
+      collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const remoteContent: RemoteCollectionFileContent = {
+        i: [],
+        u: Date.now(),
+        _v: REMOTE_COLLECTION_SCHEMA_VERSION
+      };
+      driver.setContent(remoteContent);
+
+      const resp = await synchronizer.push(true);
+      expect(resp.success).toBe(true);
+      expect(resp.didPush).toBe(true);
+    });
+
+    describe('upgrade schemaVersion 1 to 2', () => {
+      test('client can pull remote file with version = 1 and upgrade to 2', async () => {
+        const folder = collectionService.getNewFolderObj(DEFAULT_NOTEBOOK_ID);
+        folder.item.settings = {
+          sort: { by: 'updatedAt', descending: true }
+        } as any;
+        const remoteContent: RemoteCollectionFileContent = {
+          i: minimizeItemsForStorage([{ ...folder.item, id: folder.id }]),
+          u: Date.now(),
+          _v: 1
+        };
+        driver.setContent(remoteContent);
+
+        const resp = await synchronizer.pull();
+        expect(resp.success).toBe(true);
+        expect(resp.didPull).toBe(true);
+
+        expect(collectionService.itemExists(folder.id)).toBe(true);
+        expect(collectionService.getItemField(folder.id, 'settings')).toEqual({
+          sort: {
+            by: 'lastActivityAt',
+            descending: true
+          }
+        });
+      });
+
+      test('client can sync remote file with version = 1 and upgrade to 2', async () => {
+        collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+        const folder = collectionService.getNewFolderObj(DEFAULT_NOTEBOOK_ID);
+        folder.item.settings = {
+          sort: { by: 'updatedAt', descending: true }
+        } as any;
+        const remoteContent: RemoteCollectionFileContent = {
+          i: minimizeItemsForStorage([{ ...folder.item, id: folder.id }]),
+          u: Date.now(),
+          _v: 1
+        };
+        driver.setContent(remoteContent);
+
+        const resp = await synchronizer.sync();
+        expect(resp.success).toBe(true);
+        expect(resp.didPush).toBe(true);
+
+        expect(collectionService.itemExists(folder.id)).toBe(true);
+        expect(collectionService.getItemField(folder.id, 'settings')).toEqual({
+          sort: {
+            by: 'lastActivityAt',
+            descending: true
+          }
+        });
+      });
     });
   });
 

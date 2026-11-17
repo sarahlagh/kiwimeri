@@ -30,7 +30,7 @@ import { syncService } from '@/domain/synchronization/sync.service';
 import {
   REMOTE_COLLECTION_SCHEMA_VERSION,
   RemoteCollectionFileContent
-} from '@/domain/synchronization/synchronizers/collection-synchronizer';
+} from '@/domain/synchronization/synchronizers/collection-synchronizer-schema';
 import { CompositeSynchronizer } from '@/domain/synchronization/synchronizers/composite-synchronizer';
 import { useSynchronizationStates } from '@/features/synchronization-ui';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';

@@ -25,7 +25,7 @@ import {
 import {
   REMOTE_COLLECTION_SCHEMA_VERSION,
   RemoteCollectionFileContent
-} from '@/domain/synchronization/synchronizers/collection-synchronizer';
+} from '@/domain/synchronization/synchronizers/collection-synchronizer-schema';
 import {
   minimizePrefsForStorage,
   unminimizePrefsFromStorage
