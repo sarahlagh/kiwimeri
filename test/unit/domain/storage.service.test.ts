@@ -22,6 +22,10 @@ import {
   setupTasksSheduleAndHistory,
   teardownTasksScheduleAndHistory
 } from '@@/_setup/test.utils';
+import {
+  derivedStatesScenarios,
+  getLocalSpaceDataForDerivedStateMatrix
+} from './derived-state.matrix';
 
 function initData() {
   const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
@@ -362,7 +366,7 @@ describe('storage service', () => {
     });
   });
 
-  describe('import / restore raw collection json with local changes', () => {
+  describe('import / restore raw collection json with remaining local changes', () => {
     it('should create local changes for added items', () => {
       // create init data (1 doc 1 annot)
       const { docId } = initData();
@@ -693,7 +697,8 @@ describe('storage service', () => {
         type: CollectionItemType.document,
         change: LocalChangeType.update,
         on: SpaceTables.Collection,
-        field: 'content'
+        field: 'content',
+        updatedAt: Date.now()
       });
     });
 
@@ -717,7 +722,8 @@ describe('storage service', () => {
         type: 'note',
         change: LocalChangeType.update,
         on: SpaceTables.Annotations,
-        field: 'content'
+        field: 'content',
+        updatedAt: Date.now()
       });
     });
 
@@ -742,7 +748,35 @@ describe('storage service', () => {
         type: undefined,
         change: LocalChangeType.update,
         on: SpaceTables.UserPreference,
-        field: 'value'
+        field: 'value',
+        updatedAt: Date.now()
+      });
+    });
+  });
+
+  describe('should handle all derived states after restore json', () => {
+    derivedStatesScenarios.forEach(scenario => {
+      test(`${scenario.description}`, async () => {
+        // must get exported json format
+        const init = Date.now();
+        const { items, notes } = scenario.generateRemoteData();
+        collectionService.saveItems(items);
+        annotsService.saveNotes(notes[0].parentId, notes);
+        const exportedContent = storageService.exportJson(true);
+        storageService.nukeStorage();
+        vi.setSystemTime(init);
+
+        if (scenario.applyLocalData) scenario.applyLocalData();
+        localChangesService.clear();
+        vi.setSystemTime(init);
+        const before = Date.now();
+
+        storageService.restoreJson(exportedContent);
+        vi.advanceTimersByTime(100);
+
+        const expectedData = scenario.expected(before);
+        const actualData = getLocalSpaceDataForDerivedStateMatrix();
+        expect(actualData).toEqual(expectedData);
       });
     });
   });

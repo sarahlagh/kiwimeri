@@ -15,9 +15,15 @@ import collectionService from '@/domain/collection/collection.service';
 import { Notebook, NotebookSort } from '@/domain/collection/notebooks';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { getUniqueId } from 'tinybase/with-schemas';
+import {
+  CollectionTable,
+  projectionEngine,
+  ProjectionTable
+} from './collection-projection.service';
 import fetchItemsQuery from './queries/fetchItemsQuery';
 
 const C = SpaceTables.Collection;
+const ProjectedState = SpaceTables.ProjectedState;
 
 class NotebooksService {
   public initNotebooks() {
@@ -39,26 +45,37 @@ class NotebooksService {
       tt('defaultNotebookName')
     );
     const id = DEFAULT_NOTEBOOK_ID;
+    const nextCollection = space.getTable(C) as CollectionTable;
+    const nextProjection = space.getTable(ProjectedState) as ProjectionTable;
     const row = { ...item, itemId: id };
+    nextCollection[id] = row;
     space.transaction(() => {
-      const tmpTable = space.getTable(SpaceTables.Collection);
-      tmpTable[id] = row;
-      collectionService.calcBreadcrumbs(id, tmpTable);
+      projectionEngine.__fillInBreadcrumbs(id, nextCollection, nextProjection);
       space.setRow(C, id, row);
+      projectionEngine.__recalcAncestryLastActivityAt(
+        id,
+        nextCollection,
+        nextProjection
+      );
     });
-    collectionService.updateAllActivityAt(id);
   }
 
+  // TODO why is it different from saveItem
   public addNotebook(title: string, parent: string = ROOT_COLLECTION) {
     const { item, id } = this.getNewNotebookObj(parent, title);
+    const nextCollection = space.getTable(C) as CollectionTable;
+    const nextProjection = space.getTable(ProjectedState) as ProjectionTable;
     const row: CollectionItemRow = { ...item, itemId: id };
+    nextCollection[id] = row;
     space.transaction(() => {
-      const tmpTable = space.getTable(SpaceTables.Collection);
-      tmpTable[id] = row;
-      collectionService.calcBreadcrumbs(id, tmpTable);
+      projectionEngine.__fillInBreadcrumbs(id, nextCollection, nextProjection);
       space.setRow(C, id, row);
+      projectionEngine.__recalcAncestryLastActivityAt(
+        id,
+        nextCollection,
+        nextProjection
+      );
     });
-    collectionService.updateAllActivityAt(id);
     return id!;
   }
 
@@ -92,7 +109,9 @@ class NotebooksService {
         items.forEach(i => collectionService.deleteItem(i.id));
       });
     }
+    // collectionService.deleteItem(parentId) // why not???
     space.delRow(C, parentId);
+    // TODO how about projected states????
   }
 
   public setCurrentNotebook(notebookId: string) {

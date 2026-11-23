@@ -14,7 +14,7 @@ import {
   SpaceTablesType,
   SpaceType
 } from '@/core/db/store-schema';
-import { AsId } from '@/core/db/types';
+import { AsId, TableOf } from '@/core/db/types';
 import { cellEquals } from '@/shared/utils';
 import { Content, Id, Table } from 'tinybase/with-schemas';
 import {
@@ -25,6 +25,10 @@ import {
   CollectionItemUpdatableFields,
   isDocument
 } from '../collection/collection';
+import {
+  CollectionTable,
+  projectionEngine
+} from '../collection/collection-projection.service';
 import collectionService from '../collection/collection.service';
 import { unminimizeContentFromStorage } from '../collection/compress-file-content';
 import { annotsService } from '../collection/doc-annotations.service';
@@ -53,8 +57,7 @@ import {
   SpacePortableData,
   SpacePortableDataKey,
   SpacePortableDataTableType,
-  SpacePortableDataWithHistory,
-  TableOf
+  SpacePortableDataWithHistory
 } from './types';
 
 const C = SpaceTables.Collection;
@@ -325,21 +328,20 @@ class StorageMergeService {
     const newContent = this.parseAndValidate(json);
     const changes = this.afterMergeChanges(newContent, localContent);
 
-    space.transaction(() => {
-      this.setContent(newContent, changes, false);
+    this.setContent(newContent, changes, false, () => {
       if (newContent.history) {
         spaceArchive.setTable(H, newContent.history);
       }
       if (newContent.historyContent) {
         spaceArchive.setTable(HC, newContent.historyContent);
       }
+      if (newContent.stats) {
+        space.setTable(S, newContent.stats);
+      }
+      space.delTable(SpaceTables.ResumeState);
+      this.handleDeletedRows(changes);
     });
-    if (newContent.stats) {
-      space.setTable(S, newContent.stats);
-    }
 
-    space.delTable(SpaceTables.ResumeState);
-    this.handleDeletedRows(changes);
     this.handleHistory(changes);
   }
 
@@ -348,9 +350,10 @@ class StorageMergeService {
     content: SpacePortableData,
     changes: AfterMergeChange[]
   ) {
-    this.setContent(content, changes, true);
-    this.handleResumeState(changes);
-    this.handleDeletedRows(changes);
+    this.setContent(content, changes, true, () => {
+      this.handleResumeState(changes);
+      this.handleDeletedRows(changes);
+    });
     this.handleHistory(changes);
   }
 
@@ -415,20 +418,25 @@ class StorageMergeService {
             id,
             type,
             on: tableId,
-            change: LocalChangeType.add
+            change: LocalChangeType.add,
+            updatedAt: newItem.updatedAt
           });
         }
       } else if (!newItem && oldItem) {
         // deleted by remote
         const type = isUserPref(oldItem) ? undefined : oldItem.type;
+        const oldParentId = isUserPref(oldItem) ? undefined : oldItem.parentId;
         changes.set(id, {
           id,
           on: tableId,
           type,
-          change: LocalChangeType.delete
+          change: LocalChangeType.delete,
+          oldParentId,
+          updatedAt: 0 // unknown
         });
       } else if (newItem && oldItem) {
         const type = isUserPref(newItem) ? undefined : newItem.type;
+        const oldParentId = isUserPref(oldItem) ? undefined : oldItem.parentId;
         for (const field of updatableFields) {
           // only create change for the first field
           // if local wins, mustn't have new version - won't happen if no local change
@@ -438,7 +446,9 @@ class StorageMergeService {
               type,
               on: tableId,
               change: LocalChangeType.update,
-              field
+              field,
+              updatedAt: newItem.updatedAt,
+              oldParentId: field === 'parentId' ? oldParentId : undefined
             });
             break;
           }
@@ -451,29 +461,47 @@ class StorageMergeService {
   private setContent(
     content: SpacePortableData,
     changes: AfterMergeChange[],
-    withUserPrefs: boolean
+    withUserPrefs: boolean,
+    beforeTransactionEnds?: () => void
   ) {
     spaceDocContent.startTransaction();
     space.startTransaction();
+    const nextProjection = {};
     try {
       this.setWithContent(structuredClone(content), 'items', C);
-      collectionService.backfillProjectedStates(content.items);
+      projectionEngine.backfillProjectedStates(content.items, nextProjection);
       this.setWithContent(structuredClone(content), 'annots', A);
 
       if (withUserPrefs) {
         this.set(structuredClone(content), 'userPrefs', UP);
       }
+
+      if (beforeTransactionEnds) beforeTransactionEnds();
     } finally {
       // TODO handle error
       space.finishTransaction();
       spaceDocContent.finishTransaction();
-
-      // TODO should optimize
-      const collectionIds = changes
-        .filter(ch => ch.on === C && ch.change !== LocalChangeType.delete)
-        .map(ch => ch.id);
-      collectionService.updateAllActivityAtBulk(collectionIds);
     }
+
+    // TODO should optimize
+    // deleted changes
+    // moved changes should also impact
+    const collectionChanges = changes
+      .filter(ch => ch.on === C) // && ch.change !== LocalChangeType.delete)
+      // .filter(
+      //   ch =>
+      //     !ch.field || collectionService.shouldTriggerActivityChange(ch.field)
+      // )
+      .map(ch => ({
+        id: ch.id,
+        updatedAt: ch.updatedAt,
+        oldParentId: ch.oldParentId
+      }));
+    projectionEngine.updateAllActivityAtBulk(
+      collectionChanges,
+      space.getTable(C) as CollectionTable,
+      nextProjection
+    );
   }
 
   private setWithContent(
@@ -553,7 +581,7 @@ class StorageMergeService {
 
   private cleanupRow(rowId: string, on: SpaceTableId) {
     if (on === SpaceTables.Collection) {
-      collectionService.cleanupDeletedItem(rowId);
+      projectionEngine.cleanupDeletedItem(rowId);
     }
     if (on === SpaceTables.Annotations) {
       annotsService.cleanupDeletedAnnot(rowId);

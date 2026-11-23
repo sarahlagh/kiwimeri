@@ -1,8 +1,7 @@
 import { DEFAULT_ORDER, ROOT_COLLECTION, tt } from '@/constants';
 import { space, spaceDocContent } from '@/core/db/store';
 import { SpaceDocContentTables, SpaceTables } from '@/core/db/store-constants';
-import { SpaceTablesType } from '@/core/db/store-schema';
-import { DbSerializableData, setMetaField, WithId } from '@/core/db/types';
+import { DbSerializableData, setMetaField, TableOf } from '@/core/db/types';
 import {
   BaseCollectionItem,
   CollectionItem,
@@ -31,9 +30,10 @@ import { genericReorder } from '@/shared/dnd/utils';
 import { cellEquals } from '@/shared/utils';
 import type { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
-import { Id, Ids } from 'tinybase/common/with-schemas';
-import { Table } from 'tinybase/with-schemas';
+import { Id } from 'tinybase/common/with-schemas';
 import { historyService } from '../history/history.service';
+import { projectionEngine } from './collection-projection.service';
+import { ProjectedItemStateRow } from './derived-item-state';
 import { annotsService } from './doc-annotations.service';
 
 export const initialContent = () => {
@@ -44,20 +44,22 @@ export const initialContent = () => {
 const C = SpaceTables.Collection;
 const CC = SpaceDocContentTables.CollectionContent;
 const CV = SpaceTables.CollectionItemView;
-const ResumeState = SpaceTables.ResumeState;
 const ProjectedState = SpaceTables.ProjectedState;
 const CollectionContent = SpaceDocContentTables.CollectionContent;
 
+type CollectionTable = TableOf<Partial<CollectionItemRow>>;
+type ProjectionTable = TableOf<Partial<ProjectedItemStateRow>>;
+
 class CollectionService {
-  public getNewDocumentObj(parent: string) {
+  public getNewDocumentObj(parentId: string) {
     const id = getUniqueId();
     const now = Date.now();
     const content = initialContent();
     const item: BaseCollectionItem = {
       title: tt('newDocTitle'),
       title_meta: setMetaField(now, tt('newDocTitle')),
-      parentId: parent,
-      parentId_meta: setMetaField(now, parent),
+      parentId,
+      parentId_meta: setMetaField(now, parentId),
       content,
       content_meta: setMetaField(now, content),
       createdAt: now,
@@ -69,20 +71,20 @@ class CollectionService {
     return { item, id };
   }
 
-  public addDocument(parent: string) {
-    const { item, id } = this.getNewDocumentObj(parent);
+  public addDocument(parentId: string) {
+    const { item, id } = this.getNewDocumentObj(parentId);
     this.saveItem(item, id);
     return id;
   }
 
-  public getNewFolderObj(parent: string) {
+  public getNewFolderObj(parentId: string) {
     const now = Date.now();
     const id = getUniqueId();
     const item: BaseCollectionItem = {
       title: tt('newFolderTitle'),
       title_meta: setMetaField(now, tt('newFolderTitle')),
-      parentId: parent,
-      parentId_meta: setMetaField(now, parent),
+      parentId,
+      parentId_meta: setMetaField(now, parentId),
       createdAt: now,
       updatedAt: now,
       type: CollectionItemType.folder,
@@ -92,15 +94,15 @@ class CollectionService {
     return { item, id };
   }
 
-  public addFolder(parent: string) {
-    const { item, id } = this.getNewFolderObj(parent);
+  public addFolder(parentId: string) {
+    const { item, id } = this.getNewFolderObj(parentId);
     this.saveItem(item, id);
     return id;
   }
 
   // for tests
-  public addNotebook(parent: string, title = '') {
-    return notebooksService.addNotebook(title, parent);
+  public addNotebook(parentId: string, title = '') {
+    return notebooksService.addNotebook(title, parentId);
   }
 
   public getDocumentContent(rowId: Id) {
@@ -175,7 +177,7 @@ class CollectionService {
     rowId: Id,
     flags?: { softDelete?: boolean; moveItemsUp?: boolean }
   ) {
-    const parent = this.getItemParent(rowId);
+    const parentId = this.getItemParent(rowId);
     const itemType = this.getItemType(rowId);
     const wasFolder = isFolder(itemType);
     const wasDocument = isDocument(itemType);
@@ -187,7 +189,7 @@ class CollectionService {
           if (flags?.moveItemsUp !== true) {
             this.deleteItem(child.id, flags);
           } else {
-            this.setItemParent(child.id, parent);
+            this.setItemParent(child.id, parentId);
           }
         });
       }
@@ -202,18 +204,19 @@ class CollectionService {
         historyService.hardDeleteVersions(rowId);
       }
     }
+    const nextProjection = space.getTable(ProjectedState) as ProjectionTable;
+    const nextCollection = space.getTable(C) as CollectionTable;
+    delete nextProjection[rowId];
+    delete nextCollection[rowId];
     space.transaction(() => {
-      this.updateAllActivityAt(parent);
       space.delRow(C, rowId);
-      this.cleanupDeletedItem(rowId);
+      projectionEngine.cleanupDeletedItem(rowId);
+      projectionEngine.__recalcAncestryLastActivityAt(
+        parentId,
+        nextCollection,
+        nextProjection
+      );
     });
-  }
-
-  public cleanupDeletedItem(rowId: Id) {
-    space.delRow(ProjectedState, rowId);
-    space.delRow(ResumeState, rowId);
-    space.delRow(CV, rowId);
-    spaceDocContent.delRow(CC, rowId);
   }
 
   public restoreItem(rowId: Id) {
@@ -360,8 +363,10 @@ class CollectionService {
     return isConflict;
   }
 
-  public shouldTriggerActivityChange(key: CollectionItemUpdatableFieldEnum) {
-    return CollectionItemRowUpdateChangeFields.includes(key);
+  public shouldTriggerActivityChange(key: string) {
+    return CollectionItemRowUpdateChangeFields.includes(
+      key as CollectionItemUpdatableFieldEnum
+    );
   }
 
   public isHistorizableContentChange(
@@ -378,66 +383,66 @@ class CollectionService {
     value: DbSerializableData,
     skipVersion = false
   ) {
-    const current = this.getItemField(rowId, key);
-    if (cellEquals(current, value)) {
+    const oldValue = this.getItemField(rowId, key);
+    if (cellEquals(oldValue, value)) {
       console.debug('no change, skipping', rowId, key);
       return false; // don't add unnecessary changes
     }
     const type = this.getItemType(rowId);
-    const updated = Date.now();
+    const updatedAt = Date.now();
     // title and content are real changes, order and settings are not (won't trigger an update ts)
     const isRowUpdateChange = this.shouldTriggerActivityChange(key);
     const isParentChange = key === 'parentId';
 
+    const nextCollection = space.getTable(C) as CollectionTable;
+    const nextProjection = space.getTable(ProjectedState) as ProjectionTable;
     space.transaction(() => {
       if (key !== 'content') {
+        nextCollection[rowId][key] = value as never;
         space.setCell(C, rowId, key, value as never);
         space.setCell(
           C,
           rowId,
           `${key}_meta`,
-          setMetaField(updated, `${value}`)
+          setMetaField(updatedAt, `${value}`)
         );
       }
       if (isRowUpdateChange) {
-        space.setCell(C, rowId, 'updatedAt', updated);
+        space.setCell(C, rowId, 'updatedAt', updatedAt);
+        nextCollection[rowId].updatedAt = updatedAt;
+        // nextProjection[rowId].lastActivityAt = updatedAt;
+        projectionEngine.__updateAncestryLastActivityAt(
+          updatedAt,
+          nextProjection[rowId].fullPath!
+        );
+      }
+
+      if (isParentChange) {
+        // nextCollection[rowId].parentId = value as string;
+        projectionEngine.__propagateBreadcrumbChangesToSelfAndChildren(
+          rowId,
+          nextCollection,
+          nextProjection
+        );
+        // must update ancestry of old and new parent
+        projectionEngine.__recalcAncestryLastActivityAt(
+          [oldValue as string, value as string],
+          nextCollection,
+          nextProjection
+        );
       }
 
       if (CollectionItemResetConflictFields.includes(key)) {
         this.resetItemIfConflict(rowId);
       }
-
-      if (isParentChange) {
-        const tmpTable = space.getTable(C);
-        tmpTable[rowId].parentId = value as string;
-        this.propagateBreadcrumbChange(rowId, tmpTable);
-      }
     });
-    if (isRowUpdateChange) {
-      this.updateAllActivityAt(rowId, updated);
-    }
     if (key === 'content') {
-      this.setRawContent(rowId, value as string, updated);
+      this.setRawContent(rowId, value as string, updatedAt);
     }
     if (!skipVersion && this.isHistorizableContentChange(type, key)) {
       historyService.addVersion(rowId);
     }
     return true;
-  }
-
-  private propagateBreadcrumbChange(
-    parent: string,
-    tmpTable: Table<SpaceTablesType, SpaceTables.Collection>
-  ) {
-    this.calcBreadcrumbs(parent, tmpTable);
-    // if has children, update their breadcrumbs too
-    const stateTable = space.getTable(ProjectedState);
-    Object.keys(stateTable).forEach(rowId => {
-      const state = stateTable[rowId];
-      if (state.fullPath?.includes(parent)) {
-        this.calcBreadcrumbs(rowId, tmpTable);
-      }
-    });
   }
 
   public getItemField<T>(rowId: Id, key: CollectionItemFieldEnum) {
@@ -447,90 +452,55 @@ class CollectionService {
     return space.getCell(C, rowId, key) as T;
   }
 
-  private getPaths(
-    rowId: string,
-    table: Table<SpaceTablesType, SpaceTables.Collection>
-  ) {
-    let fullPath: string[] = [];
-    let shortPath: string[] = [];
-    let parentId = rowId;
-    let nbNotebooks = 0;
-    while (parentId !== ROOT_COLLECTION) {
-      if (!table[parentId]) {
-        break;
-      }
-      fullPath = [parentId, ...fullPath];
-      const parentType = table[parentId].type as CollectionItemTypeValues;
-      if (parentType !== CollectionItemType.notebook || ++nbNotebooks < 2) {
-        shortPath = [parentId, ...shortPath];
-      }
-      const parentParent =
-        (table[parentId].parentId as string) || ROOT_COLLECTION;
-      if (fullPath.includes(parentParent) && parentId !== ROOT_COLLECTION) {
-        throw new Error('circular parent reference');
-      }
-      parentId = parentParent;
-    }
-
-    return { fullPath, shortPath };
-  }
-
-  public calcBreadcrumbs(
-    id: Id,
-    table: Table<SpaceTablesType, SpaceTables.Collection>
-  ) {
-    const { fullPath, shortPath } = this.getPaths(id, table);
-    space.setPartialRow(ProjectedState, id, {
-      fullPath,
-      shortPath
-    });
-    return { fullPath, shortPath };
-  }
-
-  private getTempTable(item: WithId<CollectionItemRow>) {
-    const tmpTable = space.getTable(C);
-    tmpTable[item.id] = item;
-    return tmpTable;
-  }
-
-  public saveItem(item: BaseCollectionItem, id?: string) {
-    if (!id) {
-      id = getUniqueId();
+  public saveItem(item: BaseCollectionItem, rowId?: string) {
+    if (!rowId) {
+      rowId = getUniqueId();
     }
     const content = item.content;
     const content_updated = item.content_meta?._u;
+
+    const nextCollection = space.getTable(C) as CollectionTable;
     space.transaction(() => {
-      const row = { ...item, itemId: id } as CollectionItemRow;
-      this.calcBreadcrumbs(id, this.getTempTable({ ...row, id }));
-      space.setRow(C, id, row);
+      const row = { ...item, itemId: rowId } as CollectionItemRow;
+      nextCollection[rowId] = { ...row };
+      const { fullPath } = projectionEngine.__fillInBreadcrumbs(
+        rowId,
+        nextCollection,
+        {}
+      );
+      space.setRow(C, rowId, row);
+      projectionEngine.__updateAncestryLastActivityAt(item.updatedAt, fullPath);
     });
-    this.updateAllActivityAt(id);
     if (content) {
-      this.setRawContent(id, content, content_updated || 0);
+      this.setRawContent(rowId, content, content_updated || 0);
     }
 
     // TODO not sure why transaction breaks addVersionFromItem here - try startTransaction / endTransaction instead?
     // TODO should probably check if a relevant field has been updated here
     if (isDocument(item)) {
-      historyService.saveVersionFromItem({ ...item, id } as CollectionItem);
+      historyService.saveVersionFromItem({
+        ...item,
+        id: rowId
+      } as CollectionItem);
     }
-    return id;
+    return rowId;
   }
 
   public saveItems(
     items: (CollectionItem | CollectionItemUpdate)[],
     bulk = false
   ) {
-    const tmpTable = space.getTable(C);
+    const nextCollection = space.getTable(C) as CollectionTable;
+    const nextProjection = space.getTable(ProjectedState) as ProjectionTable;
     const allDocs = new Map<string, string>();
     const allIds: string[] = [];
     const now = Date.now();
     space.transaction(() => {
       items.forEach(item => {
         const id = item.id || getUniqueId();
-        const oldRow = tmpTable[id];
+        const oldRow = nextCollection[id];
         const newRow = { ...oldRow, ...item, itemId: id } as CollectionItemRow;
-        tmpTable[id] = newRow;
+        nextCollection[id] = newRow;
         allIds.push(id);
         if (item.type === CollectionItemType.document) {
           allDocs.set(id, item.content!);
@@ -538,10 +508,18 @@ class CollectionService {
         space.setRow(C, id, newRow);
       });
       // backfill all for now - should optimize
-      this.backfillProjectedStates(tmpTable, Object.keys(tmpTable));
+      projectionEngine.backfillProjectedStates(
+        nextCollection,
+        nextProjection,
+        Object.keys(nextCollection)
+      );
+      // TODO should optimize
+      projectionEngine.updateAllActivityAtBulk(
+        items,
+        nextCollection,
+        nextProjection
+      );
     });
-    // TODO should optimize
-    this.updateAllActivityAtBulk(allIds);
     spaceDocContent.transaction(() => {
       allDocs.forEach((content, docId) => {
         if (content) {
@@ -557,22 +535,6 @@ class CollectionService {
     return allDocs.keys();
   }
 
-  public backfillProjectedStates(
-    tmpTable?: Table<SpaceTablesType, SpaceTables.Collection>,
-    rowIds?: Ids
-  ) {
-    if (!tmpTable) tmpTable = space.getTable(C);
-    if (!rowIds) rowIds = Object.keys(tmpTable);
-    space.transaction(() => {
-      rowIds.forEach(rowId => {
-        if (tmpTable[rowId].itemId !== rowId) {
-          space.setCell(C, rowId, 'itemId', rowId);
-        }
-        this.calcBreadcrumbs(rowId, tmpTable);
-      });
-    });
-  }
-
   public getBreadcrumb(rowId: string, includeAllNotebooks = false) {
     const breadcrumb = space.getCell(
       ProjectedState,
@@ -581,24 +543,6 @@ class CollectionService {
     );
     if (breadcrumb) return breadcrumb as string[];
     return [];
-  }
-
-  public updateAllActivityAt(id: string, now = Date.now()) {
-    const breadcrumb = this.getBreadcrumb(id, true);
-    space.transaction(() => {
-      space.setCell(ProjectedState, id, 'lastActivityAt', now);
-      for (let i = 0; i < breadcrumb.length; i++) {
-        space.setCell(ProjectedState, breadcrumb[i], 'lastActivityAt', now);
-      }
-    });
-  }
-
-  public updateAllActivityAtBulk(itemIds: string[]) {
-    space.transaction(() => {
-      itemIds.forEach(id => {
-        this.updateAllActivityAt(id);
-      });
-    });
   }
 
   private setRawContent(id: Id, content: string, updated: number) {

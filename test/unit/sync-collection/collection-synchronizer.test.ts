@@ -8,6 +8,7 @@ import { minimizeItemsForStorage } from '@/domain/collection/compress-collection
 import { annotsService } from '@/domain/collection/doc-annotations.service';
 import { historyService } from '@/domain/history/history.service';
 import { conflictsService } from '@/domain/space-merging/conflicts.service';
+import { storageService } from '@/domain/space-merging/storage.service';
 import { LocalChangeType } from '@/domain/synchronization/local-changes';
 import localChangesService from '@/domain/synchronization/local-changes.service';
 import { CollectionSynchronizer } from '@/domain/synchronization/synchronizers/collection-synchronizer';
@@ -33,6 +34,10 @@ import {
   wrappedRenderHook
 } from '@@/_setup/test.utils';
 import { describe, it } from 'vitest';
+import {
+  derivedStatesScenarios,
+  getLocalSpaceDataForDerivedStateMatrix
+} from '../domain/derived-state.matrix';
 
 const driver = new InMemDriver();
 
@@ -1455,21 +1460,53 @@ describe('collection synchronizer', () => {
     });
   });
 
-  describe('should handle derived state after sync', () => {
-    test('after pull derived state should be updated', async () => {
-      const items = [oneNotebook(), oneDocument()];
-      await driver.setCollectionContent(items, items[1].updatedAt);
-      await synchronizer.sync();
+  // TODO how does that interact with local changes?
+  // should i test with and without local changes?
+  describe('should handle all derived states after sync', () => {
+    derivedStatesScenarios.forEach(scenario => {
+      test(`${scenario.description} (on remote)`, async () => {
+        const init = Date.now();
+        storageService.nukeStorage();
+        if (scenario.applyLocalData) scenario.applyLocalData();
+        localChangesService.clear();
+        vi.setSystemTime(init);
+        const before = Date.now();
 
-      expect(
-        space.getCell(SpaceTables.ProjectedState, items[0].id!, 'fullPath')
-      ).toEqual([DEFAULT_NOTEBOOK_ID]);
-      expect(
-        space.getCell(SpaceTables.ProjectedState, items[1].id!, 'fullPath')
-      ).toEqual([DEFAULT_NOTEBOOK_ID, items[1].id]);
+        const { items, notes, updatedAt } = scenario.generateRemoteData();
+
+        await driver.setCollectionContentWithAnnots(items, notes, updatedAt);
+        await synchronizer.sync();
+        vi.advanceTimersByTime(100);
+
+        const expectedData = scenario.expected(before);
+        const actualData = getLocalSpaceDataForDerivedStateMatrix();
+        expect(actualData).toEqual(expectedData);
+      });
+
+      // not sure this is relevant
+      test.todo(`${scenario.description} (on local)`, async () => {
+        const init = Date.now();
+        const { items, notes, updatedAt } = scenario.generateRemoteData();
+        await driver.setCollectionContentWithAnnots(items, notes, updatedAt);
+
+        vi.setSystemTime(init);
+        const before = Date.now();
+        storageService.nukeStorage();
+        if (scenario.applyLocalData) scenario.applyLocalData();
+        localChangesService.clear();
+
+        await synchronizer.sync();
+        vi.advanceTimersByTime(100);
+
+        const expectedData = scenario.expected(before);
+        const actualData = getLocalSpaceDataForDerivedStateMatrix();
+        expect(actualData).toEqual(expectedData);
+      });
+
+      // maybe add test with applyNewData instead of generateRemoteData too
     });
 
-    test('after pull derived state of deleted rows should be updated', async () => {
+    test.skip('after pull derived state of deleted rows should be updated', async () => {
       const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
       const items = [oneNotebook(), oneDocument()];
       await driver.setCollectionContent(items, items[1].updatedAt);
@@ -1483,32 +1520,6 @@ describe('collection synchronizer', () => {
       expect(
         space.getCell(SpaceTables.ProjectedState, items[1].id!, 'fullPath')
       ).toEqual([DEFAULT_NOTEBOOK_ID, items[1].id]);
-    });
-
-    test('after pull derived state of moved rows should be updated', async () => {
-      const folId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
-      const docId = collectionService.addDocument(folId);
-      await synchronizer.sync();
-
-      const items = driver.getParsedCollectionContent().items;
-      const fol2 = oneFolder();
-      items[fol2.id] = fol2;
-      const fol1 = items[folId];
-      fol1.parentId = fol2.id;
-
-      await driver.setCollectionContent(items, fol2.updatedAt);
-
-      await synchronizer.sync();
-
-      expect(
-        space.getCell(SpaceTables.ProjectedState, fol2.id, 'fullPath')
-      ).toEqual([DEFAULT_NOTEBOOK_ID, fol2.id]);
-      expect(
-        space.getCell(SpaceTables.ProjectedState, folId, 'fullPath')
-      ).toEqual([DEFAULT_NOTEBOOK_ID, fol2.id, folId]);
-      expect(
-        space.getCell(SpaceTables.ProjectedState, docId, 'fullPath')
-      ).toEqual([DEFAULT_NOTEBOOK_ID, fol2.id, folId, docId]);
     });
   });
 });

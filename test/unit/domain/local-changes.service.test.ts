@@ -146,15 +146,17 @@ describe('local changes for collection', () => {
   });
 
   it(`should cancel local changes if the value goes back to previous value`, () => {
+    const fol1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+    const fol2 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
     const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     localChangesService.clear();
 
     GET_UPDATABLE_FIELDS('document').forEach(({ field, valueType }) => {
-      const previousValue = getNewValue(valueType);
+      const previousValue = getNewValue(valueType, fol1);
       collectionService.setItemField(id, field, previousValue);
       localChangesService.clear();
 
-      const newValue = getNewValue(valueType);
+      const newValue = getNewValue(valueType, fol2);
       expect(newValue).not.toBe(previousValue);
       collectionService.setItemField(id, field, newValue);
       expect(localChangesService.getLocalChanges()).toHaveLength(1);
@@ -167,15 +169,17 @@ describe('local changes for collection', () => {
   });
 
   it(`should cancel local changes if on reset`, () => {
+    const fol1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+    const fol2 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
     const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
     localChangesService.clear();
 
     GET_UPDATABLE_FIELDS('document').forEach(({ field, valueType }) => {
-      const previousValue = getNewValue(valueType);
+      const previousValue = getNewValue(valueType, fol1);
       collectionService.setItemField(id, field, previousValue);
       localChangesService.clear();
 
-      const newValue = getNewValue(valueType);
+      const newValue = getNewValue(valueType, fol2);
       expect(newValue).not.toBe(previousValue);
       collectionService.setItemField(id, field, newValue);
       const lc = localChangesService.getLocalChanges();
@@ -547,9 +551,8 @@ describe('local changes listeners', () => {
           expect(localChanges[0].itemId).toBe(testId);
         });
 
-        it.runIf(tableId !== SpaceTables.UserPreference)(
-          `should create an add change if item was a conflict`,
-          () => {
+        if (tableId !== SpaceTables.UserPreference) {
+          it(`should create an add change if item was a conflict`, () => {
             const testId = createDataInDb(
               tableId,
               watchedFields,
@@ -574,12 +577,11 @@ describe('local changes listeners', () => {
             expect(localChanges).toHaveLength(1);
             expect(localChanges[0].change).toEqual(LocalChangeType.add);
             expect(localChanges[0].itemId).toBe(testId);
-          }
-        );
+          });
+        }
 
-        it.runIf(watchedFields.length > 1)(
-          `should keep only one local changes per field update`,
-          () => {
+        if (watchedFields.length > 1) {
+          it(`should keep only one local changes per field update`, () => {
             const testId = createDataInDb(
               tableId,
               watchedFields,
@@ -600,8 +602,8 @@ describe('local changes listeners', () => {
             expect(localChanges[1].change).toEqual(LocalChangeType.update);
             expect(localChanges[1].field).toEqual(getField(watchedFields[0]));
             expect(localChanges[1].itemId).toBe(testId);
-          }
-        );
+          });
+        }
 
         it(`should cancel local change if deleted then restored in same session`, () => {
           const testId = createDataInDb(
@@ -620,7 +622,19 @@ describe('local changes listeners', () => {
         });
 
         it(`add change should be resettable`, () => {
-          space.setRow(tableId, 'testId1', fakeRow);
+          space.transaction(() => {
+            space.setRow(tableId, 'testId1', fakeRow);
+            if ('parentId' in fakeRow) {
+              // delItem on collection needs projected state for parent
+              space.setRow(
+                SpaceTables.ProjectedState,
+                fakeRow.parentId as string,
+                {
+                  fullPath: ['0']
+                }
+              );
+            }
+          });
           const changes = localChangesService.getLocalChanges();
           expect(changes).toHaveLength(1);
           expect(localChangesService.canChangeBeReset(changes[0].id)).toBe(
@@ -635,9 +649,8 @@ describe('local changes listeners', () => {
           expect(localChangesService.getLocalChanges()).toHaveLength(0);
         });
 
-        it.runIf(tableId === SpaceTables.Collection)(
-          `delete change should be resettable`,
-          () => {
+        if (tableId === SpaceTables.Collection) {
+          it(`delete change should be resettable`, () => {
             space.delTable(tableId);
             space.setRow(tableId, 'testId1', fakeRow);
             localChangesService.clear();
@@ -650,12 +663,9 @@ describe('local changes listeners', () => {
               true
             );
             // restore mechanic tested in previous test section
-          }
-        );
-
-        it.runIf(tableId !== SpaceTables.Collection)(
-          `delete change should not be resettable`,
-          () => {
+          });
+        } else {
+          it(`delete change should not be resettable`, () => {
             space.delTable(tableId);
             space.setRow(tableId, 'testId1', fakeRow);
             localChangesService.clear();
@@ -667,8 +677,8 @@ describe('local changes listeners', () => {
             expect(localChangesService.canChangeBeReset(changes[0].id)).toBe(
               false
             );
-          }
-        );
+          });
+        }
 
         it(`update change without a field should not be resettable`, () => {
           space.setRow(tableId, 'testId1', fakeRow);

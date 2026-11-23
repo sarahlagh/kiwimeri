@@ -1,4 +1,4 @@
-import { AnyData } from '@/core/db/types';
+import { AnyData, TableOf } from '@/core/db/types';
 import {
   BaseCollectionItem,
   CollectionItem
@@ -16,7 +16,7 @@ import {
   DocAnnotation
 } from '@/domain/collection/document-annotations';
 import { toArray, toTable } from '@/domain/space-merging/merge-utils';
-import { SpacePortableData, TableOf } from '@/domain/space-merging/types';
+import { SpacePortableData } from '@/domain/space-merging/types';
 import { CloudStorageDriver } from '@/domain/synchronization/drivers/abstract.driver';
 import {
   DriverFileInfo,

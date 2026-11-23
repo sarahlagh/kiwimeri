@@ -1,3 +1,4 @@
+import { TableOf } from '@/core/db/types';
 import {
   BaseCollectionItem,
   CollectionItemTypeValues
@@ -17,10 +18,6 @@ import {
 } from '../history/history';
 import { DocumentStatRow } from '../stats/stats';
 import { BaseUserPreference } from '../user-preferences/user-preferences';
-
-export type TableOf<T> = {
-  [key: Id]: T;
-};
 
 export type SpacePortableData = {
   items: TableOf<BaseCollectionItem>;
@@ -54,6 +51,8 @@ export type AfterMergeChange = {
   change: LocalChangeType;
   on: LocalChangeOn;
   field?: string;
+  updatedAt: number;
+  oldParentId?: string;
 };
 
 export function isUserPref(

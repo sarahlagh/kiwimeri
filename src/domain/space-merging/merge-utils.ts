@@ -1,5 +1,4 @@
-import { WithId } from '@/core/db/types';
-import { TableOf } from './types';
+import { TableOf, WithId } from '@/core/db/types';
 
 export function toArray<T>(table: TableOf<T>): WithId<T>[] {
   return Object.keys(table).map(itemId => ({

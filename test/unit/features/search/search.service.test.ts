@@ -1,4 +1,5 @@
 import { space, spaceDocContent } from '@/core/db/store';
+import { projectionEngine } from '@/domain/collection/collection-projection.service';
 import collectionService from '@/domain/collection/collection.service';
 import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
 import {
@@ -35,8 +36,9 @@ describe('search service', () => {
   beforeEach(() => {
     space.transaction(() => {
       space.setJson(jsonCollection);
-      collectionService.backfillProjectedStates(
-        JSON.parse(jsonCollection)[0]['collection']
+      projectionEngine.backfillProjectedStates(
+        JSON.parse(jsonCollection)[0]['collection'],
+        {}
       );
     });
     spaceDocContent.setJson(jsonCollection);

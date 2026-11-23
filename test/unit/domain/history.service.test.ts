@@ -9,6 +9,7 @@ import { LocalChangeType } from '@/domain/synchronization/local-changes';
 import localChangesService from '@/domain/synchronization/local-changes.service';
 import { userPrefs } from '@/domain/user-preferences/user-preferences.service';
 import {
+  createConflict,
   fakeTimersDelay,
   GET_HISTORIZABLE_UPDATE_FIELDS,
   GET_NON_HISTORIZABLE_UPDATE_FIELDS,
@@ -88,14 +89,13 @@ describe('collection history service', () => {
     GET_NON_HISTORIZABLE_UPDATE_FIELDS('document').forEach(
       ({ field, valueType }) => {
         it(`should not add a document version on ${field} change`, () => {
+          const fol1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
           const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
           expect(historyService.getVersions(docId)).toHaveLength(1);
           vi.advanceTimersByTime(100);
 
-          const docUpdatedTime = Date.now();
-          const newValue = getNewValue(valueType);
+          const newValue = getNewValue(valueType, fol1);
           collectionService.setItemField(docId, field, newValue);
-          const rowBefore = collectionService.getItem(docId);
           vi.advanceTimersByTime(100);
           expect(historyService.getVersions(docId)).toHaveLength(1);
         });
@@ -322,15 +322,9 @@ describe('collection history service', () => {
       expect(historyService.getVersions(docId)).toHaveLength(1);
       vi.advanceTimersByTime(100);
 
-      const item = collectionService.getItem(docId);
       // create conflict
-      const ts = Date.now();
-      const conflictId = space.addRow('collection', {
-        ...{ ...item, id: undefined },
-        conflictId: docId,
-        createdAt: ts,
-        updatedAt: ts
-      })!;
+      const conflictId = createConflict(docId);
+
       expect(collectionService.isItemConflict(conflictId)).toBe(true);
       expect(historyService.getVersions(conflictId)).toHaveLength(0);
       vi.advanceTimersByTime(100);

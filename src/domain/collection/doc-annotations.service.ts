@@ -8,7 +8,7 @@ import type { SerializedEditorState } from 'lexical';
 import { getUniqueId, Id } from 'tinybase/common';
 import { NotesSort } from './collection-settings';
 import { settingsService } from './collection-settings.service';
-import { BaseDocAnnotation } from './document-annotations';
+import { BaseDocAnnotation, DocAnnotation } from './document-annotations';
 
 const A = SpaceTables.Annotations;
 const AC = SpaceDocContentTables.AnnotationContent;
@@ -37,7 +37,7 @@ class DocumentAnnotationsService {
     const content_meta = item.content_meta;
     space.transaction(() => {
       space.setRow(A, id, { ...item, order });
-      space.setCell(C, docId, 'updatedAt', Date.now());
+      space.setCell(C, docId, 'updatedAt', item.updatedAt);
     });
     spaceDocContent.setPartialRow(AC, id, {
       content,
@@ -46,21 +46,22 @@ class DocumentAnnotationsService {
     return id;
   }
 
-  public saveNotes(docId: Id, notes: BaseDocAnnotation[]) {
+  public saveNotes(docId: Id, notes: (BaseDocAnnotation | DocAnnotation)[]) {
     const contents = new Map<
       string,
       { content: string; content_meta: MetaField }
     >();
+    const updatedAt = Math.max(...notes.map(n => n.updatedAt));
     space.transaction(() => {
       notes.forEach(note => {
-        const id = getUniqueId();
+        const id = 'id' in note ? note.id : getUniqueId();
         contents.set(id, {
           content: note.content,
           content_meta: note.content_meta
         });
         space.setRow(A, id, { ...note, parentId: docId });
       });
-      space.setCell(C, docId, 'updatedAt', Date.now());
+      space.setCell(C, docId, 'updatedAt', updatedAt);
     });
     spaceDocContent.transaction(() => {
       contents.forEach((partial, noteId) =>

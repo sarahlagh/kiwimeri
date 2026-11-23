@@ -10,6 +10,10 @@ import {
 
 export type SingleTableSchema = TablesSchema[''];
 
+export type TableOf<T> = {
+  [key: Id]: T;
+};
+
 export type AsId<Key> = Exclude<Key & Id, number>;
 
 export type TableIdFromSchema<Schema extends OptionalTablesSchema> = AsId<

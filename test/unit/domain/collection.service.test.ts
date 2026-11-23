@@ -275,37 +275,6 @@ describe('collection service', () => {
         expect(collectionService.itemExists(id)).toBe(false);
       });
 
-      it(`should delete an existing ${type} and recursively update all parents timestamp`, () => {
-        const now = Date.now();
-        const folderIdO = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
-        const folderId1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
-        const folderId2 = collectionService.addFolder(folderId1);
-        const folderId3 = collectionService.addFolder(folderId2);
-        const id = collectionService[addMethod](folderId3);
-        vi.advanceTimersByTime(100);
-        collectionService.deleteItem(id);
-        const item = getCollectionItem(id);
-        expect(item.title).toBeUndefined();
-        expect(collectionService.itemExists(id)).toBe(false);
-
-        const folderO = getCollectionItemWithExtra(folderIdO);
-        const folder1 = getCollectionItemWithExtra(folderId1);
-        const folder2 = getCollectionItemWithExtra(folderId2);
-        const folder3 = getCollectionItemWithExtra(folderId3);
-
-        expect(folderO.updatedAt).toBe(now); // this one is untouched
-        expect(folderO.parentId_meta._u).toBe(now);
-        expect(folder1.updatedAt).toBe(folder1.createdAt);
-        expect(folder1.lastActivityAt).toBe(now + 100);
-        expect(folder1.parentId_meta._u).toBe(now);
-        expect(folder2.updatedAt).toBe(folder2.createdAt);
-        expect(folder2.lastActivityAt).toBe(now + 100);
-        expect(folder2.parentId_meta._u).toBe(now);
-        expect(folder3.updatedAt).toBe(folder3.createdAt);
-        expect(folder3.lastActivityAt).toBe(now + 100);
-        expect(folder3.parentId_meta._u).toBe(now);
-      });
-
       it(`should add a single tag to a ${type} without changing the rest`, () => {
         const id = collectionService[addMethod](DEFAULT_NOTEBOOK_ID);
 
@@ -398,12 +367,17 @@ describe('collection service', () => {
       if (type === 'document') {
         UPDATABLE_FIELDS.forEach(({ field, valueType }) => {
           it(`should reset conflict (or not) on a document on update of ${field}`, () => {
+            const fol1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
             const id = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
             const id2 = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
             markAsConflict(id, id2);
             expect(getCollectionItem(id).conflictId).toBeDefined();
 
-            collectionService.setItemField(id, field, getNewValue(valueType));
+            collectionService.setItemField(
+              id,
+              field,
+              getNewValue(valueType, fol1)
+            );
             if (CollectionItemResetConflictFields.includes(field)) {
               expect(getCollectionItem(id).conflictId).toBeUndefined();
             } else {

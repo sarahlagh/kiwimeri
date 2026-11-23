@@ -1,5 +1,5 @@
 import { SpaceTableId } from '@/core/db/store-schema';
-import { MetaField } from '@/core/db/types';
+import { MetaField, TableOf } from '@/core/db/types';
 import {
   LocalChangeResult,
   LocalChangeType
@@ -9,8 +9,7 @@ import { getHash, Id } from 'tinybase/with-schemas';
 import {
   SpacePortableData,
   SpacePortableDataKey,
-  SpacePortableDataTableType,
-  TableOf
+  SpacePortableDataTableType
 } from '../types';
 import { ConflictPolicy } from './conflict-policies';
 import { OrphanPolicy } from './orphan-policies';

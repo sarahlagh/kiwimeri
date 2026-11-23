@@ -455,6 +455,15 @@ export const markAsConflict = (rowId: string, conflict: string) => {
   space.setCell('collection', rowId, 'conflictId', conflict);
 };
 
+export const createConflict = (withRowId: string) => {
+  const before = historyService['enabled'];
+  historyService['enabled'] = false;
+  const conflictId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+  historyService['enabled'] = before;
+  markAsConflict(conflictId, withRowId);
+  return conflictId;
+};
+
 export const expectHasLocalItemConflict = (
   conflictId: string,
   yesNo: boolean

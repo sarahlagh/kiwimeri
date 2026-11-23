@@ -1,10 +1,21 @@
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { space, spaceDocContent } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
+import {
+  CollectionTable,
+  projectionEngine
+} from '@/domain/collection/collection-projection.service';
 import collectionService from '@/domain/collection/collection.service';
+import { annotsService } from '@/domain/collection/doc-annotations.service';
 import notebooksService from '@/domain/collection/notebooks.service';
+import { storageService } from '@/domain/space-merging/storage.service';
+import localChangesService from '@/domain/synchronization/local-changes.service';
 import { oneDocument, oneFolder } from '@@/_setup/test.utils';
 import { describe, expect, it } from 'vitest';
+import {
+  derivedStatesScenarios,
+  getLocalSpaceDataForDerivedStateMatrix
+} from './derived-state.matrix';
 
 const shortContentPreview = 'This is a short content';
 const shortContent = JSON.parse(
@@ -102,7 +113,10 @@ describe('derived state', () => {
 
       // pull - newest items are removed
       space.setContent(space_content);
-      collectionService.backfillProjectedStates(space_content[0].collection);
+      projectionEngine.backfillProjectedStates(
+        space_content[0].collection as CollectionTable,
+        {}
+      );
 
       testExpectedPaths([
         ['0', 'F1', 'FF1', 'FFF1', 'D1'],
@@ -213,4 +227,58 @@ describe('derived state', () => {
       expect(space.hasRow(SpaceTables.CollectionItemView, 'D1')).toBe(false);
     });
   });
+
+  describe('should handle all derived states after saveItems', () => {
+    beforeEach(() => vi.useFakeTimers());
+    afterEach(() => vi.useRealTimers());
+
+    derivedStatesScenarios
+      .filter(s => s.appliesToSaveItems !== false)
+      .forEach(scenario => {
+        test(`${scenario.description} (saveItems)`, async () => {
+          const init = Date.now();
+          storageService.nukeStorage();
+          if (scenario.applyLocalData) scenario.applyLocalData();
+          localChangesService.clear();
+          vi.setSystemTime(init);
+          const before = Date.now();
+
+          const { items, notes } = scenario.generateRemoteData();
+
+          collectionService.saveItems(items);
+          annotsService.saveNotes(notes[0].parentId, notes);
+          vi.advanceTimersByTime(100);
+
+          const expectedData = scenario.expected(before);
+          const actualData = getLocalSpaceDataForDerivedStateMatrix();
+          expect(actualData).toEqual(expectedData);
+        });
+      });
+  });
+
+  describe('should handle all derived states after single operations', () => {
+    beforeEach(() => vi.useFakeTimers());
+    afterEach(() => vi.useRealTimers());
+
+    derivedStatesScenarios
+      .filter(s => s.applyNewData)
+      .forEach(scenario => {
+        test(`${scenario.description} (single)`, async () => {
+          const init = Date.now();
+          storageService.nukeStorage();
+          if (scenario.applyLocalData) scenario.applyLocalData();
+          localChangesService.clear();
+          vi.setSystemTime(init);
+          const before = Date.now();
+
+          scenario.applyNewData!();
+          vi.advanceTimersByTime(100);
+
+          const expectedData = scenario.expected(init, before);
+          const actualData = getLocalSpaceDataForDerivedStateMatrix();
+          expect(actualData).toEqual(expectedData);
+        });
+      });
+  });
+  // TODO saveItem, setItemField...
 });
