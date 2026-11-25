@@ -25,11 +25,6 @@ import {
   CollectionItemUpdatableFields,
   isDocument
 } from '../collection/collection';
-import {
-  AnnotationTable,
-  CollectionTable,
-  projectionEngine
-} from '../collection/collection-projection.service';
 import collectionService from '../collection/collection.service';
 import { unminimizeContentFromStorage } from '../collection/compress-file-content';
 import { annotsService } from '../collection/doc-annotations.service';
@@ -39,6 +34,7 @@ import {
   DocAnnotationUpdatableFields
 } from '../collection/document-annotations';
 import { ContentRow, getContentTable } from '../collection/document-content';
+import { ProjectionEngine } from '../collection/projection-engine';
 import { resumeService } from '../collection/resume-state.service';
 import {
   CollectionItemVersionContentRow,
@@ -329,7 +325,7 @@ class StorageMergeService {
     const newContent = this.parseAndValidate(json);
     const changes = this.afterMergeChanges(newContent, localContent);
 
-    this.setContent(newContent, changes, false, () => {
+    this.setContent(newContent, false, projectionEngine => {
       if (newContent.history) {
         spaceArchive.setTable(H, newContent.history);
       }
@@ -340,7 +336,7 @@ class StorageMergeService {
         space.setTable(S, newContent.stats);
       }
       space.delTable(SpaceTables.ResumeState);
-      this.handleDeletedRows(changes);
+      this.handleDeletedRows(projectionEngine, changes);
     });
 
     this.handleHistory(changes);
@@ -351,9 +347,9 @@ class StorageMergeService {
     content: SpacePortableData,
     changes: AfterMergeChange[]
   ) {
-    this.setContent(content, changes, true, () => {
+    this.setContent(content, true, projectionEngine => {
       this.handleResumeState(changes);
-      this.handleDeletedRows(changes);
+      this.handleDeletedRows(projectionEngine, changes);
     });
     this.handleHistory(changes);
   }
@@ -461,23 +457,22 @@ class StorageMergeService {
 
   private setContent(
     content: SpacePortableData,
-    changes: AfterMergeChange[],
     withUserPrefs: boolean,
-    beforeTransactionEnds?: () => void
+    beforeTransactionEnds?: (pe: ProjectionEngine) => void
   ) {
+    const projectionEngine = new ProjectionEngine(content.items);
     spaceDocContent.startTransaction();
     space.startTransaction();
-    const nextProjection = {};
     try {
       this.setWithContent(structuredClone(content), 'items', C);
-      projectionEngine.backfillProjectedStates(content.items, nextProjection);
+      projectionEngine.backfillProjectedStates();
       this.setWithContent(structuredClone(content), 'annots', A);
 
       if (withUserPrefs) {
         this.set(structuredClone(content), 'userPrefs', UP);
       }
 
-      if (beforeTransactionEnds) beforeTransactionEnds();
+      if (beforeTransactionEnds) beforeTransactionEnds(projectionEngine);
     } finally {
       // TODO handle error
       space.finishTransaction();
@@ -485,24 +480,18 @@ class StorageMergeService {
     }
 
     // TODO should optimize
-    // deleted changes
-    // moved changes should also impact
-    const collectionChanges = changes
-      .filter(ch => ch.on === C) // && ch.change !== LocalChangeType.delete)
-      // .filter(
-      //   ch =>
-      //     !ch.field || collectionService.shouldTriggerActivityChange(ch.field)
-      // )
-      .map(ch => ({
-        id: ch.id,
-        updatedAt: ch.updatedAt,
-        oldParentId: ch.oldParentId
-      }));
+    // const collectionChanges = changes
+    //   .filter(ch => ch.on === C)
+    //   .map(ch => ({
+    //     id: ch.id,
+    //     updatedAt: ch.updatedAt,
+    //     oldParentId: ch.oldParentId
+    //   }));
     projectionEngine.updateAllActivityAtBulk(
-      collectionChanges,
-      space.getTable(C) as CollectionTable,
-      space.getTable(A) as AnnotationTable,
-      nextProjection
+      // collectionChanges
+      // space.getTable(C) as CollectionTable,
+      // space.getTable(A) as AnnotationTable,
+      // nextProjection
     );
   }
 
@@ -573,15 +562,22 @@ class StorageMergeService {
     historyService.gc();
   }
 
-  private handleDeletedRows(changes: AfterMergeChange[]) {
+  private handleDeletedRows(
+    projectionEngine: ProjectionEngine,
+    changes: AfterMergeChange[]
+  ) {
     changes
       .filter(ch => ch.change === LocalChangeType.delete)
       .forEach(ch => {
-        this.cleanupRow(ch.id, ch.on);
+        this.cleanupRow(projectionEngine, ch.id, ch.on);
       });
   }
 
-  private cleanupRow(rowId: string, on: SpaceTableId) {
+  private cleanupRow(
+    projectionEngine: ProjectionEngine,
+    rowId: string,
+    on: SpaceTableId
+  ) {
     if (on === SpaceTables.Collection) {
       projectionEngine.cleanupDeletedItem(rowId);
     }

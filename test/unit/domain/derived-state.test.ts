@@ -1,13 +1,10 @@
 import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { space, spaceDocContent } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
-import {
-  CollectionTable,
-  projectionEngine
-} from '@/domain/collection/collection-projection.service';
 import collectionService from '@/domain/collection/collection.service';
 import { annotsService } from '@/domain/collection/doc-annotations.service';
 import notebooksService from '@/domain/collection/notebooks.service';
+import { ProjectionEngine } from '@/domain/collection/projection-engine';
 import { storageService } from '@/domain/space-merging/storage.service';
 import localChangesService from '@/domain/synchronization/local-changes.service';
 import { oneDocument, oneFolder } from '@@/_setup/test.utils';
@@ -113,10 +110,7 @@ describe('derived state', () => {
 
       // pull - newest items are removed
       space.setContent(space_content);
-      projectionEngine.backfillProjectedStates(
-        space_content[0].collection as CollectionTable,
-        {}
-      );
+      new ProjectionEngine().backfillProjectedStates();
 
       testExpectedPaths([
         ['0', 'F1', 'FF1', 'FFF1', 'D1'],

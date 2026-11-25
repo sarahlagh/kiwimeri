@@ -6,21 +6,15 @@ import { genericReorder } from '@/shared/dnd/utils';
 import { SortableType } from '@/shared/misc/sort-filter/sort';
 import type { SerializedEditorState } from 'lexical';
 import { getUniqueId, Id } from 'tinybase/common';
-import {
-  AnnotationTable,
-  CollectionTable,
-  projectionEngine,
-  ProjectionTable
-} from './collection-projection.service';
 import { NotesSort } from './collection-settings';
 import { settingsService } from './collection-settings.service';
 import { BaseDocAnnotation, DocAnnotation } from './document-annotations';
+import { ProjectionEngine } from './projection-engine';
 
 const A = SpaceTables.Annotations;
 const AC = SpaceDocContentTables.AnnotationContent;
 const C = SpaceTables.Collection;
 const AV = SpaceTables.AnnotationView;
-const P = SpaceTables.ProjectedState;
 
 class DocumentAnnotationsService {
   public newNoteObj(itemId: Id): { item: BaseDocAnnotation; id: Id } {
@@ -43,14 +37,10 @@ class DocumentAnnotationsService {
     const noteId = _id ? _id : id;
     const content = item.content;
     const content_meta = item.content_meta;
-    const nextProjection = space.getTable(P) as ProjectionTable;
+    const projectionEngine = new ProjectionEngine();
     space.transaction(() => {
       space.setRow(A, noteId, { ...item, order });
-      projectionEngine.__updateAncestryLastActivityAt(
-        item.updatedAt,
-        docId,
-        nextProjection
-      );
+      projectionEngine.__updateAncestryLastActivityAt(item.updatedAt, docId);
     });
     spaceDocContent.setPartialRow(AC, noteId, {
       content,
@@ -62,9 +52,9 @@ class DocumentAnnotationsService {
   public saveNotesForDoc(
     docId: Id,
     notes: (BaseDocAnnotation | DocAnnotation)[],
-    nextProjection?: ProjectionTable
+    projectionEngine?: ProjectionEngine
   ) {
-    if (!nextProjection) nextProjection = space.getTable(P) as ProjectionTable;
+    if (!projectionEngine) projectionEngine = new ProjectionEngine();
     const contents = new Map<
       string,
       { content: string; content_meta: MetaField }
@@ -79,12 +69,8 @@ class DocumentAnnotationsService {
         });
         space.setRow(A, id, { ...note, parentId: docId });
       });
-      if (nextProjection[docId]?.fullPath) {
-        projectionEngine.__updateAncestryLastActivityAt(
-          updatedAt,
-          docId,
-          nextProjection
-        );
+      if (projectionEngine.$hasAncetryPath(docId)) {
+        projectionEngine.__updateAncestryLastActivityAt(updatedAt, docId);
       }
     });
     spaceDocContent.transaction(() => {
@@ -105,12 +91,12 @@ class DocumentAnnotationsService {
       }
       notesPerDocs.get(n.parentId)?.push(n);
     });
-    const nextProjection = space.getTable(P) as ProjectionTable;
+    const projectionEngine = new ProjectionEngine();
     space.startTransaction();
     spaceDocContent.startTransaction();
     try {
       notesPerDocs.forEach((notes, docId) => {
-        this.saveNotesForDoc(docId, notes, nextProjection);
+        this.saveNotesForDoc(docId, notes, projectionEngine);
       });
     } finally {
       spaceDocContent.finishTransaction();
@@ -123,15 +109,11 @@ class DocumentAnnotationsService {
     const contentStr =
       typeof content !== 'string' ? JSON.stringify(content) : content;
     const docId = space.getCell(A, id, 'parentId')!;
-    const nextProjection = space.getTable(P) as ProjectionTable;
+    const projectionEngine = new ProjectionEngine();
     space.transaction(() => {
       space.setCell(A, id, 'updatedAt', now);
       space.delCell(A, id, 'conflictId');
-      projectionEngine.__updateAncestryLastActivityAt(
-        now,
-        docId,
-        nextProjection
-      );
+      projectionEngine.__updateAncestryLastActivityAt(now, docId);
     });
     spaceDocContent.setPartialRow(AC, id, {
       content: contentStr,
@@ -140,25 +122,15 @@ class DocumentAnnotationsService {
   }
 
   public delete(rowId: Id) {
-    const nextCollection = space.getTable(C) as CollectionTable;
-    const nextProjection = space.getTable(P) as ProjectionTable;
-    const nextAnnotation = space.getTable(A) as AnnotationTable;
+    const projectionEngine = new ProjectionEngine();
     space.transaction(() => {
-      delete nextAnnotation[rowId];
+      projectionEngine.$deleteAnnot(rowId);
       const docId = space.getCell(A, rowId, 'parentId');
       if (docId && space.hasRow(C, docId)) {
+        const parentId = space.getCell(C, docId, 'parentId');
         // recacl for document must take into account annot index
-        projectionEngine.__recalcDocumentLastActivityAt(
-          docId,
-          nextCollection,
-          nextProjection,
-          nextAnnotation
-        );
-        projectionEngine.__recalcAncestryLastActivityAt(
-          [nextCollection[docId].parentId!],
-          nextCollection,
-          nextProjection
-        );
+        projectionEngine.__recalcDocumentLastActivityAt(docId);
+        projectionEngine.__recalcAncestryLastActivityAt([parentId!]);
       }
       space.delRow(A, rowId);
       this.cleanupDeletedAnnot(rowId);

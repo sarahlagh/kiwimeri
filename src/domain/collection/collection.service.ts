@@ -1,7 +1,7 @@
 import { DEFAULT_ORDER, ROOT_COLLECTION, tt } from '@/constants';
 import { space, spaceDocContent } from '@/core/db/store';
 import { SpaceDocContentTables, SpaceTables } from '@/core/db/store-constants';
-import { DbSerializableData, setMetaField, TableOf } from '@/core/db/types';
+import { DbSerializableData, setMetaField } from '@/core/db/types';
 import {
   BaseCollectionItem,
   CollectionItem,
@@ -32,9 +32,8 @@ import type { SerializedEditorState } from 'lexical';
 import { getUniqueId } from 'tinybase/common';
 import { Id } from 'tinybase/common/with-schemas';
 import { historyService } from '../history/history.service';
-import { projectionEngine } from './collection-projection.service';
-import { ProjectedItemStateRow } from './derived-item-state';
 import { annotsService } from './doc-annotations.service';
+import { ProjectionEngine } from './projection-engine';
 
 export const initialContent = () => {
   // 'empty' editor
@@ -46,9 +45,6 @@ const CC = SpaceDocContentTables.CollectionContent;
 const CV = SpaceTables.CollectionItemView;
 const P = SpaceTables.ProjectedState;
 const CollectionContent = SpaceDocContentTables.CollectionContent;
-
-type CollectionTable = TableOf<Partial<CollectionItemRow>>;
-type ProjectionTable = TableOf<Partial<ProjectedItemStateRow>>;
 
 class CollectionService {
   public getNewDocumentObj(parentId: string) {
@@ -211,19 +207,12 @@ class CollectionService {
         historyService.hardDeleteVersions(rowId);
       }
     }
-    const nextProjection = space.getTable(P) as ProjectionTable;
-    const nextCollection = space.getTable(C) as CollectionTable;
-    delete nextProjection[rowId];
-    delete nextCollection[rowId];
+    const projectionEngine = new ProjectionEngine();
     space.transaction(() => {
       space.delRow(C, rowId);
       projectionEngine.cleanupDeletedItem(rowId);
       if (flags?.skipAncestryRecalc !== true) {
-        projectionEngine.__recalcAncestryLastActivityAt(
-          parentId,
-          nextCollection,
-          nextProjection
-        );
+        projectionEngine.__recalcAncestryLastActivityAt(parentId);
       }
     });
   }
@@ -414,11 +403,10 @@ class CollectionService {
     const isRowUpdateChange = this.shouldTriggerActivityChange(key);
     const isParentChange = key === 'parentId';
 
-    const nextCollection = space.getTable(C) as CollectionTable;
-    const nextProjection = space.getTable(P) as ProjectionTable;
+    const projectionEngine = new ProjectionEngine();
     space.transaction(() => {
       if (key !== 'content') {
-        nextCollection[rowId][key] = value as never;
+        projectionEngine.$updateCollectionCell(rowId, key, value);
         space.setCell(C, rowId, key, value as never);
         space.setCell(
           C,
@@ -428,29 +416,19 @@ class CollectionService {
         );
       }
       if (isRowUpdateChange) {
+        projectionEngine.$updateCollectionCell(rowId, 'updatedAt', updatedAt);
         space.setCell(C, rowId, 'updatedAt', updatedAt);
-        nextCollection[rowId].updatedAt = updatedAt;
-        projectionEngine.__updateAncestryLastActivityAt(
-          updatedAt,
-          rowId,
-          nextProjection
-        );
+        projectionEngine.__updateAncestryLastActivityAt(updatedAt, rowId);
       }
 
       if (isParentChange) {
-        // nextCollection[rowId].parentId = value as string;
-        projectionEngine.__propagateBreadcrumbChangesToSelfAndChildren(
-          rowId,
-          nextCollection,
-          nextProjection
-        );
+        projectionEngine.__propagateBreadcrumbChangesToSelfAndChildren(rowId);
         if (flags?.skipAncestryRecalc !== true) {
           // must update ancestry of old and new parent
-          projectionEngine.__recalcAncestryLastActivityAt(
-            [oldValue as string, value as string],
-            nextCollection,
-            nextProjection
-          );
+          projectionEngine.__recalcAncestryLastActivityAt([
+            oldValue as string,
+            value as string
+          ]);
         }
       }
 
@@ -484,22 +462,13 @@ class CollectionService {
     const content = item.content;
     const content_updated = item.content_meta?._u;
 
-    const nextCollection = space.getTable(C) as CollectionTable;
-    const nextProjection = space.getTable(P) as ProjectionTable;
+    const projectionEngine = new ProjectionEngine();
     space.transaction(() => {
       const row = { ...item, itemId: rowId } as CollectionItemRow;
-      nextCollection[rowId] = row;
-      projectionEngine.__fillInBreadcrumbs(
-        rowId,
-        nextCollection,
-        nextProjection
-      );
+      projectionEngine.$updateCollectionRow(rowId, row);
+      projectionEngine.setAncestryPath(rowId);
       space.setRow(C, rowId, row);
-      projectionEngine.__updateAncestryLastActivityAt(
-        item.updatedAt,
-        rowId,
-        nextProjection
-      );
+      projectionEngine.__updateAncestryLastActivityAt(item.updatedAt, rowId);
     });
     if (content) {
       this.setRawContent(rowId, content, content_updated || 0);
@@ -520,17 +489,16 @@ class CollectionService {
     items: (CollectionItem | CollectionItemUpdate)[],
     bulk = false
   ) {
-    const nextCollection = space.getTable(C) as CollectionTable;
-    const nextProjection = space.getTable(P) as ProjectionTable;
+    const projectionEngine = new ProjectionEngine();
     const allDocs = new Map<string, string>();
     const allIds: string[] = [];
     const now = Date.now();
     space.transaction(() => {
       items.forEach(item => {
         const id = item.id || getUniqueId();
-        const oldRow = nextCollection[id];
+        const oldRow = projectionEngine.$getCollectionRow(id);
         const newRow = { ...oldRow, ...item, itemId: id } as CollectionItemRow;
-        nextCollection[id] = newRow;
+        projectionEngine.$updateCollectionRow(id, newRow);
         allIds.push(id);
         if (item.type === CollectionItemType.document) {
           allDocs.set(id, item.content!);
@@ -538,18 +506,8 @@ class CollectionService {
         space.setRow(C, id, newRow);
       });
       // backfill all for now - should optimize
-      projectionEngine.backfillProjectedStates(
-        nextCollection,
-        nextProjection,
-        Object.keys(nextCollection)
-      );
-      // TODO should optimize
-      projectionEngine.updateAllActivityAtBulk(
-        items,
-        nextCollection,
-        {},
-        nextProjection
-      );
+      projectionEngine.backfillProjectedStates();
+      projectionEngine.updateAllActivityAtBulk();
     });
     spaceDocContent.transaction(() => {
       allDocs.forEach((content, docId) => {
