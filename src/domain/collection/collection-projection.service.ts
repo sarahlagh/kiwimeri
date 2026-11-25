@@ -15,14 +15,18 @@ const C = SpaceTables.Collection;
 const CC = SpaceDocContentTables.CollectionContent;
 const CV = SpaceTables.CollectionItemView;
 const ResumeState = SpaceTables.ResumeState;
-const ProjectedState = SpaceTables.ProjectedState;
+const P = SpaceTables.ProjectedState;
 
 export type CollectionTable = TableOf<Partial<CollectionItemRow>>;
+export type AnnotationTable = TableOf<Partial<CollectionItemRow>>;
 export type ProjectionTable = TableOf<Partial<ProjectedItemStateRow>>;
 
-/** __ prefix indicates the method doesn't create a transaction and must be called inside one */
+/** __ prefix indicates the method doesn't create a transaction and must be called inside one
+ */
 class CollectionProjectionService {
-  private buildChildrenIndex(nextCollection: CollectionTable) {
+  private buildChildrenIndex(
+    nextCollection: CollectionTable | AnnotationTable
+  ) {
     const index = new Map<Id, Set<Id>>();
     Object.keys(nextCollection).forEach(rowId => {
       const parentId = nextCollection[rowId].parentId || '';
@@ -34,7 +38,7 @@ class CollectionProjectionService {
 
   public cleanupDeletedItem(rowId: Id) {
     space.transaction(() => {
-      space.delRow(ProjectedState, rowId);
+      space.delRow(P, rowId);
       space.delRow(ResumeState, rowId);
       space.delRow(CV, rowId);
     });
@@ -73,7 +77,7 @@ class CollectionProjectionService {
     nextProjection: ProjectionTable
   ) {
     const { fullPath, shortPath } = this.computePaths(id, nextCollection);
-    space.setPartialRow(ProjectedState, id, {
+    space.setPartialRow(P, id, {
       fullPath,
       shortPath
     });
@@ -125,11 +129,19 @@ class CollectionProjectionService {
 
   public __updateAncestryLastActivityAt(
     updatedAt: number,
-    breadcrumb: string[]
+    parentId: string,
+    nextProjection: ProjectionTable
   ) {
     // breadcrumb includes item itself
-    for (let i = 0; i < breadcrumb.length; i++) {
-      space.setCell(ProjectedState, breadcrumb[i], 'lastActivityAt', updatedAt);
+    if (parentId === ROOT_COLLECTION) return;
+    const breadcrumb = nextProjection[parentId].fullPath;
+    if (!breadcrumb) throw new Error('undefined ancestry: ' + parentId);
+    const reversed = breadcrumb.toReversed();
+    for (let i = 0; i < reversed.length; i++) {
+      const current = nextProjection[reversed[i]].lastActivityAt || 0;
+      if (current >= updatedAt) return;
+      space.setCell(P, reversed[i], 'lastActivityAt', updatedAt);
+      nextProjection[reversed[i]].lastActivityAt = updatedAt;
     }
   }
 
@@ -144,8 +156,8 @@ class CollectionProjectionService {
       if (id === ROOT_COLLECTION) return;
       const breadcrumb = nextProjection[id]?.fullPath?.toReversed();
       if (!breadcrumb) throw Error('undefined ancestry: ' + id);
-      breadcrumb.forEach(rowId => {
-        const descendants = index.get(rowId) || [];
+      for (const parentId of breadcrumb) {
+        const descendants = index.get(parentId) || [];
         const lastActivityAt = Math.max(
           ...descendants
             .values()
@@ -155,20 +167,45 @@ class CollectionProjectionService {
                 nextCollection[cId].updatedAt ||
                 0
             ),
-          nextCollection[rowId].updatedAt || 0
+          nextCollection[parentId].updatedAt || 0
         );
-        nextProjection[rowId].lastActivityAt = lastActivityAt;
-        space.setCell(ProjectedState, rowId, 'lastActivityAt', lastActivityAt);
-      });
+        nextProjection[parentId].lastActivityAt = lastActivityAt;
+        space.setCell(P, parentId, 'lastActivityAt', lastActivityAt);
+      }
     });
   }
 
+  public __recalcDocumentLastActivityAt(
+    rowId: string,
+    nextCollection: CollectionTable,
+    nextProjection: ProjectionTable,
+    nextAnnotation: AnnotationTable,
+    annotIndex?: Map<string, Set<string>>
+  ) {
+    if (!annotIndex) annotIndex = this.buildChildrenIndex(nextAnnotation);
+    const annots = annotIndex.get(rowId) || [];
+    const row = nextCollection[rowId];
+    nextProjection[rowId].lastActivityAt = Math.max(
+      ...annots.values().map(aId => nextAnnotation[aId].updatedAt || 0),
+      row.updatedAt || 0
+    );
+    space.setCell(
+      P,
+      rowId,
+      'lastActivityAt',
+      nextProjection[rowId].lastActivityAt
+    );
+  }
+
+  // TODO missing transaction??
   public updateAllActivityAtBulk(
     items: { id: string; updatedAt: number; oldParentId?: string }[],
     nextCollection: CollectionTable,
+    nextAnnotation: AnnotationTable,
     nextProjection: ProjectionTable
   ) {
     const index = this.buildChildrenIndex(nextCollection);
+    const annotIndex = this.buildChildrenIndex(nextAnnotation);
     const rowIds = Object.keys(nextCollection);
     rowIds.sort((id1, id2) => {
       const depth1 = nextProjection[id1].fullPath?.length || 0;
@@ -179,7 +216,13 @@ class CollectionProjectionService {
       const row = nextCollection[rowId];
       let lastActivityAt: number;
       if (isDocument(row.type)) {
-        lastActivityAt = row.updatedAt || 0;
+        this.__recalcDocumentLastActivityAt(
+          rowId,
+          nextCollection,
+          nextProjection,
+          nextAnnotation,
+          annotIndex
+        );
       } else {
         const descendants = index.get(rowId) || [];
         lastActivityAt = Math.max(
@@ -193,11 +236,16 @@ class CollectionProjectionService {
             ),
           row.updatedAt || 0
         );
+        nextProjection[rowId].lastActivityAt = lastActivityAt;
+        space.setCell(P, rowId, 'lastActivityAt', lastActivityAt);
       }
-      nextProjection[rowId].lastActivityAt = lastActivityAt;
-      space.setCell(ProjectedState, rowId, 'lastActivityAt', lastActivityAt);
     });
   }
 }
 
 export const projectionEngine = new CollectionProjectionService();
+
+// TODO
+// instead of singleton projectionEngine, new object new ProjectionEngine()
+// don't pass temp tables as arg everywhere, just the engine
+// with flag to ignore missing or throw

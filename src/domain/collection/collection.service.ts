@@ -44,7 +44,7 @@ export const initialContent = () => {
 const C = SpaceTables.Collection;
 const CC = SpaceDocContentTables.CollectionContent;
 const CV = SpaceTables.CollectionItemView;
-const ProjectedState = SpaceTables.ProjectedState;
+const P = SpaceTables.ProjectedState;
 const CollectionContent = SpaceDocContentTables.CollectionContent;
 
 type CollectionTable = TableOf<Partial<CollectionItemRow>>;
@@ -211,7 +211,7 @@ class CollectionService {
         historyService.hardDeleteVersions(rowId);
       }
     }
-    const nextProjection = space.getTable(ProjectedState) as ProjectionTable;
+    const nextProjection = space.getTable(P) as ProjectionTable;
     const nextCollection = space.getTable(C) as CollectionTable;
     delete nextProjection[rowId];
     delete nextCollection[rowId];
@@ -415,7 +415,7 @@ class CollectionService {
     const isParentChange = key === 'parentId';
 
     const nextCollection = space.getTable(C) as CollectionTable;
-    const nextProjection = space.getTable(ProjectedState) as ProjectionTable;
+    const nextProjection = space.getTable(P) as ProjectionTable;
     space.transaction(() => {
       if (key !== 'content') {
         nextCollection[rowId][key] = value as never;
@@ -430,10 +430,10 @@ class CollectionService {
       if (isRowUpdateChange) {
         space.setCell(C, rowId, 'updatedAt', updatedAt);
         nextCollection[rowId].updatedAt = updatedAt;
-        // nextProjection[rowId].lastActivityAt = updatedAt;
         projectionEngine.__updateAncestryLastActivityAt(
           updatedAt,
-          nextProjection[rowId].fullPath!
+          rowId,
+          nextProjection
         );
       }
 
@@ -485,16 +485,21 @@ class CollectionService {
     const content_updated = item.content_meta?._u;
 
     const nextCollection = space.getTable(C) as CollectionTable;
+    const nextProjection = space.getTable(P) as ProjectionTable;
     space.transaction(() => {
       const row = { ...item, itemId: rowId } as CollectionItemRow;
       nextCollection[rowId] = row;
-      const { fullPath } = projectionEngine.__fillInBreadcrumbs(
+      projectionEngine.__fillInBreadcrumbs(
         rowId,
         nextCollection,
-        {}
+        nextProjection
       );
       space.setRow(C, rowId, row);
-      projectionEngine.__updateAncestryLastActivityAt(item.updatedAt, fullPath);
+      projectionEngine.__updateAncestryLastActivityAt(
+        item.updatedAt,
+        rowId,
+        nextProjection
+      );
     });
     if (content) {
       this.setRawContent(rowId, content, content_updated || 0);
@@ -516,7 +521,7 @@ class CollectionService {
     bulk = false
   ) {
     const nextCollection = space.getTable(C) as CollectionTable;
-    const nextProjection = space.getTable(ProjectedState) as ProjectionTable;
+    const nextProjection = space.getTable(P) as ProjectionTable;
     const allDocs = new Map<string, string>();
     const allIds: string[] = [];
     const now = Date.now();
@@ -542,6 +547,7 @@ class CollectionService {
       projectionEngine.updateAllActivityAtBulk(
         items,
         nextCollection,
+        {},
         nextProjection
       );
     });
@@ -562,7 +568,7 @@ class CollectionService {
 
   public getBreadcrumb(rowId: string, includeAllNotebooks = false) {
     const breadcrumb = space.getCell(
-      ProjectedState,
+      P,
       rowId,
       includeAllNotebooks ? 'fullPath' : 'shortPath'
     );

@@ -26,6 +26,7 @@ import {
   isDocument
 } from '../collection/collection';
 import {
+  AnnotationTable,
   CollectionTable,
   projectionEngine
 } from '../collection/collection-projection.service';
@@ -500,6 +501,7 @@ class StorageMergeService {
     projectionEngine.updateAllActivityAtBulk(
       collectionChanges,
       space.getTable(C) as CollectionTable,
+      space.getTable(A) as AnnotationTable,
       nextProjection
     );
   }

@@ -15,7 +15,7 @@ import { getUniqueId } from 'tinybase/with-schemas';
 import fetchItemsQuery from './queries/fetchItemsQuery';
 
 const C = SpaceTables.Collection;
-const ProjectedState = SpaceTables.ProjectedState;
+const P = SpaceTables.ProjectedState;
 
 class NotebooksService {
   public initNotebooks() {
@@ -39,7 +39,7 @@ class NotebooksService {
     const id = DEFAULT_NOTEBOOK_ID;
     const row = { ...item, itemId: id };
     space.transaction(() => {
-      space.setPartialRow(ProjectedState, id, {
+      space.setPartialRow(P, id, {
         fullPath: [id],
         shortPath: [id]
       });

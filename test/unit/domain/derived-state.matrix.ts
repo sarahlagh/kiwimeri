@@ -87,351 +87,8 @@ function ts(bulk: number, n = 0) {
 }
 
 function _ts(bulk: number, n = 0) {
-  return bulk + (21 + n) * fakeTimersDelay;
+  return bulk + (23 + n) * fakeTimersDelay;
 }
-
-// export const derivedStatesScenariosOld: Scenario[] = [
-//   {
-//     description: 'a folder is added',
-//     applyLocalData() {
-//       const { items, notes } = initDataOld();
-//       items.pop(); // removes last (doc2)
-//       items.pop(); // removes last (fol2)
-//       collectionService.saveItems(items); // relies on saveItems & saveNotes being tested independently
-//       annotsService.saveNotesForDoc(notes[0].parentId, notes);
-//     },
-//     singleOperation() {
-//       {
-//         vi.advanceTimersByTime(fakeTimersDelay);
-//         const { item } = collectionService.getNewFolderObj('fol1');
-//         collectionService.saveItem(item, 'fol2');
-//       }
-//       {
-//         vi.advanceTimersByTime(fakeTimersDelay);
-//         const { item } = collectionService.getNewDocumentObj('fol2');
-//         item.content = getNewContent('doc2 preview');
-//         collectionService.saveItem(item, 'doc2');
-//       }
-//     },
-//     bulkOperation: initDataOld,
-//     expected(bulk, single) {
-//       // items (fol2, doc2): new breadcrumb, lastActivityAt, previewText for doc2
-//       // parents (fol1, not1, n0): no breadcrumb change, lastActivityAt bumped
-//       return {
-//         '0': {
-//           createdAt: ts(bulk, 1),
-//           updatedAt: ts(bulk, 1),
-//           lastActivityAt: ___ts(single, 2) || ts(bulk, 8),
-//           fullPath: ['0'],
-//           shortPath: ['0']
-//         },
-//         doc0: {
-//           createdAt: ts(bulk, 2),
-//           updatedAt: ts(bulk, 2),
-//           lastActivityAt: ts(bulk, 2),
-//           fullPath: ['0', 'doc0'],
-//           shortPath: ['0', 'doc0'],
-//           previewText: 'doc0 preview'
-//         },
-//         '1': {
-//           createdAt: ts(bulk, 3),
-//           updatedAt: ts(bulk, 3),
-//           lastActivityAt: ___ts(single, 2) || ts(bulk, 8),
-//           fullPath: ['0', '1'],
-//           shortPath: ['1']
-//         },
-//         fol1: {
-//           createdAt: ts(bulk, 4),
-//           updatedAt: ts(bulk, 4),
-//           lastActivityAt: ___ts(single, 2) || ts(bulk, 8),
-//           fullPath: ['0', '1', 'fol1'],
-//           shortPath: ['1', 'fol1']
-//         },
-//         doc1: {
-//           createdAt: ts(bulk, 5),
-//           updatedAt: ts(bulk, 8), // because of the annot
-//           lastActivityAt: ts(bulk, 8),
-//           fullPath: ['0', '1', 'fol1', 'doc1'],
-//           shortPath: ['1', 'fol1', 'doc1'],
-//           previewText: 'doc1 preview'
-//         },
-//         fol2: {
-//           createdAt: ___ts(single, 1) || ts(bulk, 6),
-//           updatedAt: ___ts(single, 1) || ts(bulk, 6),
-//           lastActivityAt: ___ts(single, 2) || ts(bulk, 7),
-//           fullPath: ['0', '1', 'fol1', 'fol2'],
-//           shortPath: ['1', 'fol1', 'fol2']
-//         },
-//         doc2: {
-//           createdAt: ___ts(single, 2) || ts(bulk, 7),
-//           updatedAt: ___ts(single, 2) || ts(bulk, 7),
-//           lastActivityAt: ___ts(single, 2) || ts(bulk, 7),
-//           fullPath: ['0', '1', 'fol1', 'fol2', 'doc2'],
-//           shortPath: ['1', 'fol1', 'fol2', 'doc2'],
-//           previewText: 'doc2 preview'
-//         },
-//         annot1: {
-//           createdAt: ts(bulk, 8),
-//           updatedAt: ts(bulk, 8),
-//           previewText: 'note preview'
-//         }
-//       };
-//     }
-//   },
-//   {
-//     description: 'a notebook is added',
-//     applyLocalData() {
-//       const { items, notes } = initDataOld();
-//       items.splice(2, 1); // delete notebook 1
-//       collectionService.saveItems(items); // relies on saveItems & saveNotes being tested independently
-//       annotsService.saveNotesForDoc(notes[0].parentId, notes);
-//     },
-//     singleOperation() {
-//       vi.advanceTimersByTime(fakeTimersDelay);
-//       const { item } = notebooksService.getNewNotebookObj(
-//         DEFAULT_NOTEBOOK_ID,
-//         '1'
-//       );
-//       collectionService.saveItem(item, '1');
-//     },
-//     bulkOperation: initDataOld,
-//     expected(bulk, single) {
-//       // items (n1): new breadcrumb, lastActivityAt
-//       // parents (n0): no breadcrumb change, lastActivityAt bumped
-//       return {
-//         '0': {
-//           createdAt: ts(bulk, 1),
-//           updatedAt: ts(bulk, 1),
-//           lastActivityAt: ___ts(single, 1) || ts(bulk, 8),
-//           fullPath: ['0'],
-//           shortPath: ['0']
-//         },
-//         doc0: {
-//           createdAt: ts(bulk, 2),
-//           updatedAt: ts(bulk, 2),
-//           lastActivityAt: ts(bulk, 2),
-//           fullPath: ['0', 'doc0'],
-//           shortPath: ['0', 'doc0'],
-//           previewText: 'doc0 preview'
-//         },
-//         '1': {
-//           createdAt: ___ts(single, 1) || ts(bulk, 3),
-//           updatedAt: ___ts(single, 1) || ts(bulk, 3),
-//           lastActivityAt: ___ts(single, 1) || ts(bulk, 8),
-//           fullPath: ['0', '1'],
-//           shortPath: ['1']
-//         },
-//         fol1: {
-//           createdAt: ts(bulk, 4),
-//           updatedAt: ts(bulk, 4),
-//           lastActivityAt: ___ts(single, 1) || ts(bulk, 8),
-//           fullPath: ['0', '1', 'fol1'],
-//           shortPath: ['1', 'fol1']
-//         },
-//         doc1: {
-//           createdAt: ts(bulk, 5),
-//           updatedAt: ts(bulk, 8), // because of the annot
-//           lastActivityAt: ts(bulk, 8),
-//           fullPath: ['0', '1', 'fol1', 'doc1'],
-//           shortPath: ['1', 'fol1', 'doc1'],
-//           previewText: 'doc1 preview'
-//         },
-//         fol2: {
-//           createdAt: ___ts(single, 1) || ts(bulk, 6),
-//           updatedAt: ___ts(single, 1) || ts(bulk, 6),
-//           lastActivityAt: ___ts(single, 1) || ts(bulk, 7),
-//           fullPath: ['0', '1', 'fol1', 'fol2'],
-//           shortPath: ['1', 'fol1', 'fol2']
-//         },
-//         doc2: {
-//           createdAt: ___ts(single, 2) || ts(bulk, 7),
-//           updatedAt: ___ts(single, 2) || ts(bulk, 7),
-//           lastActivityAt: ___ts(single, 2) || ts(bulk, 7),
-//           fullPath: ['0', '1', 'fol1', 'fol2', 'doc2'],
-//           shortPath: ['1', 'fol1', 'fol2', 'doc2'],
-//           previewText: 'doc2 preview'
-//         },
-//         annot1: {
-//           createdAt: ts(bulk, 8),
-//           updatedAt: ts(bulk, 8),
-//           previewText: 'note preview'
-//         }
-//       };
-//     }
-//   },
-//   {
-//     description:
-//       'a folder is updated with a field that triggers lastActivityAt bump',
-//     applyLocalData() {
-//       const { items, notes } = initDataOld();
-//       collectionService.saveItems(items); // relies on saveItems & saveNotes being tested independently
-//       annotsService.saveNotesForDoc(notes[0].parentId, notes);
-//     },
-//     singleOperation() {
-//       vi.advanceTimersByTime(fakeTimersDelay);
-//       collectionService.setItemTitle('fol2', 'new title');
-//     },
-//     bulkOperation() {
-//       const data = initDataOld();
-//       vi.advanceTimersByTime(fakeTimersDelay);
-//       const updatedAt = Date.now();
-//       const fol2 = data.items[data.items.length - 2];
-//       fol2.title = 'new title';
-//       fol2.title_meta._u = updatedAt;
-//       fol2.updatedAt = updatedAt;
-//       return data;
-//     },
-//     expected(bulk, single) {
-//       // item (fol2): breadcrumb unchanged, lastActivityAt bumped
-//       // child (doc2): no changes
-//       // parents (fol2, fol1, not1, n0): no breadcrumb change, lastActivityAt bumped
-//       return {
-//         '0': {
-//           createdAt: ts(bulk, 1),
-//           updatedAt: ts(bulk, 1),
-//           lastActivityAt: ___ts(single, 1) || ts(bulk, 9),
-//           fullPath: ['0'],
-//           shortPath: ['0']
-//         },
-//         doc0: {
-//           createdAt: ts(bulk, 2),
-//           updatedAt: ts(bulk, 2),
-//           lastActivityAt: ts(bulk, 2),
-//           fullPath: ['0', 'doc0'],
-//           shortPath: ['0', 'doc0'],
-//           previewText: 'doc0 preview'
-//         },
-//         '1': {
-//           createdAt: ts(bulk, 3),
-//           updatedAt: ts(bulk, 3),
-//           lastActivityAt: ___ts(single, 1) || ts(bulk, 9),
-//           fullPath: ['0', '1'],
-//           shortPath: ['1']
-//         },
-//         fol1: {
-//           createdAt: ts(bulk, 4),
-//           updatedAt: ts(bulk, 4),
-//           lastActivityAt: ___ts(single, 1) || ts(bulk, 9),
-//           fullPath: ['0', '1', 'fol1'],
-//           shortPath: ['1', 'fol1']
-//         },
-//         doc1: {
-//           createdAt: ts(bulk, 5),
-//           updatedAt: ts(bulk, 8), // because of the annot
-//           lastActivityAt: ts(bulk, 8),
-//           fullPath: ['0', '1', 'fol1', 'doc1'],
-//           shortPath: ['1', 'fol1', 'doc1'],
-//           previewText: 'doc1 preview'
-//         },
-//         fol2: {
-//           createdAt: ts(bulk, 6),
-//           updatedAt: ___ts(single, 1) || ts(bulk, 9),
-//           lastActivityAt: ___ts(single, 1) || ts(bulk, 9),
-//           fullPath: ['0', '1', 'fol1', 'fol2'],
-//           shortPath: ['1', 'fol1', 'fol2']
-//         },
-//         doc2: {
-//           createdAt: ts(bulk, 7),
-//           updatedAt: ts(bulk, 7),
-//           lastActivityAt: ts(bulk, 7),
-//           fullPath: ['0', '1', 'fol1', 'fol2', 'doc2'],
-//           shortPath: ['1', 'fol1', 'fol2', 'doc2'],
-//           previewText: 'doc2 preview'
-//         },
-//         annot1: {
-//           createdAt: ts(bulk, 8),
-//           updatedAt: ts(bulk, 8),
-//           previewText: 'note preview'
-//         }
-//       };
-//     }
-//   },
-//   {
-//     description: 'a folder is moved',
-//     applyLocalData() {
-//       const { items, notes } = initDataOld();
-//       collectionService.saveItems(items); // relies on saveItems & saveNotes being tested independently
-//       annotsService.saveNotesForDoc(notes[0].parentId, notes);
-//     },
-//     singleOperation() {
-//       vi.advanceTimersByTime(fakeTimersDelay);
-//       collectionService.setItemParent('fol2', DEFAULT_NOTEBOOK_ID);
-//     },
-//     bulkOperation() {
-//       const data = initDataOld();
-//       vi.advanceTimersByTime(fakeTimersDelay);
-//       const fol2 = data.items[data.items.length - 2];
-//       fol2.parentId = DEFAULT_NOTEBOOK_ID;
-//       fol2.parentId_meta._u = Date.now();
-//       return data;
-//     },
-//     expected(bulk) {
-//       // item (fol2): breadcrumb changed, lastActivityAt not bumped
-//       // child (doc2): breadcrumb changed, lastActivityAt not bumped
-//       // old parents (fol1, not1, n0): unchanged
-//       // new parent (n0): unchanged, because because (bulk, 7) < (bulk, 8)
-//       return {
-//         '0': {
-//           createdAt: ts(bulk, 1),
-//           updatedAt: ts(bulk, 1),
-//           lastActivityAt: ts(bulk, 8),
-//           fullPath: ['0'],
-//           shortPath: ['0']
-//         },
-//         doc0: {
-//           createdAt: ts(bulk, 2),
-//           updatedAt: ts(bulk, 2),
-//           lastActivityAt: ts(bulk, 2),
-//           fullPath: ['0', 'doc0'],
-//           shortPath: ['0', 'doc0'],
-//           previewText: 'doc0 preview'
-//         },
-//         '1': {
-//           createdAt: ts(bulk, 3),
-//           updatedAt: ts(bulk, 3),
-//           lastActivityAt: ts(bulk, 8),
-//           fullPath: ['0', '1'],
-//           shortPath: ['1']
-//         },
-//         fol1: {
-//           createdAt: ts(bulk, 4),
-//           updatedAt: ts(bulk, 4),
-//           lastActivityAt: ts(bulk, 8),
-//           fullPath: ['0', '1', 'fol1'],
-//           shortPath: ['1', 'fol1']
-//         },
-//         doc1: {
-//           createdAt: ts(bulk, 5),
-//           updatedAt: ts(bulk, 8), // because of the annot
-//           lastActivityAt: ts(bulk, 8),
-//           fullPath: ['0', '1', 'fol1', 'doc1'],
-//           shortPath: ['1', 'fol1', 'doc1'],
-//           previewText: 'doc1 preview'
-//         },
-//         fol2: {
-//           createdAt: ts(bulk, 6),
-//           updatedAt: ts(bulk, 6),
-//           lastActivityAt: ts(bulk, 7),
-//           fullPath: ['0', 'fol2'],
-//           shortPath: ['0', 'fol2']
-//         },
-//         doc2: {
-//           createdAt: ts(bulk, 7),
-//           updatedAt: ts(bulk, 7),
-//           lastActivityAt: ts(bulk, 7),
-//           fullPath: ['0', 'fol2', 'doc2'],
-//           shortPath: ['0', 'fol2', 'doc2'],
-//           previewText: 'doc2 preview'
-//         },
-//         annot1: {
-//           createdAt: ts(bulk, 8),
-//           updatedAt: ts(bulk, 8),
-//           previewText: 'note preview'
-//         }
-//       };
-//     }
-//   },
-// ];
 
 function initData() {
   const items: CollectionItem[] = [];
@@ -448,10 +105,9 @@ function initData() {
   items.push(fol2);
   const doc1 = oneDocument('doc1', 'fol2', 'doc1'); // bulk + 5
   doc1.content = getNewContent('doc1 preview');
+  items.push(doc1);
   const annot1 = oneNote('doc1', 'annot1'); // bulk + 6
   annot1.content = getNewContent('annot1 preview');
-  doc1.updatedAt = annot1.updatedAt;
-  items.push(doc1);
   notes.push(annot1);
   const doc2 = oneDocument('doc2', 'fol2', 'doc2'); // bulk + 7
   doc2.content = getNewContent('doc2 preview');
@@ -478,17 +134,22 @@ function initData() {
   items.push(fol5);
   const doc5 = oneDocument('doc5', 'fol5', 'doc5'); // bulk + 17
   doc5.content = getNewContent('doc5 preview');
+  items.push(doc5);
   const doc6 = oneDocument('doc6', 'fol5', 'doc6'); // bulk + 18
   doc6.content = getNewContent('doc6 preview');
   items.push(doc6);
   const annot2 = oneNote('doc5', 'annot2'); // bulk + 19
   annot2.content = getNewContent('annot2 preview');
   notes.push(annot2);
-  doc5.updatedAt = annot2.updatedAt;
-  items.push(doc5);
   const doc7 = oneDocument('doc7', 'fol4', 'doc7'); // bulk + 20
   doc7.content = getNewContent('doc7 preview');
   items.push(doc7);
+  const annot3 = oneNote('doc7', 'annot3'); // bulk + 21
+  annot3.content = getNewContent('annot3 preview');
+  notes.push(annot3);
+  const annot4 = oneNote('doc7', 'annot4'); // bulk + 22
+  annot4.content = getNewContent('annot4 preview');
+  notes.push(annot4);
   return {
     items,
     notes,
@@ -541,7 +202,7 @@ const baseData = (bulk: number) => ({
   },
   doc1: {
     createdAt: ts(bulk, 6),
-    updatedAt: ts(bulk, 7),
+    updatedAt: ts(bulk, 6),
     lastActivityAt: ts(bulk, 7),
     fullPath: ['0', 'N2', 'fol2', 'doc1'],
     shortPath: ['N2', 'fol2', 'doc1'],
@@ -607,14 +268,14 @@ const baseData = (bulk: number) => ({
   N6: {
     createdAt: ts(bulk, 15),
     updatedAt: ts(bulk, 15),
-    lastActivityAt: ts(bulk, 21),
+    lastActivityAt: ts(bulk, 23),
     fullPath: ['N6'],
     shortPath: ['N6']
   },
   fol4: {
     createdAt: ts(bulk, 16),
     updatedAt: ts(bulk, 16),
-    lastActivityAt: ts(bulk, 21),
+    lastActivityAt: ts(bulk, 23),
     fullPath: ['N6', 'fol4'],
     shortPath: ['N6', 'fol4']
   },
@@ -627,7 +288,7 @@ const baseData = (bulk: number) => ({
   },
   doc5: {
     createdAt: ts(bulk, 18),
-    updatedAt: ts(bulk, 20),
+    updatedAt: ts(bulk, 18),
     lastActivityAt: ts(bulk, 20),
     fullPath: ['N6', 'fol5', 'doc5'],
     shortPath: ['N6', 'fol5', 'doc5'],
@@ -649,10 +310,20 @@ const baseData = (bulk: number) => ({
   doc7: {
     createdAt: ts(bulk, 21),
     updatedAt: ts(bulk, 21),
-    lastActivityAt: ts(bulk, 21),
+    lastActivityAt: ts(bulk, 23),
     fullPath: ['N6', 'fol4', 'doc7'],
     shortPath: ['N6', 'fol4', 'doc7'],
     previewText: 'doc7 preview'
+  },
+  annot3: {
+    createdAt: ts(bulk, 22),
+    updatedAt: ts(bulk, 22),
+    previewText: 'annot3 preview'
+  },
+  annot4: {
+    createdAt: ts(bulk, 23),
+    updatedAt: ts(bulk, 23),
+    previewText: 'annot4 preview'
   }
 });
 
@@ -830,7 +501,7 @@ export const documentScenarios: Scenario[] = [
       base['doc7'].fullPath = ['N6', 'fol5', 'doc7'];
       base['doc7'].shortPath = ['N6', 'fol5', 'doc7'];
       base['fol4'].lastActivityAt = base['fol4'].createdAt;
-      base['fol5'].lastActivityAt = base['doc7'].updatedAt;
+      base['fol5'].lastActivityAt = base['doc7'].lastActivityAt;
       return base;
     }
   },
@@ -1644,11 +1315,183 @@ export const annotsScenarios: Scenario[] = [
       const base = baseData(bulk);
       base['annot1'].createdAt = _ts(bulk, 1);
       base['annot1'].updatedAt = _ts(bulk, 1);
-      base['doc1'].updatedAt = _ts(bulk, 1);
-      // TODO
-      // base['doc1'].lastActivityAt = _ts(bulk, 1);
-      // base['N2'].lastActivityAt = _ts(bulk, 1);
-      // base['0'].lastActivityAt = _ts(bulk, 1);
+      base['doc1'].lastActivityAt = _ts(bulk, 1);
+      base['fol2'].lastActivityAt = _ts(bulk, 1);
+      base['N2'].lastActivityAt = _ts(bulk, 1);
+      base['0'].lastActivityAt = _ts(bulk, 1);
+      return base;
+    }
+  },
+  {
+    description: 'update note (row update, content)',
+    applyLocalData() {
+      const { items, notes } = initData();
+      collectionService.saveItems(items);
+      annotsService.saveNotes(notes);
+    },
+    singleOperation() {
+      vi.advanceTimersByTime(fakeTimersDelay);
+      annotsService.edit(
+        'annot1',
+        getNewParsedContent('annot1 preview updated')
+      );
+    },
+    bulkOperation() {
+      const { items, notes } = initData();
+      vi.advanceTimersByTime(fakeTimersDelay);
+      const now = Date.now();
+      const idx = notes.findIndex(d => d.id === 'annot1');
+      const note = notes[idx];
+      note.content = getNewContent('annot1 preview updated');
+      note.content_meta!._u = now;
+      note.updatedAt = now;
+      return { items, notes, updatedAt: now };
+    },
+    expected(bulk) {
+      const base = baseData(bulk);
+      base['annot1'].updatedAt = _ts(bulk, 1);
+      base['doc1'].lastActivityAt = _ts(bulk, 1);
+      base['fol2'].lastActivityAt = _ts(bulk, 1);
+      base['N2'].lastActivityAt = _ts(bulk, 1);
+      base['0'].lastActivityAt = _ts(bulk, 1);
+      base['annot1'].previewText = 'annot1 preview updated';
+      return base;
+    }
+  },
+  {
+    description: 'update note (non row update, order)',
+    applyLocalData() {
+      const { items, notes } = initData();
+      collectionService.saveItems(items);
+      annotsService.saveNotes(notes);
+    },
+    singleOperation() {
+      vi.advanceTimersByTime(fakeTimersDelay);
+      annotsService.reorder([{ id: 'annot3' }, { id: 'annot4' }], 0, 1);
+    },
+    bulkOperation() {
+      const { items, notes, updatedAt } = initData();
+      vi.advanceTimersByTime(fakeTimersDelay);
+      const now = Date.now();
+      {
+        const idx = notes.findIndex(d => d.id === 'annot3');
+        const note = notes[idx];
+        note.order = 1;
+        note.order_meta = { _u: now };
+      }
+      {
+        const idx = notes.findIndex(d => d.id === 'annot4');
+        const note = notes[idx];
+        note.order = 0;
+        note.order_meta = { _u: now };
+      }
+      return { items, notes, updatedAt };
+    },
+    expected: baseData
+  },
+  {
+    description: 'delete note: was the newest in document',
+    appliesToSaveItems: false,
+    applyLocalData() {
+      const { items, notes } = initData();
+      collectionService.saveItems(items);
+      annotsService.saveNotes(notes);
+    },
+    singleOperation() {
+      vi.advanceTimersByTime(fakeTimersDelay);
+      annotsService.delete('annot4');
+    },
+    bulkOperation() {
+      const { items, notes } = initData();
+      vi.advanceTimersByTime(fakeTimersDelay);
+      const idx = notes.findIndex(d => d.id === 'annot4');
+      notes.splice(idx, 1);
+      return { items, notes, updatedAt: notes[notes.length - 1].updatedAt };
+    },
+    expected(bulk) {
+      const base = baseData(bulk) as any;
+      delete base['annot4'];
+      base['doc7'].lastActivityAt = base['annot3'].createdAt;
+      base['fol4'].lastActivityAt = base['annot3'].createdAt;
+      base['N6'].lastActivityAt = base['annot3'].createdAt;
+      return base;
+    }
+  },
+  {
+    description: "delete note: wasn't the newest in document",
+    appliesToSaveItems: false,
+    applyLocalData() {
+      const { items, notes } = initData();
+      collectionService.saveItems(items);
+      annotsService.saveNotes(notes);
+    },
+    singleOperation() {
+      vi.advanceTimersByTime(fakeTimersDelay);
+      annotsService.delete('annot3');
+    },
+    bulkOperation() {
+      const { items, notes, updatedAt } = initData();
+      vi.advanceTimersByTime(fakeTimersDelay);
+      const idx = notes.findIndex(d => d.id === 'annot3');
+      notes.splice(idx, 1);
+      return { items, notes, updatedAt };
+    },
+    expected(bulk) {
+      const base = baseData(bulk) as any;
+      delete base['annot3'];
+      return base;
+    }
+  },
+  {
+    description: 'delete note: document was the newest',
+    appliesToSaveItems: false,
+    applyLocalData() {
+      const { items, notes } = initData();
+      collectionService.saveItems(items);
+      annotsService.saveNotes(notes);
+    },
+    singleOperation() {
+      vi.advanceTimersByTime(fakeTimersDelay);
+      annotsService.delete('annot2');
+    },
+    bulkOperation() {
+      const { items, notes, updatedAt } = initData();
+      vi.advanceTimersByTime(fakeTimersDelay);
+      const idx = notes.findIndex(d => d.id === 'annot2');
+      notes.splice(idx, 1);
+      return { items, notes, updatedAt };
+    },
+    expected(bulk) {
+      const base = baseData(bulk) as any;
+      delete base['annot2'];
+      base['doc5'].lastActivityAt = base['doc5'].createdAt;
+      base['fol5'].lastActivityAt = base['doc6'].createdAt;
+      return base;
+    }
+  },
+  {
+    description: "delete note: document wasn't the newest",
+    appliesToSaveItems: false,
+    applyLocalData() {
+      const { items, notes } = initData();
+      collectionService.saveItems(items);
+      annotsService.saveNotes(notes);
+    },
+    singleOperation() {
+      vi.advanceTimersByTime(fakeTimersDelay);
+      annotsService.delete('annot1');
+    },
+    bulkOperation() {
+      const { items, notes, updatedAt } = initData();
+      vi.advanceTimersByTime(fakeTimersDelay);
+      const idx = notes.findIndex(d => d.id === 'annot1');
+      notes.splice(idx, 1);
+      return { items, notes, updatedAt };
+    },
+    expected(bulk) {
+      const base = baseData(bulk) as any;
+      delete base['annot1'];
+      base['doc1'].lastActivityAt = base['doc1'].createdAt;
       return base;
     }
   }
@@ -1662,6 +1505,6 @@ export const derivedStatesScenarios: Scenario[] = [
   },
   ...documentScenarios,
   ...folderScenarios,
-  ...notebookScenarios
-  // ...annotsScenarios
+  ...notebookScenarios,
+  ...annotsScenarios
 ];

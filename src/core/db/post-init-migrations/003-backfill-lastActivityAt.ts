@@ -4,7 +4,7 @@ import { SpaceTables } from '../store-constants';
 import { SpaceType } from '../store-schema';
 
 const C = SpaceTables.Collection;
-const ProjectedState = SpaceTables.ProjectedState;
+const P = SpaceTables.ProjectedState;
 
 export default function Migration(_space: Store<SpaceType>) {
   const table = _space.getTable(C);
@@ -14,14 +14,9 @@ export default function Migration(_space: Store<SpaceType>) {
       // backfill lastActivityAt
       if (
         table[rowId].updatedAt &&
-        _space.getCell(ProjectedState, rowId, 'lastActivityAt') === undefined
+        _space.getCell(P, rowId, 'lastActivityAt') === undefined
       ) {
-        _space.setCell(
-          ProjectedState,
-          rowId,
-          'lastActivityAt',
-          table[rowId].updatedAt
-        );
+        _space.setCell(P, rowId, 'lastActivityAt', table[rowId].updatedAt);
       }
 
       // update sort values

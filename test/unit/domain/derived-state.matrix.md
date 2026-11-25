@@ -11,6 +11,7 @@
 - [x] delete document
   - [x] was the newest: doc7
   - [x] wasn't the newest: doc6
+  - [ ] TODO later: hard delete with and without annots
 
 ### folder
 
@@ -49,12 +50,14 @@
 
 ### annot
 
-- [ ] add an annot: annot1
-- [ ] update annot (row update, content): annot1
-- [ ] update annot (non row update, order): annot1
-- [ ] delete annot 
-   - [ ] doc was the newest: annot2
-   - [ ] doc wasn't the newest: annot1
+- [x] add an annot: annot1
+- [x] update annot (row update, content): annot1
+- [x] update annot (non row update, order): annot1 (skip single op)
+- [x] delete annot 
+   - [x] annot was the newest: annot4
+   - [x] annot wasn't the newest: annot3
+   - [x] doc was the newest: annot2
+   - [x] doc wasn't the newest: annot1
 
 ```
 0
@@ -80,4 +83,6 @@ N6
          annot2 // created after doc6
    fol4 // created before fol5
       doc7
+        annot3
+        annot4
 ```

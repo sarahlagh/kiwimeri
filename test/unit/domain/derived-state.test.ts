@@ -229,10 +229,10 @@ describe('derived state', () => {
   });
 
   describe('should handle all derived states after operation', () => {
-    describe('should handle all derived states after saveItems', () => {
-      beforeEach(() => vi.useFakeTimers());
-      afterEach(() => vi.useRealTimers());
+    beforeEach(() => vi.useFakeTimers());
+    afterEach(() => vi.useRealTimers());
 
+    describe('should handle all derived states after saveItems', () => {
       derivedStatesScenarios
         .filter(s => s.appliesToSaveItems !== false)
         .forEach(scenario => {
@@ -258,9 +258,6 @@ describe('derived state', () => {
     });
 
     describe('should handle all derived states after single operations', () => {
-      beforeEach(() => vi.useFakeTimers());
-      afterEach(() => vi.useRealTimers());
-
       derivedStatesScenarios
         .filter(s => s.singleOperation)
         .forEach(scenario => {

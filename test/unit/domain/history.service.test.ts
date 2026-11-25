@@ -14,11 +14,13 @@ import {
   GET_HISTORIZABLE_UPDATE_FIELDS,
   GET_NON_HISTORIZABLE_UPDATE_FIELDS,
   getNewContent,
+  getNewParsedContent,
   getNewValue,
   setupTasksSheduleAndHistory,
   teardownTasksScheduleAndHistory
 } from '@@/_setup/test.utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { getLocalSpaceDataForDerivedStateMatrix } from './derived-state.matrix';
 
 const idleTime = 50;
 
@@ -539,6 +541,70 @@ describe('collection history service', () => {
       historyService.compact(); // today's the last active day
       expect(historyService.getVersions(doc1)).toHaveLength(2);
       expect(spaceArchive.getRowCount('history_content')).toBe(2);
+    });
+  });
+
+  test('should handle all derived states after restore document', () => {
+    const init = Date.now();
+    const fol1 = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
+    vi.advanceTimersByTime(fakeTimersDelay);
+    const docId = collectionService.addDocument(fol1);
+    vi.advanceTimersByTime(fakeTimersDelay);
+    collectionService.setItemLexicalContent(
+      docId,
+      getNewParsedContent('test 1')
+    );
+    vi.advanceTimersByTime(fakeTimersDelay);
+    collectionService.setItemLexicalContent(
+      docId,
+      getNewParsedContent('test 2')
+    );
+    const beforeTs = Date.now();
+    vi.advanceTimersByTime(fakeTimersDelay);
+    const versions = historyService.getVersions(docId);
+    expect(versions).toHaveLength(3);
+
+    // STATE BEFORE
+
+    let projectedStates = getLocalSpaceDataForDerivedStateMatrix();
+    expect(projectedStates[DEFAULT_NOTEBOOK_ID].lastActivityAt).toBe(beforeTs);
+    expect(projectedStates[fol1]).toEqual({
+      createdAt: init,
+      updatedAt: init,
+      lastActivityAt: beforeTs,
+      fullPath: ['0', fol1],
+      shortPath: ['0', fol1]
+    });
+    expect(projectedStates[docId]).toEqual({
+      createdAt: init + fakeTimersDelay,
+      updatedAt: beforeTs,
+      lastActivityAt: beforeTs,
+      fullPath: ['0', fol1, docId],
+      shortPath: ['0', fol1, docId],
+      previewText: 'test 2'
+    });
+
+    // RESTORE
+    const afterTs = Date.now();
+    historyService.restoreDocumentVersion(docId, versions[1].id);
+
+    // STATE AFTER
+    projectedStates = getLocalSpaceDataForDerivedStateMatrix();
+    expect(projectedStates[DEFAULT_NOTEBOOK_ID].lastActivityAt).toBe(afterTs);
+    expect(projectedStates[fol1]).toEqual({
+      createdAt: init,
+      updatedAt: init,
+      lastActivityAt: afterTs,
+      fullPath: ['0', fol1],
+      shortPath: ['0', fol1]
+    });
+    expect(projectedStates[docId]).toEqual({
+      createdAt: init + fakeTimersDelay,
+      updatedAt: afterTs,
+      lastActivityAt: afterTs,
+      fullPath: ['0', fol1, docId],
+      shortPath: ['0', fol1, docId],
+      previewText: 'test 1'
     });
   });
 });
