@@ -33,9 +33,11 @@ class CollectionProjectionService {
   }
 
   public cleanupDeletedItem(rowId: Id) {
-    space.delRow(ProjectedState, rowId);
-    space.delRow(ResumeState, rowId);
-    space.delRow(CV, rowId);
+    space.transaction(() => {
+      space.delRow(ProjectedState, rowId);
+      space.delRow(ResumeState, rowId);
+      space.delRow(CV, rowId);
+    });
     spaceDocContent.delRow(CC, rowId);
   }
 
@@ -139,6 +141,7 @@ class CollectionProjectionService {
     const index = this.buildChildrenIndex(nextCollection);
     const allIds = Array.isArray(ids) ? ids : [ids];
     allIds.forEach(id => {
+      if (id === ROOT_COLLECTION) return;
       const breadcrumb = nextProjection[id]?.fullPath?.toReversed();
       if (!breadcrumb) throw Error('undefined ancestry: ' + id);
       breadcrumb.forEach(rowId => {

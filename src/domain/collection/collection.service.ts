@@ -15,8 +15,8 @@ import {
   CollectionItemUpdatableFieldEnum,
   CollectionItemUpdate,
   isDocument,
-  isFolder,
   isNotebook,
+  isParent,
   SortableCollectionItem
 } from '@/domain/collection/collection';
 import {
@@ -175,21 +175,28 @@ class CollectionService {
 
   public deleteItem(
     rowId: Id,
-    flags?: { softDelete?: boolean; moveItemsUp?: boolean }
+    flags?: {
+      softDelete?: boolean;
+      moveItemsUp?: boolean;
+      skipAncestryRecalc?: boolean;
+    }
   ) {
     const parentId = this.getItemParent(rowId);
     const itemType = this.getItemType(rowId);
-    const wasFolder = isFolder(itemType);
+    const wasParent = isParent(itemType);
     const wasDocument = isDocument(itemType);
-    if (wasFolder) {
+    if (wasParent) {
+      // TODO could optimize by removing the recursivity here
       const children = this.getBrowsableCollectionItems(rowId);
-      console.debug(`folder to delete had ${children.length} children`);
+      console.debug(`item to delete had ${children.length} children`);
       if (children.length > 0) {
         children.forEach(child => {
           if (flags?.moveItemsUp !== true) {
-            this.deleteItem(child.id, flags);
+            this.deleteItem(child.id, { ...flags, skipAncestryRecalc: true });
           } else {
-            this.setItemParent(child.id, parentId);
+            this.setItemParent(child.id, parentId, {
+              skipAncestryRecalc: true
+            });
           }
         });
       }
@@ -211,11 +218,13 @@ class CollectionService {
     space.transaction(() => {
       space.delRow(C, rowId);
       projectionEngine.cleanupDeletedItem(rowId);
-      projectionEngine.__recalcAncestryLastActivityAt(
-        parentId,
-        nextCollection,
-        nextProjection
-      );
+      if (flags?.skipAncestryRecalc !== true) {
+        projectionEngine.__recalcAncestryLastActivityAt(
+          parentId,
+          nextCollection,
+          nextProjection
+        );
+      }
     });
   }
 
@@ -236,8 +245,14 @@ class CollectionService {
     return space.getCell(C, rowId, 'parentId') || ROOT_COLLECTION;
   }
 
-  public setItemParent(rowId: Id, parentId: Id) {
-    this.setItemField(rowId, 'parentId', parentId);
+  public setItemParent(
+    rowId: Id,
+    parentId: Id,
+    flags?: {
+      skipAncestryRecalc?: boolean;
+    }
+  ) {
+    this.setItemField(rowId, 'parentId', parentId, flags);
   }
 
   public getItemTitle(rowId: Id) {
@@ -264,7 +279,9 @@ class CollectionService {
     content: SerializedEditorState,
     skipVersion = false
   ) {
-    this.setItemField(rowId, 'content', JSON.stringify(content), skipVersion);
+    this.setItemField(rowId, 'content', JSON.stringify(content), {
+      skipVersion
+    });
   }
 
   public setUnsavedItemLexicalContent(
@@ -303,7 +320,7 @@ class CollectionService {
   ) {
     space.transaction(() => {
       genericReorder(from, to, (idx, order) => {
-        this.setItemField(items[idx].id, 'order', order, true);
+        this.setItemField(items[idx].id, 'order', order, { skipVersion: true });
       });
     });
   }
@@ -381,7 +398,10 @@ class CollectionService {
     rowId: Id,
     key: CollectionItemUpdatableFieldEnum,
     value: DbSerializableData,
-    skipVersion = false
+    flags?: {
+      skipVersion?: boolean;
+      skipAncestryRecalc?: boolean;
+    }
   ) {
     const oldValue = this.getItemField(rowId, key);
     if (cellEquals(oldValue, value)) {
@@ -424,12 +444,14 @@ class CollectionService {
           nextCollection,
           nextProjection
         );
-        // must update ancestry of old and new parent
-        projectionEngine.__recalcAncestryLastActivityAt(
-          [oldValue as string, value as string],
-          nextCollection,
-          nextProjection
-        );
+        if (flags?.skipAncestryRecalc !== true) {
+          // must update ancestry of old and new parent
+          projectionEngine.__recalcAncestryLastActivityAt(
+            [oldValue as string, value as string],
+            nextCollection,
+            nextProjection
+          );
+        }
       }
 
       if (CollectionItemResetConflictFields.includes(key)) {
@@ -439,7 +461,10 @@ class CollectionService {
     if (key === 'content') {
       this.setRawContent(rowId, value as string, updatedAt);
     }
-    if (!skipVersion && this.isHistorizableContentChange(type, key)) {
+    if (
+      flags?.skipVersion !== true &&
+      this.isHistorizableContentChange(type, key)
+    ) {
       historyService.addVersion(rowId);
     }
     return true;
@@ -462,7 +487,7 @@ class CollectionService {
     const nextCollection = space.getTable(C) as CollectionTable;
     space.transaction(() => {
       const row = { ...item, itemId: rowId } as CollectionItemRow;
-      nextCollection[rowId] = { ...row };
+      nextCollection[rowId] = row;
       const { fullPath } = projectionEngine.__fillInBreadcrumbs(
         rowId,
         nextCollection,

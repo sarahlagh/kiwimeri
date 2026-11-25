@@ -78,7 +78,7 @@ describe('notes service', () => {
     const notes: BaseDocAnnotation[] = [];
     notes.push(annotsService.newNoteObj(docId).item);
     notes.push(annotsService.newNoteObj(docId + 'diff').item);
-    annotsService.saveNotes(docId, notes);
+    annotsService.saveNotesForDoc(docId, notes);
 
     const noteResults = fetchNotesQuery.getResults({ parentId: docId });
     expect(noteResults).toHaveLength(2);

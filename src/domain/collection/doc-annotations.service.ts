@@ -31,27 +31,32 @@ class DocumentAnnotationsService {
     return { item: note, id };
   }
 
-  public addNote(docId: Id, order?: number) {
+  public addNote(docId: Id, order?: number, _id?: string) {
     const { item, id } = this.newNoteObj(docId);
+    const noteId = _id ? _id : id;
     const content = item.content;
     const content_meta = item.content_meta;
     space.transaction(() => {
-      space.setRow(A, id, { ...item, order });
+      space.setRow(A, noteId, { ...item, order });
       space.setCell(C, docId, 'updatedAt', item.updatedAt);
     });
-    spaceDocContent.setPartialRow(AC, id, {
+    spaceDocContent.setPartialRow(AC, noteId, {
       content,
       content_meta
     });
-    return id;
+    return noteId;
   }
 
-  public saveNotes(docId: Id, notes: (BaseDocAnnotation | DocAnnotation)[]) {
+  public saveNotesForDoc(
+    docId: Id,
+    notes: (BaseDocAnnotation | DocAnnotation)[]
+  ) {
     const contents = new Map<
       string,
       { content: string; content_meta: MetaField }
     >();
     const updatedAt = Math.max(...notes.map(n => n.updatedAt));
+    const docUpdatedAt = space.getCell(C, docId, 'updatedAt') || 0;
     space.transaction(() => {
       notes.forEach(note => {
         const id = 'id' in note ? note.id : getUniqueId();
@@ -61,13 +66,38 @@ class DocumentAnnotationsService {
         });
         space.setRow(A, id, { ...note, parentId: docId });
       });
-      space.setCell(C, docId, 'updatedAt', updatedAt);
+      if (docUpdatedAt !== 0) {
+        space.setCell(C, docId, 'updatedAt', Math.max(updatedAt, docUpdatedAt));
+      }
     });
     spaceDocContent.transaction(() => {
       contents.forEach((partial, noteId) =>
         spaceDocContent.setPartialRow(AC, noteId, partial)
       );
     });
+  }
+
+  public saveNotes(notes: (BaseDocAnnotation | DocAnnotation)[]) {
+    const notesPerDocs = new Map<
+      string,
+      (BaseDocAnnotation | DocAnnotation)[]
+    >();
+    notes.forEach(n => {
+      if (!notesPerDocs.has(n.parentId)) {
+        notesPerDocs.set(n.parentId, []);
+      }
+      notesPerDocs.get(n.parentId)?.push(n);
+    });
+    space.startTransaction();
+    spaceDocContent.startTransaction();
+    try {
+      notesPerDocs.forEach((notes, docId) => {
+        this.saveNotesForDoc(docId, notes);
+      });
+    } finally {
+      spaceDocContent.finishTransaction();
+      space.finishTransaction();
+    }
   }
 
   public edit(id: Id, content: SerializedEditorState | string) {

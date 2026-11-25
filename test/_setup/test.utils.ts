@@ -65,10 +65,11 @@ export const fakeTimersDelay = 100;
 
 export const oneDocument = (
   title = 'new doc',
-  parent = DEFAULT_NOTEBOOK_ID
+  parent = DEFAULT_NOTEBOOK_ID,
+  id?: string
 ): CollectionItem => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
-  const id = getUniqueId();
+  if (!id) id = getUniqueId();
   return {
     ...collectionService.getNewDocumentObj(parent).item,
     id,
@@ -78,10 +79,11 @@ export const oneDocument = (
 };
 export const oneFolder = (
   title = 'new folder',
-  parent = DEFAULT_NOTEBOOK_ID
+  parent = DEFAULT_NOTEBOOK_ID,
+  id?: string
 ): WithId<CollectionItem> => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
-  const id = getUniqueId();
+  if (!id) id = getUniqueId();
   return {
     ...collectionService.getNewFolderObj(parent).item,
     id,
@@ -91,18 +93,19 @@ export const oneFolder = (
 };
 export const oneNotebook = (
   title = 'new notebook',
+  parent = ROOT_COLLECTION,
   id = DEFAULT_NOTEBOOK_ID
 ): WithId<Notebook> => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
   return {
-    ...notebooksService.getNewNotebookObj(ROOT_COLLECTION, title).item,
+    ...notebooksService.getNewNotebookObj(parent, title).item,
     id
   };
 };
 
-export const oneNote = (docId: string): DocAnnotation => {
+export const oneNote = (docId: string, id?: string): DocAnnotation => {
   if (vi.isFakeTimers()) vi.advanceTimersByTime(fakeTimersDelay);
-  const id = getUniqueId();
+  if (!id) id = getUniqueId();
   return {
     ...annotsService.newNoteObj(docId).item,
     id

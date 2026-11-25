@@ -228,57 +228,55 @@ describe('derived state', () => {
     });
   });
 
-  describe('should handle all derived states after saveItems', () => {
-    beforeEach(() => vi.useFakeTimers());
-    afterEach(() => vi.useRealTimers());
+  describe('should handle all derived states after operation', () => {
+    describe('should handle all derived states after saveItems', () => {
+      beforeEach(() => vi.useFakeTimers());
+      afterEach(() => vi.useRealTimers());
 
-    derivedStatesScenarios
-      .filter(s => s.appliesToSaveItems !== false)
-      .forEach(scenario => {
-        test(`${scenario.description} (saveItems)`, async () => {
-          const init = Date.now();
-          storageService.nukeStorage();
-          if (scenario.applyLocalData) scenario.applyLocalData();
-          localChangesService.clear();
-          vi.setSystemTime(init);
-          const before = Date.now();
+      derivedStatesScenarios
+        .filter(s => s.appliesToSaveItems !== false)
+        .forEach(scenario => {
+          test(`${scenario.description} (saveItems)`, async () => {
+            const init = Date.now();
+            storageService.nukeStorage();
+            if (scenario.applyLocalData) scenario.applyLocalData();
+            localChangesService.clear();
+            vi.setSystemTime(init);
+            const before = Date.now();
 
-          const { items, notes } = scenario.generateRemoteData();
+            const { items, notes } = scenario.bulkOperation();
 
-          collectionService.saveItems(items);
-          annotsService.saveNotes(notes[0].parentId, notes);
-          vi.advanceTimersByTime(100);
+            collectionService.saveItems(items);
+            annotsService.saveNotes(notes);
+            vi.advanceTimersByTime(100);
 
-          const expectedData = scenario.expected(before);
-          const actualData = getLocalSpaceDataForDerivedStateMatrix();
-          expect(actualData).toEqual(expectedData);
+            const expectedData = scenario.expected(before);
+            const actualData = getLocalSpaceDataForDerivedStateMatrix();
+            expect(actualData).toEqual(expectedData);
+          });
         });
-      });
-  });
+    });
 
-  describe('should handle all derived states after single operations', () => {
-    beforeEach(() => vi.useFakeTimers());
-    afterEach(() => vi.useRealTimers());
+    describe('should handle all derived states after single operations', () => {
+      beforeEach(() => vi.useFakeTimers());
+      afterEach(() => vi.useRealTimers());
 
-    derivedStatesScenarios
-      .filter(s => s.applyNewData)
-      .forEach(scenario => {
-        test(`${scenario.description} (single)`, async () => {
-          const init = Date.now();
-          storageService.nukeStorage();
-          if (scenario.applyLocalData) scenario.applyLocalData();
-          localChangesService.clear();
-          vi.setSystemTime(init);
-          const before = Date.now();
+      derivedStatesScenarios
+        .filter(s => s.singleOperation)
+        .forEach(scenario => {
+          test(`${scenario.description} (single)`, async () => {
+            const init = Date.now();
+            storageService.nukeStorage();
+            if (scenario.applyLocalData) scenario.applyLocalData();
+            localChangesService.clear();
 
-          scenario.applyNewData!();
-          vi.advanceTimersByTime(100);
+            scenario.singleOperation!();
 
-          const expectedData = scenario.expected(init, before);
-          const actualData = getLocalSpaceDataForDerivedStateMatrix();
-          expect(actualData).toEqual(expectedData);
+            const expectedData = scenario.expected(init);
+            const actualData = getLocalSpaceDataForDerivedStateMatrix();
+            expect(actualData).toEqual(expectedData);
+          });
         });
-      });
+    });
   });
-  // TODO saveItem, setItemField...
 });

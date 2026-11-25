@@ -7,19 +7,11 @@ import {
 import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { setMetaField } from '@/core/db/types';
-import {
-  CollectionItemRow,
-  CollectionItemType
-} from '@/domain/collection/collection';
+import { CollectionItemType } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import { Notebook, NotebookSort } from '@/domain/collection/notebooks';
 import { resumeService } from '@/domain/collection/resume-state.service';
 import { getUniqueId } from 'tinybase/with-schemas';
-import {
-  CollectionTable,
-  projectionEngine,
-  ProjectionTable
-} from './collection-projection.service';
 import fetchItemsQuery from './queries/fetchItemsQuery';
 
 const C = SpaceTables.Collection;
@@ -45,49 +37,31 @@ class NotebooksService {
       tt('defaultNotebookName')
     );
     const id = DEFAULT_NOTEBOOK_ID;
-    const nextCollection = space.getTable(C) as CollectionTable;
-    const nextProjection = space.getTable(ProjectedState) as ProjectionTable;
     const row = { ...item, itemId: id };
-    nextCollection[id] = row;
     space.transaction(() => {
-      projectionEngine.__fillInBreadcrumbs(id, nextCollection, nextProjection);
+      space.setPartialRow(ProjectedState, id, {
+        fullPath: [id],
+        shortPath: [id]
+      });
       space.setRow(C, id, row);
-      projectionEngine.__recalcAncestryLastActivityAt(
-        id,
-        nextCollection,
-        nextProjection
-      );
     });
   }
 
-  // TODO why is it different from saveItem
   public addNotebook(title: string, parent: string = ROOT_COLLECTION) {
     const { item, id } = this.getNewNotebookObj(parent, title);
-    const nextCollection = space.getTable(C) as CollectionTable;
-    const nextProjection = space.getTable(ProjectedState) as ProjectionTable;
-    const row: CollectionItemRow = { ...item, itemId: id };
-    nextCollection[id] = row;
-    space.transaction(() => {
-      projectionEngine.__fillInBreadcrumbs(id, nextCollection, nextProjection);
-      space.setRow(C, id, row);
-      projectionEngine.__recalcAncestryLastActivityAt(
-        id,
-        nextCollection,
-        nextProjection
-      );
-    });
-    return id!;
+    collectionService.saveItem(item, id);
+    return id;
   }
 
-  public getNewNotebookObj(_parent: string, title?: string) {
+  public getNewNotebookObj(_parentId: string, title?: string) {
     const now = Date.now();
     const id = getUniqueId();
-    const parent = _parent ? _parent : ROOT_COLLECTION;
+    const parentId = _parentId ? _parentId : ROOT_COLLECTION;
     const item: Notebook = {
       title: title || '',
       title_meta: setMetaField(now, title || ''),
-      parentId: parent,
-      parentId_meta: setMetaField(now, parent),
+      parentId,
+      parentId_meta: setMetaField(now, parentId),
       createdAt: now,
       updatedAt: now,
       type: CollectionItemType.notebook,
@@ -101,17 +75,7 @@ class NotebooksService {
   }
 
   public deleteNotebook(parentId: string): void {
-    // TODO handle nested notebooks
-    // if items inside, delete them
-    const items = fetchItemsQuery.getResults({ parentId });
-    if (items.length > 0) {
-      space.transaction(() => {
-        items.forEach(i => collectionService.deleteItem(i.id));
-      });
-    }
-    // collectionService.deleteItem(parentId) // why not???
-    space.delRow(C, parentId);
-    // TODO how about projected states????
+    collectionService.deleteItem(parentId);
   }
 
   public setCurrentNotebook(notebookId: string) {

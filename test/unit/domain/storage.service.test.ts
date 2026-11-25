@@ -759,9 +759,9 @@ describe('storage service', () => {
       test(`${scenario.description}`, async () => {
         // must get exported json format
         const init = Date.now();
-        const { items, notes } = scenario.generateRemoteData();
+        const { items, notes } = scenario.bulkOperation();
         collectionService.saveItems(items);
-        annotsService.saveNotes(notes[0].parentId, notes);
+        annotsService.saveNotes(notes);
         const exportedContent = storageService.exportJson(true);
         storageService.nukeStorage();
         vi.setSystemTime(init);

@@ -1472,7 +1472,7 @@ describe('collection synchronizer', () => {
         vi.setSystemTime(init);
         const before = Date.now();
 
-        const { items, notes, updatedAt } = scenario.generateRemoteData();
+        const { items, notes, updatedAt } = scenario.bulkOperation();
 
         await driver.setCollectionContentWithAnnots(items, notes, updatedAt);
         await synchronizer.sync();
@@ -1482,44 +1482,6 @@ describe('collection synchronizer', () => {
         const actualData = getLocalSpaceDataForDerivedStateMatrix();
         expect(actualData).toEqual(expectedData);
       });
-
-      // not sure this is relevant
-      test.todo(`${scenario.description} (on local)`, async () => {
-        const init = Date.now();
-        const { items, notes, updatedAt } = scenario.generateRemoteData();
-        await driver.setCollectionContentWithAnnots(items, notes, updatedAt);
-
-        vi.setSystemTime(init);
-        const before = Date.now();
-        storageService.nukeStorage();
-        if (scenario.applyLocalData) scenario.applyLocalData();
-        localChangesService.clear();
-
-        await synchronizer.sync();
-        vi.advanceTimersByTime(100);
-
-        const expectedData = scenario.expected(before);
-        const actualData = getLocalSpaceDataForDerivedStateMatrix();
-        expect(actualData).toEqual(expectedData);
-      });
-
-      // maybe add test with applyNewData instead of generateRemoteData too
-    });
-
-    test.skip('after pull derived state of deleted rows should be updated', async () => {
-      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
-      const items = [oneNotebook(), oneDocument()];
-      await driver.setCollectionContent(items, items[1].updatedAt);
-      await synchronizer.pull(true);
-
-      expect(collectionService.itemExists(docId)).toBe(false);
-      expect(space.hasRow(SpaceTables.ProjectedState, docId)).toBe(false);
-      expect(
-        space.getCell(SpaceTables.ProjectedState, items[0].id!, 'fullPath')
-      ).toEqual([DEFAULT_NOTEBOOK_ID]);
-      expect(
-        space.getCell(SpaceTables.ProjectedState, items[1].id!, 'fullPath')
-      ).toEqual([DEFAULT_NOTEBOOK_ID, items[1].id]);
     });
   });
 });

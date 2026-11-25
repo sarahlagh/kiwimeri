@@ -137,7 +137,7 @@ class DocumentWriterService {
 
   public writeContent(on: string, itemId: string, content: string) {
     if (on === SpaceTables.Collection) {
-      collectionService.setItemField(itemId, 'content', content, false);
+      collectionService.setItemField(itemId, 'content', content);
     } else {
       annotsService.edit(itemId, content);
     }
