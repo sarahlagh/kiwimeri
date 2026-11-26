@@ -43,6 +43,7 @@ describe('native db persister test', () => {
     notebooksService.initNotebooks();
     startDbListeners();
     vi.useFakeTimers();
+    historyService['enabled'] = false;
     schedule['initRecurringTasks'] = function () {}; // don't define log gc & history gc
     schedule.start();
     window.nativeContentMap.clear();
@@ -101,8 +102,12 @@ describe('native db persister test', () => {
     });
 
     test('editing the annotation content triggers a native backup', () => {
+      schedule.stop();
+      const docId = collectionService.addDocument(DEFAULT_NOTEBOOK_ID);
+      const noteId = annotsService.addNote(docId);
+      schedule.start();
       // edit annot
-      annotsService.edit('test', getNewParsedContent('test'));
+      annotsService.edit(noteId, getNewParsedContent('test'));
       expect(hasTaskByName(TaskNames.NATIVE_STORE_SAVE)).toBe(true);
 
       vi.advanceTimersByTime(200);
