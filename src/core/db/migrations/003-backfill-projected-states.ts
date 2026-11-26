@@ -11,6 +11,10 @@ export default function Migration(_space: NoSchemaStore) {
 
   _space.transaction(() => {
     _space.getRowIds(P).forEach(rowId => {
+      if (!collection[rowId]) {
+        _space.delRow(P, rowId);
+        return;
+      }
       // backfill lastActivityAt
       if (
         collection[rowId].updatedAt &&
