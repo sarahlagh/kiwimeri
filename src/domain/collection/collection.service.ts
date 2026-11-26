@@ -1,7 +1,7 @@
 import { DEFAULT_ORDER, ROOT_COLLECTION, tt } from '@/constants';
 import { space, spaceDocContent } from '@/core/db/store';
 import { SpaceDocContentTables, SpaceTables } from '@/core/db/store-constants';
-import { DbSerializableData, setMetaField } from '@/core/db/types';
+import { DbSerializableData, MetaField, setMetaField } from '@/core/db/types';
 import {
   BaseCollectionItem,
   CollectionItem,
@@ -114,14 +114,21 @@ class CollectionService {
   }
 
   public getItem(id: string): CollectionItem {
-    const row = {
-      ...space.getRow(C, id),
-      content: spaceDocContent.getCell(CC, id, 'content'),
-      content_meta: spaceDocContent.getCell(CC, id, 'content_meta'),
-      id
+    const row: CollectionItem = {
+      id,
+      ...(space.getRow(C, id) as CollectionItemRow)
     };
-    delete row.itemId;
-    return row as CollectionItem;
+    if (isDocument(row.type)) {
+      row.content = spaceDocContent.getCell(CC, id, 'content');
+      row.content_meta = spaceDocContent.getCell(
+        CC,
+        id,
+        'content_meta'
+      ) as MetaField;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    delete (row as any).itemId;
+    return row;
   }
 
   public getBrowsableCollectionItems(

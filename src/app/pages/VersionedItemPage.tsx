@@ -28,7 +28,7 @@ const VersionedItemPage = () => {
   const [showDocumentActions, setShowDocumentActions] = useState(false);
 
   const title = useItemTitle(docId || '');
-  const folderTitle = useItemTitle(parentFolder || '');
+  const folderTitle = useItemTitle(parentFolder);
 
   if (routeCtx.route !== VERSION_ROUTE && docId) {
     // TODO shouldn't be needed - check why

@@ -40,7 +40,7 @@ class StatsService {
       if (itemId !== null && itemId !== table[rowId].itemId) return;
       results.push({
         date,
-        itemId: table[rowId].itemId || '',
+        itemId: table[rowId].itemId,
         contentStatsJson: table[rowId].contentStatsJson || {}
       });
     });

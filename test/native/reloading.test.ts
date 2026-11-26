@@ -1,5 +1,6 @@
-import { DEFAULT_NOTEBOOK_ID } from '@/constants';
+import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { plt } from '@/core/infra/platform.service';
+import notebooksService from '@/domain/collection/notebooks.service';
 import { readFile } from 'fs/promises';
 import { Content } from 'tinybase';
 
@@ -81,7 +82,8 @@ describe('reloading from native backups tests', () => {
 
   test('if space is not empty, do not reload', async () => {
     (await getStoreModule()).space.setRow('collection', DEFAULT_NOTEBOOK_ID, {
-      createdAt: Date.now()
+      ...notebooksService.getNewNotebookObj(ROOT_COLLECTION).item,
+      itemId: DEFAULT_NOTEBOOK_ID
     });
     window.nativeContentMap.clear();
     vi.resetModules();

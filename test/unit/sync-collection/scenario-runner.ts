@@ -491,6 +491,7 @@ export class PullTestScenarioRunner {
     }
 
     const item = {
+      id,
       ...localCollectionTable[id],
       ...localCollectionContentTable[id]
     };
@@ -514,7 +515,7 @@ export class PullTestScenarioRunner {
         expect(item.plainText).toBeDefined();
       }
     }
-    stats.otherAssert(item as CollectionItem, relevantItem);
+    stats.otherAssert(item as unknown as CollectionItem, relevantItem);
   }
 
   private assertParentIsAllowed(

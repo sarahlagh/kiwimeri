@@ -1,6 +1,6 @@
 /* eslint-disable vitest/no-conditional-expect */
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
-import { space, spaceArchive } from '@/core/db/store';
+import { spaceArchive } from '@/core/db/store';
 import { CollectionItem } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import { minimizeContentForStorage } from '@/domain/collection/compress-file-content';
@@ -353,15 +353,7 @@ describe('collection history service', () => {
       expect(historyService.getVersions(docId)).toHaveLength(1);
       vi.advanceTimersByTime(100);
 
-      const item = collectionService.getItem(docId);
-      // create conflict
-      const ts = Date.now();
-      const conflictId = space.addRow('collection', {
-        ...{ ...item, id: undefined },
-        conflictId: docId,
-        createdAt: ts,
-        updatedAt: ts
-      })!;
+      const conflictId = createConflict(docId);
       expect(collectionService.isItemConflict(conflictId)).toBe(true);
       expect(historyService.getVersions(conflictId)).toHaveLength(0);
       vi.advanceTimersByTime(100);

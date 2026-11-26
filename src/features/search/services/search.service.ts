@@ -64,7 +64,7 @@ class CollectionContentSearchService {
       const plainText = collectionService.getDocumentPlainText(itemId);
       if (!shortPath || !item) return;
       if (!searchOptions.searchInTitle && !plainText) return;
-      const title = item.title || '';
+      const title = item.title;
 
       const result: DeepSearchResult = {
         id: itemId,

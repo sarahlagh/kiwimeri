@@ -212,49 +212,6 @@ export function applyLocalChangesToPull<
             localItem['updatedAt'];
         }
       }
-
-      // if added locally, add to newLocalContent
-      // if (localChange.change === LocalChangeType.add) {
-      //   newDataTable[localChange.itemId] = localItem;
-
-      //   // if local change on item is more recent than remote, local wins
-      // } else if (localChange.createdAt > remoteUpdated) {
-      //   // if is update
-      //   if (localChange.change === LocalChangeType.update) {
-      //     const field = localChange.field as FieldWithMeta<R>;
-      //     const metaField = `${field}_meta` as MetaKey<typeof field> & keyof R;
-
-      //     // if doesn't exist on remote (has been deleted?) recreate it
-      //     if (!newDataTable[localChange.itemId]) {
-      //       newDataTable[localChange.itemId] = localItem;
-      //     } else {
-      //       // if exists on remote, update the field, its meta, and preview if field was content
-      //       newDataTable[localChange.itemId][field] = localItem[field];
-      //       newDataTable[localChange.itemId][metaField] = localItem[metaField];
-      //     }
-      //   } else {
-      //     // is delete
-      //     delete newDataTable[localChange.itemId];
-      //   }
-      // } else {
-      //   // if remote change on item is more recent than local
-      //   // can either:
-      //   //   - create conflict
-      //   //   - let last write win
-      //   if (
-      //     conflictPolicy.shouldCreateConflict(
-      //       localChange,
-      //       localItem,
-      //       newDataTable[localChange.itemId]
-      //     )
-      //   ) {
-      //     const conflict = conflictPolicy.newConflict(localChange, localItem);
-      //     newDataTable[conflict.id] = conflict;
-      //   } else {
-      //     // last write wins
-      //     discardedChanges.push(localChange);
-      //   }
-      // }
     }
 
     checkOrphans(newDataTable, orphanPolicy, localContent);

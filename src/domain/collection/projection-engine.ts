@@ -10,6 +10,7 @@ import {
   isDocument
 } from './collection';
 import { ProjectedItemStateRow } from './derived-item-state';
+import { DocAnnotationRow } from './document-annotations';
 
 const C = SpaceTables.Collection;
 const A = SpaceTables.Annotations;
@@ -21,7 +22,7 @@ const AV = SpaceTables.AnnotationView;
 const AC = SpaceDocContentTables.AnnotationContent;
 
 export type CollectionTable = TableOf<Partial<CollectionItemRow>>;
-export type AnnotationTable = TableOf<Partial<CollectionItemRow>>;
+export type AnnotationTable = TableOf<Partial<DocAnnotationRow>>;
 export type ProjectionTable = TableOf<Partial<ProjectedItemStateRow>>;
 
 /** __ prefix indicates the method doesn't create a transaction and must be called inside one

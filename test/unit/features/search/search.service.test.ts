@@ -35,11 +35,13 @@ describe('search service', () => {
     }
   });
   beforeEach(() => {
+    const parsed = JSON.parse(jsonCollection);
     space.transaction(() => {
-      space.setJson(jsonCollection);
-      new ProjectionEngine(
-        JSON.parse(jsonCollection)[0]['collection']
-      ).__backfillProjectedStates();
+      Object.keys(parsed[0]['collection']).forEach(rowId => {
+        parsed[0]['collection'][rowId].itemId = rowId;
+      });
+      space.setJson(JSON.stringify(parsed));
+      new ProjectionEngine(parsed[0]['collection']).__backfillProjectedStates();
     });
     spaceDocContent.setJson(jsonCollection);
   });
@@ -416,19 +418,19 @@ describe('search service', () => {
         searchInContent: true,
         searchInTitle: false
       });
-      expect(results).toHaveLength(6);
+      expect(results).toHaveLength(5);
 
       results = searchService.deepSearch('dolor sit amet', {
         searchInContent: true,
         searchInTitle: false
       });
-      expect(results).toHaveLength(5);
+      expect(results).toHaveLength(4);
 
       results = searchService.deepSearch('heading 1', {
         searchInContent: true,
         searchInTitle: false
       });
-      expect(results).toHaveLength(2);
+      expect(results).toHaveLength(1);
     });
 
     it('should match all in title', () => {

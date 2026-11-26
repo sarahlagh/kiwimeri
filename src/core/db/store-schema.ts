@@ -47,7 +47,7 @@ export const storeTablesSchema = {
 } as const satisfies Record<StoreTables, SingleTableSchema>;
 
 export const spaceTablesSchema = {
-  collection: collectionSchema, // TODO required: true
+  collection: collectionSchema,
   collection_resume_state: resumeStateSchema,
   stats: statsSchema,
   document_annotation: docAnnotationSchema,

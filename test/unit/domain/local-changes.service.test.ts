@@ -1,4 +1,4 @@
-import { DEFAULT_NOTEBOOK_ID } from '@/constants';
+import { DEFAULT_NOTEBOOK_ID, ROOT_COLLECTION } from '@/constants';
 import { space, spaceDocContent } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { SerializableData, setMetaField } from '@/core/db/types';
@@ -318,7 +318,9 @@ describe('local changes listeners', () => {
       watchedFields: UPDATABLE_FIELDS,
       nonWatchedFields: [
         { field: 'updatedAt', valueType: 'number' },
-        { field: 'itemId', valueType: 'id' }
+        { field: 'createdAt', valueType: 'number' },
+        { field: 'itemId', valueType: 'id' },
+        { field: 'type', valueType: 'ctype' }
       ]
     },
     {
@@ -330,8 +332,8 @@ describe('local changes listeners', () => {
       nonWatchedFields: [
         { field: 'parentId', valueType: 'id' },
         { field: 'updatedAt', valueType: 'number' },
-        { field: 'previewText', valueType: 'string' },
-        { field: 'createdAt', valueType: 'number' }
+        { field: 'createdAt', valueType: 'number' },
+        { field: 'previewText', valueType: 'string' }
       ]
     },
     {
@@ -635,18 +637,16 @@ describe('local changes listeners', () => {
 
         it(`add change should be resettable`, () => {
           space.transaction(() => {
-            space.setRow(tableId, 'testId1', fakeRow);
+            space.setRow(tableId, 'testId1', {
+              ...fakeRow,
+              parentId: ROOT_COLLECTION
+            });
             if ('parentId' in fakeRow) {
-              // delItem on collection needs projected state for parent
-              space.setRow(
-                SpaceTables.ProjectedState,
-                fakeRow.parentId as string,
-                {
-                  fullPath: ['0'],
-                  nearestNotebookId: '0',
-                  lastActivityAt: 0
-                }
-              );
+              space.setRow(SpaceTables.ProjectedState, 'testId1', {
+                fullPath: ['testId1'],
+                nearestNotebookId: '0',
+                lastActivityAt: 0
+              });
             }
           });
           const changes = localChangesService.getLocalChanges();

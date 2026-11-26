@@ -73,7 +73,8 @@ const AC = SpaceDocContentTables.AnnotationContent;
   // 0.4.5 => content moved to CollectionContent & AnnotationContent tables
   //          + exports schemaVersion=2 and appVersion (schemaVersion=2)
   // 0.4.6 => content is no longer minimized (schemaVersion=3)
-  // 0.5.0 => sort.by no longer accepts updatedAt, becomes lastActivityAt (schemaVersion=4)
+  // 0.5.0 => sort.by no longer accepts updatedAt, becomes lastActivityAt
+  //          + itemId no longer exported (schemaVersion=4)
   // oldest accepted version = 0.4.2 / 1
  */
 enum Versions {
@@ -159,10 +160,10 @@ class StorageMergeService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private excludePlainText(baseTables: any, tableId: string) {
+  private excludeKey(baseTables: any, tableId: string, key: string) {
     if (baseTables[tableId])
       Object.keys(baseTables[tableId]).forEach(rowId => {
-        delete baseTables[tableId]![rowId].plainText;
+        delete baseTables[tableId]![rowId][key];
       });
   }
 
@@ -175,9 +176,10 @@ class StorageMergeService {
       collection_content: docContent[0].collection_content,
       document_annotation_content: docContent[0].document_annotation_content
     };
-    // remove plainText
-    this.excludePlainText(baseTables, CC);
-    this.excludePlainText(baseTables, AC);
+    // remove keys
+    this.excludeKey(baseTables, C, 'itemId');
+    this.excludeKey(baseTables, CC, 'plainText');
+    this.excludeKey(baseTables, AC, 'plainText');
 
     const baseValues = {
       appVersion: appConfig.KIWIMERI_VERSION,
@@ -458,6 +460,10 @@ class StorageMergeService {
     withUserPrefs: boolean,
     beforeTransactionEnds?: () => void
   ) {
+    // fill-in itemIds
+    Object.keys(content.items).forEach(
+      rowId => ((content.items[rowId] as CollectionItemRow).itemId = rowId)
+    );
     const projectionEngine = new ProjectionEngine(content.items);
     spaceDocContent.startTransaction();
     space.startTransaction();

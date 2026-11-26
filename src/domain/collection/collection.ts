@@ -32,16 +32,16 @@ export type CollectionItemRow = {
 };
 
 export const collectionSchema = {
-  itemId: { type: 'string' },
-  title: { type: 'string' },
+  itemId: { type: 'string', required: true },
+  title: { type: 'string', required: true },
   title_meta: { type: 'object', default: metaSchemaDefault },
-  parentId: { type: 'string' },
+  parentId: { type: 'string', required: true },
   parentId_meta: { type: 'object', default: metaSchemaDefault },
-  type: { enum: itemTypes },
+  type: { enum: itemTypes, required: true },
   tags: { type: 'array' },
   tags_meta: { type: 'object' },
-  createdAt: { type: 'number' },
-  updatedAt: { type: 'number' },
+  createdAt: { type: 'number', required: true },
+  updatedAt: { type: 'number', required: true },
   conflictId: { type: 'string' },
   order: { type: 'number' },
   order_meta: { type: 'object' },

@@ -155,7 +155,14 @@ export const NON_NOTEBOOK_ITEM_TYPES: ItemTypesType[] = ITEM_TYPES.filter(
 );
 
 export type ValueType =
-  'id' | 'string' | 'lex' | 'number' | 'string_array' | 'boolean' | 'settings';
+  | 'id'
+  | 'string'
+  | 'lex'
+  | 'number'
+  | 'string_array'
+  | 'boolean'
+  | 'settings'
+  | 'ctype';
 
 export type CollectionTestField = {
   field: CollectionItemUpdatableFieldEnum;
@@ -236,6 +243,7 @@ export const getNewValue = (
       statsEnabled: Math.floor(Math.random() * 10001) % 2 === 0
     };
   if (valueType === 'number') return Math.floor(Math.random() * 10001);
+  if (valueType === 'ctype') return 'd'; // randomize
   return true;
 };
 
@@ -487,7 +495,7 @@ export const createLocalItem = (
   ids = new Map<string, string>()
 ) => {
   const createItem = (item: CollectionItem, data: Partial<CollectionItem>) => {
-    item.title = data.title!;
+    if (data.title) item.title = data.title;
     if (data.id) {
       ids.set(data.id, item.id!);
     }
