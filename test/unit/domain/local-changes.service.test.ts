@@ -1,7 +1,7 @@
 import { DEFAULT_NOTEBOOK_ID } from '@/constants';
 import { space, spaceDocContent } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
-import { SerializableData } from '@/core/db/types';
+import { SerializableData, setMetaField } from '@/core/db/types';
 import { CollectionItemType } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import {
@@ -352,7 +352,7 @@ describe('local changes listeners', () => {
     nonWatchedFields: TestField[]
   ) {
     const fakeRow = {};
-    const fakeContentRow = {};
+    const fakeContentRow: any = {};
     fakeRow[getField(nonWatchedFields[0])] = getValue(nonWatchedFields[0]);
     watchedFields.forEach(watchedField => {
       if (watchedField.field === 'content') {
@@ -364,6 +364,8 @@ describe('local changes listeners', () => {
     const testId = space.addRow(tableId, fakeRow)!;
     const derivedTableId = getContentTable(tableId);
     if (Object.keys(fakeContentRow).length > 0 && derivedTableId) {
+      fakeContentRow.content_meta = setMetaField(Date.now()); // satisfies required
+      fakeContentRow.plainText = '';
       spaceDocContent.setRow(derivedTableId, testId, fakeContentRow);
     }
     return testId;

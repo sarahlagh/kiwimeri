@@ -12,9 +12,9 @@ export type ContentRow = {
 export type ContentAddition = Pick<ContentRow, 'content' | 'content_meta'>;
 
 export const contentSchema = {
-  content: { type: 'string' },
-  content_meta: { type: 'object' },
-  plainText: { type: 'string' }
+  content: { type: 'string', required: true },
+  content_meta: { type: 'object', required: true },
+  plainText: { type: 'string', required: true }
 } as const satisfies Record<keyof ContentRow, CellSchema>;
 
 export function getContentTable(on: SpaceTableId) {

@@ -7,6 +7,7 @@ import {
   SearchOptions,
   searchService
 } from '@/features/search';
+import { getPlainText } from '@/shared/misc/getPlainText';
 import { HorizontalRuleNode } from '@lexical/extension';
 import { createHeadlessEditor } from '@lexical/headless';
 import { AutoLinkNode, LinkNode } from '@lexical/link';
@@ -55,6 +56,9 @@ describe('search service', () => {
     Object.keys(collection_content).forEach(rowId => {
       const content = collection_content[rowId].content;
       collection_content[rowId].content = unminimizeContentFromStorage(content);
+      collection_content[rowId].plainText = getPlainText(
+        collection_content[rowId].content
+      );
     });
     await writeFile(
       `${__dirname}/_data/searchme-collection.json`,
