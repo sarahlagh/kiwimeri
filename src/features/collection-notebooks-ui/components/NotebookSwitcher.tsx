@@ -5,12 +5,11 @@ import { useSpaceCell } from '@/core/db/ui-hooks';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { IonButton, IonIcon, useIonModal } from '@ionic/react';
 import { useNavigate } from 'react-router';
-import useCurrentNotebook from '../hooks/useCurrentNotebook';
 import ManageNotebooksModal from './ManageNotebooksModal';
 
 const NotebookSwitcher = () => {
   const navigate = useNavigate();
-  const current = useCurrentNotebook();
+  const current = notebooksService.getCurrentNotebook();
   const name = useSpaceCell<SpaceTables.Collection, 'title'>(
     SpaceTables.Collection,
     current,

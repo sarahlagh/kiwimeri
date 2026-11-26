@@ -33,7 +33,6 @@ export function useStableRouteContext(): StableRouteContextSpec {
 }
 
 export const useCurrentRoute = () => useRouteContext().route;
-export const useCurrentNotebook = () => useRouteContext().notebook;
 export const useCurrentFolder = () => useRouteContext().folder;
 export const useCurrentDocument = () => useRouteContext().document;
 export const useSearchQuery = () => useRouteContext().query;

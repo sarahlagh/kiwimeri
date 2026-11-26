@@ -16,7 +16,6 @@ import {
 import { Trans } from '@lingui/react/macro';
 import React, { useState } from 'react';
 import { getUniqueId } from 'tinybase/with-schemas';
-import useCurrentNotebook from '../hooks/useCurrentNotebook';
 import fetchNotebooksQuery from '../queries/fetchNotebooksQuery';
 
 type ManageNotebooksModalProps = {
@@ -29,7 +28,7 @@ const ManageNotebooksModal = ({ onClose }: ManageNotebooksModalProps) => {
   });
   const notebooks = useQueryResults(fetchNotebooksQuery, 'order', false);
 
-  const current = useCurrentNotebook();
+  const current = notebooksService.getCurrentNotebook();
   const [selected, setSelected] = useState<string>(current);
   const [itemRenaming, setItemRenaming] = useState<string | undefined>(
     undefined

@@ -1,7 +1,7 @@
 import { settingsService } from '@/domain/collection/collection-settings.service';
 import collectionService from '@/domain/collection/collection.service';
+import notebooksService from '@/domain/collection/notebooks.service';
 import { statsService } from '@/domain/stats/stats-service';
-import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
 import useNotebookDefaultSettings from '@/shared/hooks/useNotebookDefaultSettings';
 import {
   IonCard,
@@ -15,7 +15,7 @@ import GenericCollectionSettings from './GenericCollectionSettings';
 
 const CurrentNotebookSettings = () => {
   const _defaultSettings = useNotebookDefaultSettings();
-  const currentNotebook = useCurrentNotebook();
+  const currentNotebook = notebooksService.getCurrentNotebook();
   const notebookTitle = collectionService.getItemTitle(currentNotebook);
 
   return (

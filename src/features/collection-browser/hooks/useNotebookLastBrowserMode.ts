@@ -1,15 +1,14 @@
 import { SpaceTables } from '@/core/db/store-constants';
 import { useSpaceCell } from '@/core/db/ui-hooks';
 import { NotebookSettings } from '@/domain/collection/collection-settings';
-import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
+import notebooksService from '@/domain/collection/notebooks.service';
 import { Id } from 'tinybase/with-schemas';
 
 export default function useNotebookLastBrowserMode(
   notebook?: Id
 ): Required<NotebookSettings>['browserMode'] {
-  const currentNotebook = useCurrentNotebook();
   if (!notebook) {
-    notebook = currentNotebook;
+    notebook = notebooksService.getCurrentNotebook();
   }
   const cellValue = useSpaceCell<SpaceTables.Collection, 'settings'>(
     SpaceTables.Collection,
