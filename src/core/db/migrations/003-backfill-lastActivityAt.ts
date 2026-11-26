@@ -1,12 +1,11 @@
 import { CollectionItemSettings } from '@/domain/collection/collection-settings';
-import { Store } from 'tinybase/with-schemas';
 import { SpaceTables } from '../store-constants';
-import { SpaceType } from '../store-schema';
+import { NoSchemaStore } from './migrate';
 
 const C = SpaceTables.Collection;
 const P = SpaceTables.ProjectedState;
 
-export default function Migration(_space: Store<SpaceType>) {
+export default function Migration(_space: NoSchemaStore) {
   const table = _space.getTable(C);
 
   _space.transaction(() => {

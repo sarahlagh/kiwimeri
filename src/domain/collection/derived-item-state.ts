@@ -11,9 +11,9 @@ export type ProjectedItemStateRow = LastActivityAt & {
   fullPath: string[];
 };
 export const projectedItemStateSchema = {
+  fullPath: { type: 'array', required: true },
   shortPath: { type: 'array' },
-  fullPath: { type: 'array' },
-  lastActivityAt: { type: 'number' }
+  lastActivityAt: { type: 'number', required: true }
 } as const satisfies Record<keyof ProjectedItemStateRow, CellSchema>;
 
 export type ItemViewRow = {

@@ -54,12 +54,6 @@ class PostInitMigrationService {
         space.delValue('globalZoom');
       }
     }
-
-    if (between(to, 400, 599)) {
-      console.log('[space] 1 migration to run: backfill lastActivityAt');
-      const func = await import('./003-backfill-lastActivityAt');
-      func.default(space);
-    }
   }
 }
 

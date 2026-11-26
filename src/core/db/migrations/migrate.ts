@@ -30,6 +30,9 @@ async function migrateSpace(
     console.log('[migration] 1 space migration to run: split content store');
     const func2 = await import('./002-split-content-store');
     func2.default(_space, _spaceDocContent, _spaceArchive);
+
+    const func = await import('./003-backfill-lastActivityAt');
+    func.default(_space);
   }
 }
 

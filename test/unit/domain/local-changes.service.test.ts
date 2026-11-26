@@ -630,7 +630,8 @@ describe('local changes listeners', () => {
                 SpaceTables.ProjectedState,
                 fakeRow.parentId as string,
                 {
-                  fullPath: ['0']
+                  fullPath: ['0'],
+                  lastActivityAt: 0
                 }
               );
             }
