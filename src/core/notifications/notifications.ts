@@ -10,7 +10,7 @@ export type AppNotificationCtx = {
 export type AppNotificationLevel = 'error' | 'warning' | 'info';
 export type AppNotification = {
   createdAt: number;
-  profile?: string;
+  profile: string;
   level: AppNotificationLevel;
   message: string;
   context?: AppNotificationCtx;
@@ -20,10 +20,10 @@ export type AppNotification = {
 export type AppNotificationResult = WithId<Omit<AppNotification, 'profile'>>;
 
 export const notificationsSchema = {
-  createdAt: { type: 'number' },
-  profile: { type: 'string' },
-  level: { type: 'string' },
-  message: { type: 'string' },
+  createdAt: { type: 'number', required: true },
+  profile: { type: 'string', required: true },
+  level: { type: 'string', required: true },
+  message: { type: 'string', required: true },
   context: { type: 'object' },
   ackAt: { type: 'number' }
 } as const satisfies Record<keyof AppNotification, CellSchema>;

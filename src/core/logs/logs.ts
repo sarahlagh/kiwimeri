@@ -21,7 +21,7 @@ export type AppLogResult = Required<AppLog> & {
 };
 
 export const logsSchema = {
-  ts: { type: 'number' },
-  level: { type: 'string' },
-  message: { type: 'string' }
+  ts: { type: 'number', required: true },
+  level: { type: 'string', required: true },
+  message: { type: 'string', required: true }
 } as const satisfies Record<keyof AppLog, CellSchema>;

@@ -40,7 +40,7 @@ import {
 
 export const storeTablesSchema = {
   profiles: {
-    createdAt: { type: 'number' }
+    createdAt: { type: 'number', required: true }
   },
   logs: logsSchema,
   notifications: notificationsSchema
