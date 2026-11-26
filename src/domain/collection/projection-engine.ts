@@ -17,13 +17,15 @@ const CC = SpaceDocContentTables.CollectionContent;
 const CV = SpaceTables.CollectionItemView;
 const ResumeState = SpaceTables.ResumeState;
 const P = SpaceTables.ProjectedState;
+const AV = SpaceTables.AnnotationView;
+const AC = SpaceDocContentTables.AnnotationContent;
 
 export type CollectionTable = TableOf<Partial<CollectionItemRow>>;
 export type AnnotationTable = TableOf<Partial<CollectionItemRow>>;
 export type ProjectionTable = TableOf<Partial<ProjectedItemStateRow>>;
 
 /** __ prefix indicates the method doesn't create a transaction and must be called inside one
- *   $ prefix indicates the method doesn't update the space, only updates the temp tables
+ *   $ prefix indicates the method is an individual action on space
  */
 export class ProjectionEngine {
   constructor(
@@ -32,17 +34,19 @@ export class ProjectionEngine {
     private _nextAnnotation?: AnnotationTable
   ) {}
 
-  public $updateCollectionCell(
+  public $setCollectionCell(
     rowId: Id,
     key: keyof CollectionItemRow,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any
   ) {
     this._nextCollection[rowId][key] = value;
+    space.setCell(C, rowId, key, value);
   }
 
-  public $updateCollectionRow(rowId: Id, row: CollectionItemRow) {
+  public $setCollectionRow(rowId: Id, row: CollectionItemRow) {
     this._nextCollection[rowId] = row;
+    space.setRow(C, rowId, row);
   }
 
   public $getCollectionRow(rowId: Id) {
@@ -53,25 +57,7 @@ export class ProjectionEngine {
     return this._nextProjection[rowId]?.fullPath !== undefined;
   }
 
-  public $deleteAnnot(rowId: Id) {
-    if (!this._nextAnnotation) {
-      this._nextAnnotation = space.getTable(A) as AnnotationTable;
-    }
-    delete this._nextAnnotation[rowId];
-  }
-
-  public cleanupDeletedItem(rowId: Id) {
-    delete this._nextCollection[rowId];
-    delete this._nextProjection[rowId];
-    space.transaction(() => {
-      space.delRow(P, rowId);
-      space.delRow(ResumeState, rowId);
-      space.delRow(CV, rowId);
-    });
-    spaceDocContent.delRow(CC, rowId);
-  }
-
-  public setAncestryPath(id: Id) {
+  public $setAncestryPath(id: Id) {
     const { fullPath, shortPath } = this.computePaths(id, this._nextCollection);
     if (!this._nextProjection[id]) this._nextProjection[id] = {};
     this._nextProjection[id].fullPath = fullPath;
@@ -83,21 +69,47 @@ export class ProjectionEngine {
     return { fullPath, shortPath };
   }
 
-  public backfillProjectedStates(rowIds?: Ids) {
+  public __deleteCollectionItem(rowId: Id) {
+    this.__cleanupDeletedItem(rowId);
+    space.delRow(C, rowId);
+  }
+
+  public __cleanupDeletedItem(rowId: Id) {
+    delete this._nextCollection[rowId];
+    delete this._nextProjection[rowId];
+    space.delRow(P, rowId);
+    space.delRow(ResumeState, rowId);
+    space.delRow(CV, rowId);
+    spaceDocContent.delRow(CC, rowId);
+  }
+
+  public __deleteAnnot(rowId: Id) {
+    if (!this._nextAnnotation) {
+      this._nextAnnotation = space.getTable(A) as AnnotationTable;
+    }
+    delete this._nextAnnotation[rowId];
+    space.delRow(A, rowId);
+    this.__cleanupDeletedAnnot(rowId);
+  }
+
+  public __cleanupDeletedAnnot(rowId: Id) {
+    space.delRow(AV, rowId);
+    spaceDocContent.delRow(AC, rowId);
+  }
+
+  public __backfillProjectedStates(rowIds?: Ids) {
     if (!rowIds) rowIds = Object.keys(this._nextCollection);
     // TODO can optimize by sorting by depth
     // computing top levels first, then taking parent's breadcrumb + rowId in descendants
-    space.transaction(() => {
-      rowIds.forEach(rowId => {
-        if (this._nextCollection[rowId].itemId !== rowId) {
-          space.setCell(C, rowId, 'itemId', rowId);
-        }
-        this.setAncestryPath(rowId);
-      });
+    rowIds.forEach(rowId => {
+      if (this._nextCollection[rowId].itemId !== rowId) {
+        space.setCell(C, rowId, 'itemId', rowId);
+      }
+      this.$setAncestryPath(rowId);
     });
   }
 
-  public updateAllActivityAtBulk() {
+  public __updateAllActivityAtBulk() {
     if (!this._nextAnnotation) {
       this._nextAnnotation = space.getTable(A) as AnnotationTable;
     }
@@ -109,7 +121,7 @@ export class ProjectionEngine {
       const depth2 = this._nextProjection[id2].fullPath?.length || 0;
       return depth2 - depth1;
     });
-    space.startTransaction();
+    // space.startTransaction();
     try {
       rowIds.forEach(rowId => {
         const row = this._nextCollection[rowId];
@@ -134,7 +146,7 @@ export class ProjectionEngine {
         }
       });
     } finally {
-      space.finishTransaction();
+      // space.finishTransaction();
     }
   }
 
@@ -146,7 +158,7 @@ export class ProjectionEngine {
       const state = this._nextProjection[rowId];
       if (state.fullPath?.includes(id)) {
         // is a child
-        this.setAncestryPath(rowId);
+        this.$setAncestryPath(rowId);
       }
     });
   }

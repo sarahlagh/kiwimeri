@@ -209,8 +209,7 @@ class CollectionService {
     }
     const projectionEngine = new ProjectionEngine();
     space.transaction(() => {
-      space.delRow(C, rowId);
-      projectionEngine.cleanupDeletedItem(rowId);
+      projectionEngine.__deleteCollectionItem(rowId);
       if (flags?.skipAncestryRecalc !== true) {
         projectionEngine.__recalcAncestryLastActivityAt(parentId);
       }
@@ -406,18 +405,15 @@ class CollectionService {
     const projectionEngine = new ProjectionEngine();
     space.transaction(() => {
       if (key !== 'content') {
-        projectionEngine.$updateCollectionCell(rowId, key, value);
-        space.setCell(C, rowId, key, value as never);
-        space.setCell(
-          C,
+        projectionEngine.$setCollectionCell(rowId, key, value);
+        projectionEngine.$setCollectionCell(
           rowId,
           `${key}_meta`,
           setMetaField(updatedAt, `${value}`)
         );
       }
       if (isRowUpdateChange) {
-        projectionEngine.$updateCollectionCell(rowId, 'updatedAt', updatedAt);
-        space.setCell(C, rowId, 'updatedAt', updatedAt);
+        projectionEngine.$setCollectionCell(rowId, 'updatedAt', updatedAt);
         projectionEngine.__updateAncestryLastActivityAt(updatedAt, rowId);
       }
 
@@ -465,9 +461,8 @@ class CollectionService {
     const projectionEngine = new ProjectionEngine();
     space.transaction(() => {
       const row = { ...item, itemId: rowId } as CollectionItemRow;
-      projectionEngine.$updateCollectionRow(rowId, row);
-      projectionEngine.setAncestryPath(rowId);
-      space.setRow(C, rowId, row);
+      projectionEngine.$setCollectionRow(rowId, row);
+      projectionEngine.$setAncestryPath(rowId);
       projectionEngine.__updateAncestryLastActivityAt(item.updatedAt, rowId);
     });
     if (content) {
@@ -498,16 +493,15 @@ class CollectionService {
         const id = item.id || getUniqueId();
         const oldRow = projectionEngine.$getCollectionRow(id);
         const newRow = { ...oldRow, ...item, itemId: id } as CollectionItemRow;
-        projectionEngine.$updateCollectionRow(id, newRow);
+        projectionEngine.$setCollectionRow(id, newRow);
         allIds.push(id);
         if (item.type === CollectionItemType.document) {
           allDocs.set(id, item.content!);
         }
-        space.setRow(C, id, newRow);
       });
       // backfill all for now - should optimize
-      projectionEngine.backfillProjectedStates();
-      projectionEngine.updateAllActivityAtBulk();
+      projectionEngine.__backfillProjectedStates();
+      projectionEngine.__updateAllActivityAtBulk();
     });
     spaceDocContent.transaction(() => {
       allDocs.forEach((content, docId) => {

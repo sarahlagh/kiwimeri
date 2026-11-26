@@ -38,7 +38,7 @@ describe('search service', () => {
       space.setJson(jsonCollection);
       new ProjectionEngine(
         JSON.parse(jsonCollection)[0]['collection']
-      ).backfillProjectedStates();
+      ).__backfillProjectedStates();
     });
     spaceDocContent.setJson(jsonCollection);
   });

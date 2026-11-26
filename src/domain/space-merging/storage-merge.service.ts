@@ -27,7 +27,6 @@ import {
 } from '../collection/collection';
 import collectionService from '../collection/collection.service';
 import { unminimizeContentFromStorage } from '../collection/compress-file-content';
-import { annotsService } from '../collection/doc-annotations.service';
 import {
   BaseDocAnnotation,
   DocAnnotationRow,
@@ -325,7 +324,7 @@ class StorageMergeService {
     const newContent = this.parseAndValidate(json);
     const changes = this.afterMergeChanges(newContent, localContent);
 
-    this.setContent(newContent, false, projectionEngine => {
+    this.setContent(newContent, changes, false, () => {
       if (newContent.history) {
         spaceArchive.setTable(H, newContent.history);
       }
@@ -336,7 +335,6 @@ class StorageMergeService {
         space.setTable(S, newContent.stats);
       }
       space.delTable(SpaceTables.ResumeState);
-      this.handleDeletedRows(projectionEngine, changes);
     });
 
     this.handleHistory(changes);
@@ -347,9 +345,8 @@ class StorageMergeService {
     content: SpacePortableData,
     changes: AfterMergeChange[]
   ) {
-    this.setContent(content, true, projectionEngine => {
+    this.setContent(content, changes, true, () => {
       this.handleResumeState(changes);
-      this.handleDeletedRows(projectionEngine, changes);
     });
     this.handleHistory(changes);
   }
@@ -457,42 +454,30 @@ class StorageMergeService {
 
   private setContent(
     content: SpacePortableData,
+    changes: AfterMergeChange[],
     withUserPrefs: boolean,
-    beforeTransactionEnds?: (pe: ProjectionEngine) => void
+    beforeTransactionEnds?: () => void
   ) {
     const projectionEngine = new ProjectionEngine(content.items);
     spaceDocContent.startTransaction();
     space.startTransaction();
     try {
       this.setWithContent(structuredClone(content), 'items', C);
-      projectionEngine.backfillProjectedStates();
+      projectionEngine.__backfillProjectedStates();
       this.setWithContent(structuredClone(content), 'annots', A);
+      projectionEngine.__updateAllActivityAtBulk();
 
       if (withUserPrefs) {
         this.set(structuredClone(content), 'userPrefs', UP);
       }
 
-      if (beforeTransactionEnds) beforeTransactionEnds(projectionEngine);
+      this.__handleDeletedRows(projectionEngine, changes);
+      if (beforeTransactionEnds) beforeTransactionEnds();
     } finally {
       // TODO handle error
       space.finishTransaction();
       spaceDocContent.finishTransaction();
     }
-
-    // TODO should optimize
-    // const collectionChanges = changes
-    //   .filter(ch => ch.on === C)
-    //   .map(ch => ({
-    //     id: ch.id,
-    //     updatedAt: ch.updatedAt,
-    //     oldParentId: ch.oldParentId
-    //   }));
-    projectionEngine.updateAllActivityAtBulk(
-      // collectionChanges
-      // space.getTable(C) as CollectionTable,
-      // space.getTable(A) as AnnotationTable,
-      // nextProjection
-    );
   }
 
   private setWithContent(
@@ -562,27 +547,27 @@ class StorageMergeService {
     historyService.gc();
   }
 
-  private handleDeletedRows(
+  private __handleDeletedRows(
     projectionEngine: ProjectionEngine,
     changes: AfterMergeChange[]
   ) {
     changes
       .filter(ch => ch.change === LocalChangeType.delete)
       .forEach(ch => {
-        this.cleanupRow(projectionEngine, ch.id, ch.on);
+        this.__cleanupRow(projectionEngine, ch.id, ch.on);
       });
   }
 
-  private cleanupRow(
+  private __cleanupRow(
     projectionEngine: ProjectionEngine,
     rowId: string,
     on: SpaceTableId
   ) {
     if (on === SpaceTables.Collection) {
-      projectionEngine.cleanupDeletedItem(rowId);
+      projectionEngine.__cleanupDeletedItem(rowId);
     }
     if (on === SpaceTables.Annotations) {
-      annotsService.cleanupDeletedAnnot(rowId);
+      projectionEngine.__cleanupDeletedAnnot(rowId);
     }
   }
 }

@@ -109,8 +109,12 @@ describe('derived state', () => {
       notebooksService.addNotebook('N1');
 
       // pull - newest items are removed
-      space.setContent(space_content);
-      new ProjectionEngine().backfillProjectedStates();
+      space.transaction(() => {
+        space.setContent(space_content);
+        new ProjectionEngine(
+          space_content[0]['collection'] as any
+        ).__backfillProjectedStates();
+      });
 
       testExpectedPaths([
         ['0', 'F1', 'FF1', 'FFF1', 'D1'],

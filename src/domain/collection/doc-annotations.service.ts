@@ -121,35 +121,32 @@ class DocumentAnnotationsService {
     });
   }
 
-  public delete(rowId: Id) {
-    const projectionEngine = new ProjectionEngine();
+  public delete(rowId: Id, projectionEngine?: ProjectionEngine, bulk = false) {
+    if (!projectionEngine) projectionEngine = new ProjectionEngine();
     space.transaction(() => {
-      projectionEngine.$deleteAnnot(rowId);
       const docId = space.getCell(A, rowId, 'parentId');
-      if (docId && space.hasRow(C, docId)) {
+      projectionEngine.__deleteAnnot(rowId);
+      if (!bulk && docId && space.hasRow(C, docId)) {
         const parentId = space.getCell(C, docId, 'parentId');
         // recacl for document must take into account annot index
         projectionEngine.__recalcDocumentLastActivityAt(docId);
         projectionEngine.__recalcAncestryLastActivityAt([parentId!]);
       }
-      space.delRow(A, rowId);
-      this.cleanupDeletedAnnot(rowId);
     });
   }
 
-  public cleanupDeletedAnnot(rowId: Id) {
-    space.delRow(AV, rowId);
-    spaceDocContent.delRow(AC, rowId);
-  }
-
-  public deleteAll(parentId: Id) {
+  public deleteAll(docId: Id) {
+    const projectionEngine = new ProjectionEngine();
     const table = space.getTable(A);
+    const parentId = space.getCell(C, docId, 'parentId');
     space.transaction(() => {
       space.getRowIds(A).forEach(rowId => {
-        if (table[rowId].parentId === parentId) {
-          this.delete(rowId);
+        if (table[rowId].parentId === docId) {
+          this.delete(rowId, projectionEngine, true);
         }
       });
+      projectionEngine.__recalcDocumentLastActivityAt(docId);
+      projectionEngine.__recalcAncestryLastActivityAt([parentId!]);
     });
   }
 
