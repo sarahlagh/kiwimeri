@@ -1,3 +1,4 @@
+import { INIT_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
 import { plt } from '@/core/infra/platform.service';
 import { profileService } from '@/domain/profiles/profile.service';
@@ -18,10 +19,12 @@ import {
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
+import { useNavigate } from 'react-router';
 import useProfiles from '../hooks/useProfiles';
 
 const ProfileSwitcherSettings = () => {
   const { t } = useLingui();
+  const navigate = useNavigate();
   const profile = plt.getCurrentProfile();
   const [selectedProfile, setSelectedProfile] = useState(profile);
   const availableProfiles = useProfiles();
@@ -56,6 +59,7 @@ const ProfileSwitcherSettings = () => {
                 const newValue = e.detail.value as string;
                 plt.setCurrentProfile(newValue);
                 setSelectedProfile(newValue);
+                navigate(INIT_ROUTE);
                 location.reload();
               }}
             >
