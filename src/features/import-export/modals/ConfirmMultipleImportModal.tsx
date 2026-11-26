@@ -1,4 +1,4 @@
-import { APPICONS, ROOT_COLLECTION } from '@/constants';
+import { APPICONS, APPMSG, ROOT_COLLECTION } from '@/constants';
 import {
   APPICONS_PER_TYPE,
   CollectionItemType,
@@ -41,7 +41,7 @@ const ConfirmMultipleImportModal = ({
 }: ConfirmMultipleImportModalProps) => {
   const { t, i18n } = useLingui();
   const parentName =
-    collectionService.getItemTitle(parent) || i18n._('homeTitle');
+    collectionService.getItemTitle(parent) || i18n._(APPMSG.homeTitle);
 
   const [createNewFolder, setCreateNewFolder] = useState<boolean>(false);
   const [newFolderName, setNewFolderName] = useState<string | undefined>();

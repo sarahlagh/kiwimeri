@@ -145,7 +145,7 @@ export const APPICONS = {
 };
 
 // for where using lingui macros isn't possible
-export const GLOBAL_MESSAGES = {
+export const APPMSG = {
   homeTitle: msg`Home`,
   defaultNotebookName: msg`Default`,
   conflictsNotebookName: msg`Conflicts`,
@@ -154,9 +154,9 @@ export const GLOBAL_MESSAGES = {
   defaultExportSpaceFilename: msg`collection`
 } as const;
 
-export function tt(m: MessageDescriptor | keyof typeof GLOBAL_MESSAGES) {
+export function tt(m: MessageDescriptor | keyof typeof APPMSG) {
   if (typeof m === 'string') {
-    return i18n._(GLOBAL_MESSAGES[m]);
+    return i18n._(APPMSG[m]);
   }
   return i18n._(m);
 }

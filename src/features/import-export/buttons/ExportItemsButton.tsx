@@ -1,3 +1,4 @@
+import { APPMSG } from '@/constants';
 import {
   CollectionItemType,
   CollectionItemTypeValues
@@ -40,7 +41,7 @@ const ExportItemsButton = ({
 
   const getFileTitle = useCallback(() => {
     if (id === 'space') {
-      return `${i18n._('defaultExportSpaceFilename')}.zip`;
+      return `${i18n._(APPMSG.defaultExportSpaceFilename)}.zip`;
     }
     if (!id || id === notebook) {
       return `${collectionService.getItemTitle(notebook)}.zip`;

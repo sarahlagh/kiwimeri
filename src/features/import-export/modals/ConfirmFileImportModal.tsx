@@ -1,4 +1,4 @@
-import { APPICONS } from '@/constants';
+import { APPICONS, APPMSG } from '@/constants';
 import { CollectionItemResult } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import {
@@ -28,7 +28,7 @@ const ConfirmFileImportModal = ({
   const [item, setItem] = useState<CollectionItemResult | undefined>(undefined);
 
   const folderName =
-    collectionService.getItemTitle(folder) || i18n._('homeTitle');
+    collectionService.getItemTitle(folder) || i18n._(APPMSG.homeTitle);
 
   return (
     <>

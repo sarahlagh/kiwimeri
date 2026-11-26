@@ -31,8 +31,7 @@ const ActionsFromDocumentEditorToolbar = ({
   const folder = resumeService.getCurrentFolder();
   const fallbackRoute = GET_FOLDER_ROUTE(folder);
 
-  const statsEnabled = settingsService.getNotebookDefaultStatsEnabled();
-  const showStats = statsEnabled;
+  const showStats = settingsService.getNotebookDefaultStatsEnabled();
 
   return (
     <IonToolbar color="medium" style={{ height: 56 + 'px' }}>

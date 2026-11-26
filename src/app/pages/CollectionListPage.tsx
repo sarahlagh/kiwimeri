@@ -1,3 +1,4 @@
+import { APPMSG } from '@/constants';
 import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
 import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
 import { getSearchParams } from '@/shared/utils';
@@ -21,7 +22,7 @@ const CollectionListPage = () => {
   const parent = searchParams?.folder || notebook;
   const folderTitle = useItemTitle(parent);
 
-  const title = notebook !== parent ? folderTitle : i18n._('homeTitle');
+  const title = notebook !== parent ? folderTitle : i18n._(APPMSG.homeTitle);
   const onFolderTitleChange = onTitleChangeFn(parent);
 
   return (

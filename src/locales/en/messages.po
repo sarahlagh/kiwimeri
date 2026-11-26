@@ -7,23 +7,11 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: en\n"
 
-#. js-lingui-explicit-id
-#: src/app/pages/CollectionListPage.tsx:24
-#: src/features/import-export/modals/ConfirmFileImportModal.tsx:31
-#: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:44
-msgid "homeTitle"
-msgstr "homeTitle"
-
-#. js-lingui-explicit-id
-#: src/features/import-export/buttons/ExportItemsButton.tsx:43
-msgid "defaultExportSpaceFilename"
-msgstr "defaultExportSpaceFilename"
-
 #: src/features/timed-writing/components/SaveSessionModal.tsx:69
 msgid " (new)"
 msgstr " (new)"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:41
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:44
 msgid " Note that profiles have backups that may be kept kept up to one day after the profile is deleted."
 msgstr " Note that profiles have backups that may be kept kept up to one day after the profile is deleted."
 
@@ -121,13 +109,13 @@ msgstr "Are you sure?"
 msgid "Block Quote"
 msgstr "Block Quote"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:91
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:95
 msgid "cancel"
 msgstr "cancel"
 
 #: src/features/collection-history-ui/components/ManageHistoryModal.tsx:156
 #: src/features/document-editor/tags/ChooseTagsModal.tsx:100
-#: src/features/import-export/buttons/ExportItemsButton.tsx:102
+#: src/features/import-export/buttons/ExportItemsButton.tsx:103
 #: src/features/import-export/buttons/RestoreCollectionButton.tsx:57
 #: src/features/import-export/modals/ConfirmFileImportModal.tsx:75
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:339
@@ -177,7 +165,7 @@ msgstr "Choose where to save your work"
 msgid "close"
 msgstr "close"
 
-#: src/features/timed-writing/components/SaveSessionModal.tsx:109
+#: src/features/timed-writing/components/SaveSessionModal.tsx:112
 msgid "Close"
 msgstr "Close"
 
@@ -185,7 +173,7 @@ msgstr "Close"
 msgid "collection"
 msgstr "collection"
 
-#: src/app/components/MainMenuList.tsx:67
+#: src/app/components/MainMenuList.tsx:68
 msgid "Collection"
 msgstr "Collection"
 
@@ -200,7 +188,7 @@ msgstr "Configure where to synchronize your collection"
 #: src/features/collection-history-ui/components/ManageHistoryModal.tsx:160
 #: src/features/collection-notebooks-ui/components/ManageNotebooksModal.tsx:104
 #: src/features/document-editor/tags/ChooseTagsModal.tsx:107
-#: src/features/import-export/buttons/ExportItemsButton.tsx:109
+#: src/features/import-export/buttons/ExportItemsButton.tsx:110
 #: src/features/import-export/buttons/RestoreCollectionButton.tsx:64
 #: src/features/import-export/modals/ConfirmFileImportModal.tsx:78
 #: src/features/import-export/modals/ConfirmMultipleImportModal.tsx:345
@@ -218,7 +206,7 @@ msgstr "Conflicts"
 msgid "Content"
 msgstr "Content"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:71
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:75
 msgid "Create a new profile"
 msgstr "Create a new profile"
 
@@ -244,7 +232,7 @@ msgstr "Creation Date"
 msgid "Current Notebook Settings ({notebookTitle})"
 msgstr "Current Notebook Settings ({notebookTitle})"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:53
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:56
 msgid "Current profile"
 msgstr "Current profile"
 
@@ -264,7 +252,7 @@ msgstr "Delete All"
 msgid "Delete note"
 msgstr "Delete note"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:108
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:112
 msgid "Delete profile"
 msgstr "Delete profile"
 
@@ -272,11 +260,11 @@ msgstr "Delete profile"
 msgid "deleted comment"
 msgstr "deleted comment"
 
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:164
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:162
 msgid "deleted item"
 msgstr "deleted item"
 
-#: src/app/components/MainMenuList.tsx:105
+#: src/app/components/MainMenuList.tsx:106
 #: src/app/pages/DevToolsPage.tsx:21
 msgid "Dev Tools"
 msgstr "Dev Tools"
@@ -370,7 +358,7 @@ msgstr "EU"
 msgid "Export"
 msgstr "Export"
 
-#: src/features/import-export/buttons/ExportItemsButton.tsx:87
+#: src/features/import-export/buttons/ExportItemsButton.tsx:88
 msgid "Export Options"
 msgstr "Export Options"
 
@@ -438,7 +426,7 @@ msgstr "Import file in folder {folderName}"
 msgid "In descending order"
 msgstr "In descending order"
 
-#: src/features/import-export/buttons/ExportItemsButton.tsx:90
+#: src/features/import-export/buttons/ExportItemsButton.tsx:91
 msgid "Include metadata in zip"
 msgstr "Include metadata in zip"
 
@@ -503,15 +491,15 @@ msgstr "Less dangerous mode (session is still timed but you will not lose progre
 msgid "Link"
 msgstr "Link"
 
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:77
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:74
 msgid "Local Changes ({nbOfChanges})"
 msgstr "Local Changes ({nbOfChanges})"
 
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:86
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:83
 msgid "Local:  {lastLocalChange}"
 msgstr "Local:  {lastLocalChange}"
 
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:93
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:90
 msgid "Local: <0>never</0>"
 msgstr "Local: <0>never</0>"
 
@@ -523,7 +511,7 @@ msgstr "Log Maintenance"
 msgid "Logs"
 msgstr "Logs"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:39
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:42
 msgid "Manage your app profiles here."
 msgstr "Manage your app profiles here."
 
@@ -560,7 +548,7 @@ msgstr "Markdown (Kiwimeri flavor)"
 msgid "Max log history"
 msgstr "Max log history"
 
-#: src/features/timed-writing/components/SaveSessionModal.tsx:138
+#: src/features/timed-writing/components/SaveSessionModal.tsx:141
 msgid "Merge"
 msgstr "Merge"
 
@@ -581,7 +569,7 @@ msgstr "Modified Date"
 msgid "Name"
 msgstr "Name"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:78
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:82
 msgid "Name your new profile"
 msgstr "Name your new profile"
 
@@ -650,7 +638,7 @@ msgstr "Notebooks found in the archive, they will be converted to folders"
 msgid "Notification Maintenance"
 msgstr "Notification Maintenance"
 
-#: src/app/components/MainMenuList.tsx:97
+#: src/app/components/MainMenuList.tsx:98
 #: src/app/pages/NotificationsPage.tsx:15
 msgid "Notifications"
 msgstr "Notifications"
@@ -659,7 +647,7 @@ msgstr "Notifications"
 msgid "Number of versions"
 msgstr "Number of versions"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:95
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:99
 msgid "ok"
 msgstr "ok"
 
@@ -705,11 +693,11 @@ msgstr "Pending Edits"
 msgid "Profile Cleanup"
 msgstr "Profile Cleanup"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:82
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:86
 msgid "profile name"
 msgstr "profile name"
 
-#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:36
+#: src/features/settings-ui/components/ProfileSwitcherSettings.tsx:39
 msgid "Profile Settings"
 msgstr "Profile Settings"
 
@@ -733,11 +721,11 @@ msgstr "Remember last route"
 msgid "Remote Configuration"
 msgstr "Remote Configuration"
 
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:102
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:99
 msgid "Remote:  {lastRemoteChange}"
 msgstr "Remote:  {lastRemoteChange}"
 
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:109
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:106
 msgid "Remote: <0>never</0>"
 msgstr "Remote: <0>never</0>"
 
@@ -749,7 +737,7 @@ msgstr "Remove format"
 msgid "Reorder"
 msgstr "Reorder"
 
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:278
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:279
 msgid "Reset All"
 msgstr "Reset All"
 
@@ -774,7 +762,7 @@ msgstr "Rich text editor"
 msgid "Run Now"
 msgstr "Run Now"
 
-#: src/features/timed-writing/components/SaveSessionModal.tsx:136
+#: src/features/timed-writing/components/SaveSessionModal.tsx:139
 msgid "Save"
 msgstr "Save"
 
@@ -818,7 +806,7 @@ msgstr "Server"
 msgid "Session Mode"
 msgstr "Session Mode"
 
-#: src/app/components/MainMenuList.tsx:83
+#: src/app/components/MainMenuList.tsx:84
 #: src/app/pages/SettingsPage.tsx:15
 msgid "Settings"
 msgstr "Settings"
@@ -857,9 +845,9 @@ msgstr "Sort items by..."
 msgid "sort notes"
 msgstr "sort notes"
 
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:220
-msgid "Space setting modified:"
-msgstr "Space setting modified:"
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:221
+msgid "Space setting modified:  "
+msgstr "Space setting modified:  "
 
 #: src/features/settings-ui/components/CurrentSpaceSettings.tsx:30
 msgid "Space Settings"
@@ -881,7 +869,7 @@ msgstr "Success!"
 msgid "Switch info"
 msgstr "Switch info"
 
-#: src/app/components/MainMenuList.tsx:89
+#: src/app/components/MainMenuList.tsx:90
 #: src/app/pages/SynchronizationPage.tsx:15
 msgid "Synchronization & Backup"
 msgstr "Synchronization & Backup"
@@ -930,11 +918,11 @@ msgstr "This will delete your existing data. Are you sure?"
 msgid "This will execute the task immediately"
 msgstr "This will execute the task immediately"
 
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:270
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:271
 msgid "This will reset all values that can be reset."
 msgstr "This will reset all values that can be reset."
 
-#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:253
+#: src/features/synchronization-ui/local-changes-ui/LocalChangesCard.tsx:254
 msgid "This will reset this change"
 msgstr "This will reset this change"
 
@@ -942,7 +930,7 @@ msgstr "This will reset this change"
 msgid "timed session "
 msgstr "timed session "
 
-#: src/app/components/MainMenuList.tsx:77
+#: src/app/components/MainMenuList.tsx:78
 msgid "Timed Writing"
 msgstr "Timed Writing"
 
