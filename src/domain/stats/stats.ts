@@ -2,14 +2,14 @@ import { CellSchema } from 'tinybase/with-schemas';
 
 export type DocumentStatRow = {
   itemId: string;
-  date?: string;
-  contentStatsJson?: DocumentContentStatsBag;
+  date: string;
+  contentStatsJson: DocumentContentStatsBag;
 };
 
 export const statsSchema = {
-  itemId: { type: 'string' },
-  date: { type: 'string' },
-  contentStatsJson: { type: 'object' }
+  itemId: { type: 'string', required: true },
+  date: { type: 'string', required: true },
+  contentStatsJson: { type: 'object', required: true }
 } as const satisfies Record<keyof DocumentStatRow, CellSchema>;
 
 export type DocumentContentStatsBag = {

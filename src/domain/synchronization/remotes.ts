@@ -10,9 +10,9 @@ export type RemoteRow = {
 };
 
 export const remotesSchema = {
-  name: { type: 'string' },
-  rank: { type: 'number' },
-  driver: { type: 'string' }, // TODO enum
+  name: { type: 'string', required: true },
+  rank: { type: 'number', required: true },
+  driver: { type: 'string', required: true }, // TODO enum
   config: { type: 'object' }
 } as const satisfies Record<keyof RemoteRow, CellSchema>;
 

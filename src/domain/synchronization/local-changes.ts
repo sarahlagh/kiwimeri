@@ -22,10 +22,10 @@ export interface LocalChangeRow<T> {
 }
 
 export const localChangesSchema = {
-  itemId: { type: 'string' },
-  createdAt: { type: 'number' },
-  change: { enum: changeTypeValues },
-  on: { type: 'string' }, // TODO enum
+  itemId: { type: 'string', required: true },
+  createdAt: { type: 'number', required: true },
+  change: { enum: changeTypeValues, required: true },
+  on: { type: 'string', required: true }, // TODO enum
   field: { type: 'string' },
   previousData: { type: 'object' },
   previousHash: { type: 'number' }

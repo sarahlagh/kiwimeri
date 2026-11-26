@@ -13,11 +13,11 @@ export type DocumentEditRow = {
 };
 
 export const documentEditsSchema = {
-  on: { type: 'string' }, // TODO enum
-  itemId: { type: 'string' },
-  createdAt: { type: 'number' },
-  json: { type: 'string' },
-  isFullSnapshot: { type: 'boolean' },
+  on: { type: 'string', required: true }, // TODO enum
+  itemId: { type: 'string', required: true },
+  createdAt: { type: 'number', required: true },
+  json: { type: 'string', required: true },
+  isFullSnapshot: { type: 'boolean', default: false },
   debugPayload: { type: 'string' }
 } as const satisfies Record<keyof DocumentEditRow, CellSchema>;
 

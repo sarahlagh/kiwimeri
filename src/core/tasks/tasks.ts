@@ -10,9 +10,9 @@ export type ScheduledTaskRow = {
 };
 
 export const tasksSchema = {
-  name: { type: 'string' },
-  scheduledAt: { type: 'number' },
-  createdAt: { type: 'number' },
+  name: { type: 'string', required: true },
+  scheduledAt: { type: 'number', required: true },
+  createdAt: { type: 'number', required: true },
   inputs: { type: 'object' },
   error: { type: 'string' }
 } as const satisfies Record<keyof ScheduledTaskRow, CellSchema>;

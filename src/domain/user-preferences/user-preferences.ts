@@ -50,8 +50,8 @@ export type UserPreferenceRow = {
 };
 
 export const userPreferenceSchema = {
-  value: { type: 'object' },
-  updatedAt: { type: 'number' }
+  value: { type: 'object', required: true },
+  updatedAt: { type: 'number', required: true }
 } as const satisfies Record<keyof UserPreferenceRow, CellSchema>;
 
 export type UserPreferenceValue<

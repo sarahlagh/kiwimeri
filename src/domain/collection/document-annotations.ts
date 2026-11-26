@@ -16,10 +16,10 @@ export type DocAnnotationRow = {
 };
 
 export const docAnnotationSchema = {
-  parentId: { type: 'string' },
-  type: { type: 'string' }, // later have an enum
-  createdAt: { type: 'number', default: 0 },
-  updatedAt: { type: 'number', default: 0 },
+  parentId: { type: 'string', required: true },
+  type: { enum: ['note'], default: 'note' }, // later have an enum
+  createdAt: { type: 'number', required: true },
+  updatedAt: { type: 'number', required: true },
   order: { type: 'number', default: -1 },
   order_meta: { type: 'object', default: metaSchemaDefault },
   conflictId: { type: 'string' }

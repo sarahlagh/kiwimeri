@@ -330,7 +330,8 @@ describe('local changes listeners', () => {
       nonWatchedFields: [
         { field: 'parentId', valueType: 'id' },
         { field: 'updatedAt', valueType: 'number' },
-        { field: 'previewText', valueType: 'string' }
+        { field: 'previewText', valueType: 'string' },
+        { field: 'createdAt', valueType: 'number' }
       ]
     },
     {
@@ -346,14 +347,15 @@ describe('local changes listeners', () => {
     return getNewValue(testField.valueType) as never;
   }
 
-  function createDataInDb(
-    tableId: never,
+  function createFakeRows(
     watchedFields: TestField[],
     nonWatchedFields: TestField[]
   ) {
     const fakeRow = {};
     const fakeContentRow: any = {};
-    fakeRow[getField(nonWatchedFields[0])] = getValue(nonWatchedFields[0]);
+    nonWatchedFields.forEach(nonWatchedField => {
+      fakeRow[getField(nonWatchedField)] = getValue(nonWatchedField);
+    });
     watchedFields.forEach(watchedField => {
       if (watchedField.field === 'content') {
         fakeContentRow[getField(watchedField)] = getValue(watchedField);
@@ -361,6 +363,18 @@ describe('local changes listeners', () => {
         fakeRow[getField(watchedField)] = getValue(watchedField);
       }
     });
+    return { fakeRow, fakeContentRow };
+  }
+
+  function createDataInDb(
+    tableId: never,
+    watchedFields: TestField[],
+    nonWatchedFields: TestField[]
+  ) {
+    const { fakeRow, fakeContentRow } = createFakeRows(
+      watchedFields,
+      nonWatchedFields
+    );
     const testId = space.addRow(tableId, fakeRow)!;
     const derivedTableId = getContentTable(tableId);
     if (Object.keys(fakeContentRow).length > 0 && derivedTableId) {
@@ -405,11 +419,7 @@ describe('local changes listeners', () => {
     ({ tableId: _tableId, watchedFields, nonWatchedFields }) => {
       describe(`watches table ${_tableId}`, () => {
         const tableId = _tableId as never;
-        const fakeRow = {};
-        fakeRow[getField(nonWatchedFields[0])] = getValue(nonWatchedFields[0]);
-        watchedFields.forEach(watchedField => {
-          fakeRow[getField(watchedField)] = getValue(watchedField);
-        });
+        const { fakeRow } = createFakeRows(watchedFields, nonWatchedFields);
 
         it(`should create a local change for new rows`, () => {
           const testId0 = createDataInDb(

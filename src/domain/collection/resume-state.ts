@@ -21,8 +21,9 @@ export type NotebookResumeState = {
   lastDocument?: Id;
 };
 
-export type CollectionResumeStateRow = DocumentResumeState &
-  NotebookResumeState;
+export type CollectionResumeStateRow = Partial<
+  DocumentResumeState & NotebookResumeState
+>;
 
 export const resumeStateSchema = {
   // document

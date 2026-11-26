@@ -76,7 +76,7 @@ class StatsService {
       mergedStats.maxWordCount = statsBag.lastWordCount;
     }
 
-    space.setPartialRow('stats', rowId, {
+    space.setRow('stats', rowId, {
       itemId,
       date,
       contentStatsJson: mergedStats
@@ -120,7 +120,7 @@ class StatsService {
       lastWordCount: mostRecent.lastWordCount
     };
 
-    space.setPartialRow('stats', rowId, {
+    space.setRow('stats', rowId, {
       itemId,
       date,
       contentStatsJson: mergedStats

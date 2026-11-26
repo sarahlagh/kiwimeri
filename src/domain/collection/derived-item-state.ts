@@ -17,7 +17,7 @@ export const projectedItemStateSchema = {
 } as const satisfies Record<keyof ProjectedItemStateRow, CellSchema>;
 
 export type ItemViewRow = {
-  lastOpenedAt: number;
+  lastOpenedAt?: number;
   previewText?: string;
 };
 export const collectionItemViewSchema = {
@@ -29,7 +29,7 @@ export type AnnotViewRow = {
   previewText: string;
 };
 export const annotationsViewSchema = {
-  previewText: { type: 'string' }
+  previewText: { type: 'string', required: true }
 } as const satisfies Record<keyof AnnotViewRow, CellSchema>;
 
 export function getViewTable(on: SpaceTableId) {
