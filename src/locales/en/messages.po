@@ -75,7 +75,7 @@ msgstr "Align left"
 msgid "Align right"
 msgstr "Align right"
 
-#: src/app/components/MainHeader.tsx:76
+#: src/app/components/MainHeader.tsx:75
 msgid "An error occurred during sync."
 msgstr "An error occurred during sync."
 
@@ -173,7 +173,7 @@ msgstr "Close"
 msgid "collection"
 msgstr "collection"
 
-#: src/app/components/MainMenuList.tsx:68
+#: src/app/components/MainMenuList.tsx:69
 msgid "Collection"
 msgstr "Collection"
 
@@ -186,7 +186,7 @@ msgid "Configure where to synchronize your collection"
 msgstr "Configure where to synchronize your collection"
 
 #: src/features/collection-history-ui/components/ManageHistoryModal.tsx:160
-#: src/features/collection-notebooks-ui/components/ManageNotebooksModal.tsx:104
+#: src/features/collection-notebooks-ui/components/ManageNotebooksModal.tsx:103
 #: src/features/document-editor/tags/ChooseTagsModal.tsx:107
 #: src/features/import-export/buttons/ExportItemsButton.tsx:110
 #: src/features/import-export/buttons/RestoreCollectionButton.tsx:64
@@ -197,7 +197,7 @@ msgid "Confirm"
 msgstr "Confirm"
 
 #: src/constants.ts:151
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:160
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:159
 msgid "Conflicts"
 msgstr "Conflicts"
 
@@ -264,7 +264,7 @@ msgstr "deleted comment"
 msgid "deleted item"
 msgstr "deleted item"
 
-#: src/app/components/MainMenuList.tsx:106
+#: src/app/components/MainMenuList.tsx:107
 #: src/app/pages/DevToolsPage.tsx:21
 msgid "Dev Tools"
 msgstr "Dev Tools"
@@ -374,7 +374,7 @@ msgstr "File not supported"
 msgid "Format {formatType}"
 msgstr "Format {formatType}"
 
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:100
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:99
 msgid "go to current folder"
 msgstr "go to current folder"
 
@@ -466,7 +466,7 @@ msgstr "Kiwimeri format (content only)"
 msgid "Kiwimeri format (with history & stats)"
 msgstr "Kiwimeri format (with history & stats)"
 
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:159
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:158
 msgid "Last consulted documents"
 msgstr "Last consulted documents"
 
@@ -475,7 +475,7 @@ msgstr "Last consulted documents"
 msgid "Last Updated"
 msgstr "Last Updated"
 
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:158
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:157
 msgid "Last updated documents"
 msgstr "Last updated documents"
 
@@ -626,7 +626,7 @@ msgstr "none"
 msgid "Not Found"
 msgstr "Not Found"
 
-#: src/features/collection-notebooks-ui/components/ManageNotebooksModal.tsx:43
+#: src/features/collection-notebooks-ui/components/ManageNotebooksModal.tsx:42
 msgid "Notebook Selection"
 msgstr "Notebook Selection"
 
@@ -638,7 +638,7 @@ msgstr "Notebooks found in the archive, they will be converted to folders"
 msgid "Notification Maintenance"
 msgstr "Notification Maintenance"
 
-#: src/app/components/MainMenuList.tsx:98
+#: src/app/components/MainMenuList.tsx:99
 #: src/app/pages/NotificationsPage.tsx:15
 msgid "Notifications"
 msgstr "Notifications"
@@ -806,7 +806,7 @@ msgstr "Server"
 msgid "Session Mode"
 msgstr "Session Mode"
 
-#: src/app/components/MainMenuList.tsx:84
+#: src/app/components/MainMenuList.tsx:85
 #: src/app/pages/SettingsPage.tsx:15
 msgid "Settings"
 msgstr "Settings"
@@ -820,7 +820,7 @@ msgstr "Show details"
 msgid "Show Filters"
 msgstr "Show Filters"
 
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:113
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:112
 msgid "show search sort filters"
 msgstr "show search sort filters"
 
@@ -869,7 +869,7 @@ msgstr "Success!"
 msgid "Switch info"
 msgstr "Switch info"
 
-#: src/app/components/MainMenuList.tsx:90
+#: src/app/components/MainMenuList.tsx:91
 #: src/app/pages/SynchronizationPage.tsx:15
 msgid "Synchronization & Backup"
 msgstr "Synchronization & Backup"
@@ -930,7 +930,7 @@ msgstr "This will reset this change"
 msgid "timed session "
 msgstr "timed session "
 
-#: src/app/components/MainMenuList.tsx:78
+#: src/app/components/MainMenuList.tsx:79
 msgid "Timed Writing"
 msgstr "Timed Writing"
 
@@ -951,7 +951,7 @@ msgstr "Toggle"
 msgid "Toggle actions"
 msgstr "Toggle actions"
 
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:121
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:120
 msgid "toggle browser mode"
 msgstr "toggle browser mode"
 

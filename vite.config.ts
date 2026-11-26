@@ -1,5 +1,6 @@
 import { lingui } from '@lingui/vite-plugin';
-import react from '@vitejs/plugin-react';
+import babel from '@rolldown/plugin-babel';
+import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { playwright } from '@vitest/browser-playwright';
 import path from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
@@ -30,7 +31,13 @@ const viteConfig = defineConfig({
       '@@': path.resolve(import.meta.dirname, 'test/')
     }
   },
-  plugins: [react(), lingui({ macroTransform: true })]
+  plugins: [
+    react(),
+    babel({
+      presets: [reactCompilerPreset()]
+    }),
+    lingui({ macroTransform: true })
+  ]
 });
 if (process.env.ANALYZE) {
   viteConfig.plugins?.push(
