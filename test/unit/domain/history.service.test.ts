@@ -573,14 +573,14 @@ describe('collection history service', () => {
       updatedAt: init,
       lastActivityAt: beforeTs,
       fullPath: ['0', fol1],
-      shortPath: ['0', fol1]
+      nearestNotebookId: '0'
     });
     expect(projectedStates[docId]).toEqual({
       createdAt: init + fakeTimersDelay,
       updatedAt: beforeTs,
       lastActivityAt: beforeTs,
       fullPath: ['0', fol1, docId],
-      shortPath: ['0', fol1, docId],
+      nearestNotebookId: '0',
       previewText: 'test 2'
     });
 
@@ -596,14 +596,14 @@ describe('collection history service', () => {
       updatedAt: init,
       lastActivityAt: afterTs,
       fullPath: ['0', fol1],
-      shortPath: ['0', fol1]
+      nearestNotebookId: '0'
     });
     expect(projectedStates[docId]).toEqual({
       createdAt: init + fakeTimersDelay,
       updatedAt: afterTs,
       lastActivityAt: afterTs,
       fullPath: ['0', fol1, docId],
-      shortPath: ['0', fol1, docId],
+      nearestNotebookId: '0',
       previewText: 'test 1'
     });
   });

@@ -54,7 +54,6 @@ const fetchBrowsableItemsQuery = new SpaceQueryDefinition<
         getCell('view', 'plainText')?.toString().substring(0, DOC_PREVIEW_SIZE)
       ).as('previewText');
     }
-    select('state', 'shortPath').as('breadcrumb');
 
     if (params.withLastOpenedAt) {
       select('view', 'lastOpenedAt');

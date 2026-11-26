@@ -90,7 +90,6 @@ export type CollectionItemResult = Pick<
 > &
   LastActivityAt &
   Required<Pick<CollectionItem, 'id'>> & {
-    breadcrumb?: string[];
     previewText?: string;
   };
 

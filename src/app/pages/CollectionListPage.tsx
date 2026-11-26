@@ -31,7 +31,9 @@ const CollectionListPage = () => {
       onEdited={onFolderTitleChange}
     >
       <Suspense>
-        <CollectionItemBrowserList parent={parent}></CollectionItemBrowserList>
+        <CollectionItemBrowserList
+          parentId={parent}
+        ></CollectionItemBrowserList>
       </Suspense>
     </TemplateMainPage>
   );

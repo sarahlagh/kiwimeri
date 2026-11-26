@@ -3,7 +3,7 @@ import { CollectionItemTypeValues } from '@/domain/collection/collection';
 export type DeepSearchResult = {
   id: string;
   type: CollectionItemTypeValues;
-  shortBreadcrumb: string[];
+  breadcrumb: string[];
   title?: string;
   preview?: string;
   firstContentMatch?: {

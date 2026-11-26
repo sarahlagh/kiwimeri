@@ -52,7 +52,7 @@ const DocumentEditorPage = () => {
       menu={
         <Suspense>
           <CollectionItemBrowserList
-            parent={parent}
+            parentId={parent}
           ></CollectionItemBrowserList>
         </Suspense>
       }

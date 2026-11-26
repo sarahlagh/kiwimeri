@@ -77,7 +77,7 @@ const SaveSessionModal = ({ onClose }: SaveSessionModalProps) => {
         </IonTitle>
         <CollectionItemBreadcrumb
           minBreadcrumb={0}
-          folder={parentId}
+          folderId={parentId}
           onClick={item => {
             setParentId(item);
           }}

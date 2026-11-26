@@ -70,7 +70,7 @@ class CollectionContentSearchService {
         id: itemId,
         type: item.type as CollectionItemTypeValues,
         title,
-        shortBreadcrumb: shortPath as string[]
+        breadcrumb: shortPath as string[]
       };
 
       // optionally search in title

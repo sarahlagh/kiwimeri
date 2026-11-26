@@ -85,7 +85,7 @@ describe('CollectionItemBrowserList', () => {
 
   test('renders an empty browser when the parent does not exist', async () => {
     const screen = await render(
-      <CollectionItemBrowserList parent={'does_not_exist'} />,
+      <CollectionItemBrowserList parentId={'does_not_exist'} />,
       {
         wrapper: TestingProvider
       }
@@ -101,7 +101,7 @@ describe('CollectionItemBrowserList', () => {
 
   test('renders an empty browser when parent is not a notebook or folder', async () => {
     const screen = await render(
-      <CollectionItemBrowserList parent={documents[0]} />,
+      <CollectionItemBrowserList parentId={documents[0]} />,
       {
         wrapper: TestingProvider
       }
@@ -115,9 +115,12 @@ describe('CollectionItemBrowserList', () => {
 
   test('renders an empty item browser', async () => {
     const folId = collectionService.addFolder(DEFAULT_NOTEBOOK_ID);
-    const screen = await render(<CollectionItemBrowserList parent={folId} />, {
-      wrapper: TestingProvider
-    });
+    const screen = await render(
+      <CollectionItemBrowserList parentId={folId} />,
+      {
+        wrapper: TestingProvider
+      }
+    );
     await expect.element(screen.baseElement).toBeInTheDocument();
     await expect.element(screen.baseElement).toBeInTheDocument();
     await expect.element(getHeader(screen)).toBeInTheDocument();
@@ -133,7 +136,7 @@ describe('CollectionItemBrowserList', () => {
         BROWSER_MODE_IDX
       );
       const screen = await render(
-        <CollectionItemBrowserList parent={DEFAULT_NOTEBOOK_ID} />,
+        <CollectionItemBrowserList parentId={DEFAULT_NOTEBOOK_ID} />,
         {
           wrapper: TestingProvider
         }
@@ -157,7 +160,7 @@ describe('CollectionItemBrowserList', () => {
 
     test('mode=browser is the default', async () => {
       const screen = await render(
-        <CollectionItemBrowserList parent={DEFAULT_NOTEBOOK_ID} />,
+        <CollectionItemBrowserList parentId={DEFAULT_NOTEBOOK_ID} />,
         {
           wrapper: TestingProvider
         }
@@ -173,7 +176,7 @@ describe('CollectionItemBrowserList', () => {
         BROWSER_MODE_IDX
       );
       const screen = await render(
-        <CollectionItemBrowserList parent={DEFAULT_NOTEBOOK_ID} />,
+        <CollectionItemBrowserList parentId={DEFAULT_NOTEBOOK_ID} />,
         {
           wrapper: TestingProvider
         }
@@ -195,7 +198,7 @@ describe('CollectionItemBrowserList', () => {
         BROWSER_MODE_IDX
       );
       const screen = await render(
-        <CollectionItemBrowserList parent={DEFAULT_NOTEBOOK_ID} />,
+        <CollectionItemBrowserList parentId={DEFAULT_NOTEBOOK_ID} />,
         {
           wrapper: TestingProvider
         }
@@ -215,7 +218,7 @@ describe('CollectionItemBrowserList', () => {
         UPDATED_AT_MODE_IDX
       );
       const screen = await render(
-        <CollectionItemBrowserList parent={DEFAULT_NOTEBOOK_ID} />,
+        <CollectionItemBrowserList parentId={DEFAULT_NOTEBOOK_ID} />,
         {
           wrapper: TestingProvider
         }
@@ -250,7 +253,7 @@ describe('CollectionItemBrowserList', () => {
         LAST_OPENED_AT_MODE_IDX
       );
       const screen = await render(
-        <CollectionItemBrowserList parent={DEFAULT_NOTEBOOK_ID} />,
+        <CollectionItemBrowserList parentId={DEFAULT_NOTEBOOK_ID} />,
         {
           wrapper: TestingProvider
         }
@@ -281,7 +284,7 @@ describe('CollectionItemBrowserList', () => {
 
     test('mode btn switches between modes (conflicts excepted) in a loop', async () => {
       const screen = await render(
-        <CollectionItemBrowserList parent={DEFAULT_NOTEBOOK_ID} />,
+        <CollectionItemBrowserList parentId={DEFAULT_NOTEBOOK_ID} />,
         {
           wrapper: TestingProvider
         }
@@ -349,7 +352,7 @@ describe('CollectionItemBrowserList', () => {
 
     test('conflicts mode is automatically toggled on as soon as there are conflicts and cannot be changed', async () => {
       const screen = await render(
-        <CollectionItemBrowserList parent={DEFAULT_NOTEBOOK_ID} />,
+        <CollectionItemBrowserList parentId={DEFAULT_NOTEBOOK_ID} />,
         {
           wrapper: TestingProvider
         }
@@ -371,7 +374,7 @@ describe('CollectionItemBrowserList', () => {
 
     test('conflicts mode only shows documents with conflicts within the space', async () => {
       const screen = await render(
-        <CollectionItemBrowserList parent={DEFAULT_NOTEBOOK_ID} />,
+        <CollectionItemBrowserList parentId={DEFAULT_NOTEBOOK_ID} />,
         {
           wrapper: TestingProvider
         }
@@ -426,7 +429,7 @@ describe('CollectionItemBrowserList', () => {
 
     test('in conflicts mode both documents and conflicts are clickable', async () => {
       const screen = await render(
-        <CollectionItemBrowserList parent={DEFAULT_NOTEBOOK_ID} />,
+        <CollectionItemBrowserList parentId={DEFAULT_NOTEBOOK_ID} />,
         {
           wrapper: TestingProvider
         }
@@ -456,7 +459,7 @@ describe('CollectionItemBrowserList', () => {
 
     test('resolving item conflicts updates the browser', async () => {
       const screen = await render(
-        <CollectionItemBrowserList parent={DEFAULT_NOTEBOOK_ID} />,
+        <CollectionItemBrowserList parentId={DEFAULT_NOTEBOOK_ID} />,
         {
           wrapper: TestingProvider
         }
@@ -480,7 +483,7 @@ describe('CollectionItemBrowserList', () => {
 
     test('resolving annotation conflicts updates the browser', async () => {
       const screen = await render(
-        <CollectionItemBrowserList parent={DEFAULT_NOTEBOOK_ID} />,
+        <CollectionItemBrowserList parentId={DEFAULT_NOTEBOOK_ID} />,
         {
           wrapper: TestingProvider
         }

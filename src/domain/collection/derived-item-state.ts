@@ -7,12 +7,12 @@ export type LastActivityAt = {
 };
 
 export type ProjectedItemStateRow = LastActivityAt & {
-  shortPath: string[];
   fullPath: string[];
+  nearestNotebookId: string;
 };
 export const projectedItemStateSchema = {
   fullPath: { type: 'array', required: true },
-  shortPath: { type: 'array' },
+  nearestNotebookId: { type: 'string', required: true },
   lastActivityAt: { type: 'number', required: true }
 } as const satisfies Record<keyof ProjectedItemStateRow, CellSchema>;
 

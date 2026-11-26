@@ -64,7 +64,7 @@ const VersionedItemPage = () => {
       menu={
         <Suspense>
           <CollectionItemBrowserList
-            parent={parentFolder}
+            parentId={parentFolder}
           ></CollectionItemBrowserList>
         </Suspense>
       }

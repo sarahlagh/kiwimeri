@@ -518,14 +518,15 @@ class CollectionService {
     return allDocs.keys();
   }
 
-  public getBreadcrumb(rowId: string, includeAllNotebooks = false) {
-    const breadcrumb = space.getCell(
-      P,
-      rowId,
-      includeAllNotebooks ? 'fullPath' : 'shortPath'
-    );
-    if (breadcrumb) return breadcrumb as string[];
-    return [];
+  public getBreadcrumb(rowId: string, includeAllNotebooks = false): string[] {
+    if (rowId === ROOT_COLLECTION) return [];
+    const fullPath = space.getCell(P, rowId, 'fullPath') as string[];
+    if (!fullPath) return [];
+    if (!includeAllNotebooks) {
+      const nearestNotebookId = space.getCell(P, rowId, 'nearestNotebookId');
+      return fullPath.slice(fullPath.indexOf(nearestNotebookId));
+    }
+    return fullPath;
   }
 
   private setRawContent(id: Id, content: string, updated: number) {

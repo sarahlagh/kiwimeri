@@ -98,7 +98,7 @@ function highlightResults(searchResults: DeepSearchResult[]) {
 }
 
 const SearchResult = ({ searchResult }: SearchResultProps) => {
-  const textBreadcrumb = searchResult.shortBreadcrumb.map(id => ({
+  const textBreadcrumb = searchResult.breadcrumb.map(id => ({
     title: collectionService.getItemTitle(id)
   }));
   textBreadcrumb.shift(); // remove the notebook

@@ -58,15 +58,18 @@ export class ProjectionEngine {
   }
 
   public $setAncestryPath(id: Id) {
-    const { fullPath, shortPath } = this.computePaths(id, this._nextCollection);
+    const { fullPath, nearestNotebookId } = this.computePaths(
+      id,
+      this._nextCollection
+    );
     if (!this._nextProjection[id]) this._nextProjection[id] = {};
     this._nextProjection[id].fullPath = fullPath;
-    this._nextProjection[id].shortPath = shortPath;
+    this._nextProjection[id].nearestNotebookId = nearestNotebookId;
     space.setPartialRow(P, id, {
       fullPath,
-      shortPath
+      nearestNotebookId
     });
-    return { fullPath, shortPath };
+    return { fullPath, nearestNotebookId };
   }
 
   public __deleteCollectionItem(rowId: Id) {
@@ -100,7 +103,7 @@ export class ProjectionEngine {
   public __backfillProjectedStates(rowIds?: Ids) {
     if (!rowIds) rowIds = Object.keys(this._nextCollection);
     // TODO can optimize by sorting by depth
-    // computing top levels first, then taking parent's breadcrumb + rowId in descendants
+    // computing top levels first, then taking parent's fullPath + rowId in descendants
     rowIds.forEach(rowId => {
       if (this._nextCollection[rowId].itemId !== rowId) {
         space.setCell(C, rowId, 'itemId', rowId);
@@ -164,11 +167,11 @@ export class ProjectionEngine {
   }
 
   public __updateAncestryLastActivityAt(updatedAt: number, parentId: string) {
-    // breadcrumb includes item itself
+    // fullPath includes item itself
     if (parentId === ROOT_COLLECTION) return;
-    const breadcrumb = this._nextProjection[parentId].fullPath;
-    if (!breadcrumb) throw new Error('undefined ancestry: ' + parentId);
-    const reversed = breadcrumb.toReversed();
+    const fullPath = this._nextProjection[parentId].fullPath;
+    if (!fullPath) throw new Error('undefined ancestry: ' + parentId);
+    const reversed = fullPath.toReversed();
     for (let i = 0; i < reversed.length; i++) {
       const current = this._nextProjection[reversed[i]].lastActivityAt || 0;
       if (current >= updatedAt) return;
@@ -182,9 +185,9 @@ export class ProjectionEngine {
     const allIds = Array.isArray(ids) ? ids : [ids];
     allIds.forEach(id => {
       if (id === ROOT_COLLECTION) return;
-      const breadcrumb = this._nextProjection[id]?.fullPath?.toReversed();
-      if (!breadcrumb) throw Error('undefined ancestry: ' + id);
-      for (const parentId of breadcrumb) {
+      const fullPath = this._nextProjection[id]?.fullPath?.toReversed();
+      if (!fullPath) throw Error('undefined ancestry: ' + id);
+      for (const parentId of fullPath) {
         const descendants = index.get(parentId) || [];
         const lastActivityAt = Math.max(
           ...descendants
@@ -239,9 +242,8 @@ export class ProjectionEngine {
 
   private computePaths(rowId: string, nextCollection: CollectionTable) {
     let fullPath: string[] = [];
-    let shortPath: string[] = [];
+    let nearestNotebookId: string | undefined = undefined;
     let parentId = rowId;
-    let nbNotebooks = 0;
     while (parentId !== ROOT_COLLECTION) {
       if (!nextCollection[parentId]) {
         break;
@@ -249,17 +251,19 @@ export class ProjectionEngine {
       fullPath = [parentId, ...fullPath];
       const parentType = nextCollection[parentId]
         .type as CollectionItemTypeValues;
-      if (parentType !== CollectionItemType.notebook || ++nbNotebooks < 2) {
-        shortPath = [parentId, ...shortPath];
+      if (parentType === CollectionItemType.notebook && !nearestNotebookId) {
+        nearestNotebookId = parentId;
       }
       const parentParent =
         (nextCollection[parentId].parentId as string) || ROOT_COLLECTION;
       if (fullPath.includes(parentParent) && parentId !== ROOT_COLLECTION) {
-        throw new Error('circular parent reference');
+        throw new Error('circular parent reference: ' + rowId);
       }
       parentId = parentParent;
     }
-
-    return { fullPath, shortPath };
+    if (!nearestNotebookId) {
+      throw new Error("couln't find nearestNotebookId: " + rowId);
+    }
+    return { fullPath, nearestNotebookId };
   }
 }

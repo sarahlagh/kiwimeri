@@ -10,7 +10,7 @@ import {
 import { ReactNode, useEffect, useState } from 'react';
 
 type CollectionItemBreadcrumbProps = {
-  folder: string;
+  folderId: string;
   onClick?: (item: string) => void;
   minBreadcrumb?: number;
 } & {
@@ -18,7 +18,7 @@ type CollectionItemBreadcrumbProps = {
 };
 
 const CollectionItemBreadcrumb = ({
-  folder,
+  folderId,
   onClick,
   minBreadcrumb = 2,
   children
@@ -27,14 +27,14 @@ const CollectionItemBreadcrumb = ({
   const [breadcrumb, setBreadcrumb] = useState<string[]>([]);
 
   useEffect(() => {
-    if (folder !== ROOT_COLLECTION && !breadcrumb.find(b => b === folder)) {
+    if (folderId !== ROOT_COLLECTION && !breadcrumb.find(b => b === folderId)) {
       // eslint-disable-next-line @eslint-react/set-state-in-effect
-      setBreadcrumb(collectionService.getBreadcrumb(folder));
+      setBreadcrumb(collectionService.getBreadcrumb(folderId));
       // eslint-disable-next-line @eslint-react/set-state-in-effect
       setMaxBreadcrumbs(3);
     }
     // eslint-disable-next-line @eslint-react/exhaustive-deps
-  }, [folder]);
+  }, [folderId]);
 
   const checkedBreadcrumb = breadcrumb.filter(id =>
     collectionService.itemExists(id)
@@ -67,7 +67,7 @@ const CollectionItemBreadcrumb = ({
           and anyway, I don't always want links */}
           <IonButton
             fill="clear"
-            color={item === folder ? 'dark' : 'medium'}
+            color={item === folderId ? 'dark' : 'medium'}
             onClick={() => {
               if (onClick) onClick(item);
             }}

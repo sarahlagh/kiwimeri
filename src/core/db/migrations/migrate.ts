@@ -31,7 +31,10 @@ async function migrateSpace(
     const func2 = await import('./002-split-content-store');
     func2.default(_space, _spaceDocContent, _spaceArchive);
 
-    const func = await import('./003-backfill-lastActivityAt');
+    console.log(
+      '[migration] 1 space migration to run: backfill projected states'
+    );
+    const func = await import('./003-backfill-projected-states');
     func.default(_space);
   }
 }

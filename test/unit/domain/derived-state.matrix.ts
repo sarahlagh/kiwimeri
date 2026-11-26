@@ -63,7 +63,7 @@ export function getLocalSpaceDataForDerivedStateMatrix() {
     result[rowId] = {
       ...result[rowId],
       fullPath: projectedState[rowId].fullPath,
-      shortPath: projectedState[rowId].shortPath,
+      nearestNotebookId: projectedState[rowId].nearestNotebookId,
       lastActivityAt: projectedState[rowId].lastActivityAt
     };
   });
@@ -159,7 +159,7 @@ function initData() {
 
 /**
  * derived states:
- * collection's projected state: fullPath, shortPath, lastActivityAt
+ * collection's projected state: fullPath, nearestNotebookId, lastActivityAt
  * collection's view: previewText
  * annotation's view: previewText
  * see derived-state.matrix.md
@@ -170,42 +170,42 @@ const baseData = (bulk: number) => ({
     updatedAt: ts(bulk, 1),
     lastActivityAt: ts(bulk, 13),
     fullPath: ['0'],
-    shortPath: ['0']
+    nearestNotebookId: '0'
   },
   N1: {
     createdAt: ts(bulk, 2),
     updatedAt: ts(bulk, 2),
     lastActivityAt: ts(bulk, 13),
     fullPath: ['0', 'N1'],
-    shortPath: ['N1']
+    nearestNotebookId: 'N1'
   },
   N2: {
     createdAt: ts(bulk, 3),
     updatedAt: ts(bulk, 3),
     lastActivityAt: ts(bulk, 10),
     fullPath: ['0', 'N2'],
-    shortPath: ['N2']
+    nearestNotebookId: 'N2'
   },
   fol1: {
     createdAt: ts(bulk, 4),
     updatedAt: ts(bulk, 4),
     lastActivityAt: ts(bulk, 4),
     fullPath: ['0', 'N2', 'fol1'],
-    shortPath: ['N2', 'fol1']
+    nearestNotebookId: 'N2'
   },
   fol2: {
     createdAt: ts(bulk, 5),
     updatedAt: ts(bulk, 5),
     lastActivityAt: ts(bulk, 9),
     fullPath: ['0', 'N2', 'fol2'],
-    shortPath: ['N2', 'fol2']
+    nearestNotebookId: 'N2'
   },
   doc1: {
     createdAt: ts(bulk, 6),
     updatedAt: ts(bulk, 6),
     lastActivityAt: ts(bulk, 7),
     fullPath: ['0', 'N2', 'fol2', 'doc1'],
-    shortPath: ['N2', 'fol2', 'doc1'],
+    nearestNotebookId: 'N2',
     previewText: 'doc1 preview'
   },
   annot1: {
@@ -218,7 +218,7 @@ const baseData = (bulk: number) => ({
     updatedAt: ts(bulk, 8),
     lastActivityAt: ts(bulk, 8),
     fullPath: ['0', 'N2', 'fol2', 'doc2'],
-    shortPath: ['N2', 'fol2', 'doc2'],
+    nearestNotebookId: 'N2',
     previewText: 'doc2 preview'
   },
   doc3: {
@@ -226,7 +226,7 @@ const baseData = (bulk: number) => ({
     updatedAt: ts(bulk, 9),
     lastActivityAt: ts(bulk, 9),
     fullPath: ['0', 'N2', 'fol2', 'doc3'],
-    shortPath: ['N2', 'fol2', 'doc3'],
+    nearestNotebookId: 'N2',
     previewText: 'doc3 preview'
   },
   fol3: {
@@ -234,21 +234,21 @@ const baseData = (bulk: number) => ({
     updatedAt: ts(bulk, 10),
     lastActivityAt: ts(bulk, 10),
     fullPath: ['0', 'N2', 'fol3'],
-    shortPath: ['N2', 'fol3']
+    nearestNotebookId: 'N2'
   },
   N3: {
     createdAt: ts(bulk, 11),
     updatedAt: ts(bulk, 11),
     lastActivityAt: ts(bulk, 12),
     fullPath: ['0', 'N3'],
-    shortPath: ['N3']
+    nearestNotebookId: 'N3'
   },
   doc4: {
     createdAt: ts(bulk, 12),
     updatedAt: ts(bulk, 12),
     lastActivityAt: ts(bulk, 12),
     fullPath: ['0', 'N3', 'doc4'],
-    shortPath: ['N3', 'doc4'],
+    nearestNotebookId: 'N3',
     previewText: 'doc4 preview'
   },
   N4: {
@@ -256,42 +256,42 @@ const baseData = (bulk: number) => ({
     updatedAt: ts(bulk, 13),
     lastActivityAt: ts(bulk, 13),
     fullPath: ['0', 'N1', 'N4'],
-    shortPath: ['N4']
+    nearestNotebookId: 'N4'
   },
   N5: {
     createdAt: ts(bulk, 14),
     updatedAt: ts(bulk, 14),
     lastActivityAt: ts(bulk, 14),
     fullPath: ['N5'],
-    shortPath: ['N5']
+    nearestNotebookId: 'N5'
   },
   N6: {
     createdAt: ts(bulk, 15),
     updatedAt: ts(bulk, 15),
     lastActivityAt: ts(bulk, 23),
     fullPath: ['N6'],
-    shortPath: ['N6']
+    nearestNotebookId: 'N6'
   },
   fol4: {
     createdAt: ts(bulk, 16),
     updatedAt: ts(bulk, 16),
     lastActivityAt: ts(bulk, 23),
     fullPath: ['N6', 'fol4'],
-    shortPath: ['N6', 'fol4']
+    nearestNotebookId: 'N6'
   },
   fol5: {
     createdAt: ts(bulk, 17),
     updatedAt: ts(bulk, 17),
     lastActivityAt: ts(bulk, 20),
     fullPath: ['N6', 'fol5'],
-    shortPath: ['N6', 'fol5']
+    nearestNotebookId: 'N6'
   },
   doc5: {
     createdAt: ts(bulk, 18),
     updatedAt: ts(bulk, 18),
     lastActivityAt: ts(bulk, 20),
     fullPath: ['N6', 'fol5', 'doc5'],
-    shortPath: ['N6', 'fol5', 'doc5'],
+    nearestNotebookId: 'N6',
     previewText: 'doc5 preview'
   },
   doc6: {
@@ -299,7 +299,7 @@ const baseData = (bulk: number) => ({
     updatedAt: ts(bulk, 19),
     lastActivityAt: ts(bulk, 19),
     fullPath: ['N6', 'fol5', 'doc6'],
-    shortPath: ['N6', 'fol5', 'doc6'],
+    nearestNotebookId: 'N6',
     previewText: 'doc6 preview'
   },
   annot2: {
@@ -312,7 +312,7 @@ const baseData = (bulk: number) => ({
     updatedAt: ts(bulk, 21),
     lastActivityAt: ts(bulk, 23),
     fullPath: ['N6', 'fol4', 'doc7'],
-    shortPath: ['N6', 'fol4', 'doc7'],
+    nearestNotebookId: 'N6',
     previewText: 'doc7 preview'
   },
   annot3: {
@@ -444,7 +444,6 @@ export const documentScenarios: Scenario[] = [
     expected(bulk) {
       const base = baseData(bulk);
       base['doc2'].fullPath = ['0', 'N2', 'fol1', 'doc2'];
-      base['doc2'].shortPath = ['N2', 'fol1', 'doc2'];
       base['fol1'].lastActivityAt = base['doc2'].updatedAt;
       return base;
     }
@@ -472,7 +471,7 @@ export const documentScenarios: Scenario[] = [
     expected(bulk) {
       const base = baseData(bulk);
       base['doc2'].fullPath = ['0', 'N3', 'doc2'];
-      base['doc2'].shortPath = ['N3', 'doc2'];
+      base['doc2'].nearestNotebookId = 'N3';
       return base;
     }
   },
@@ -499,7 +498,6 @@ export const documentScenarios: Scenario[] = [
     expected(bulk) {
       const base = baseData(bulk);
       base['doc7'].fullPath = ['N6', 'fol5', 'doc7'];
-      base['doc7'].shortPath = ['N6', 'fol5', 'doc7'];
       base['fol4'].lastActivityAt = base['fol4'].createdAt;
       base['fol5'].lastActivityAt = base['doc7'].lastActivityAt;
       return base;
@@ -528,7 +526,7 @@ export const documentScenarios: Scenario[] = [
     expected(bulk) {
       const base = baseData(bulk);
       base['doc3'].fullPath = ['0', 'N3', 'doc3'];
-      base['doc3'].shortPath = ['N3', 'doc3'];
+      base['doc3'].nearestNotebookId = 'N3';
       base['fol2'].lastActivityAt = base['doc2'].createdAt;
       return base;
     }
@@ -695,13 +693,9 @@ export const folderScenarios: Scenario[] = [
     expected(bulk) {
       const base = baseData(bulk);
       base['fol2'].fullPath = ['0', 'N2', 'fol1', 'fol2'];
-      base['fol2'].shortPath = ['N2', 'fol1', 'fol2'];
       base['doc1'].fullPath = ['0', 'N2', 'fol1', 'fol2', 'doc1'];
-      base['doc1'].shortPath = ['N2', 'fol1', 'fol2', 'doc1'];
       base['doc2'].fullPath = ['0', 'N2', 'fol1', 'fol2', 'doc2'];
-      base['doc2'].shortPath = ['N2', 'fol1', 'fol2', 'doc2'];
       base['doc3'].fullPath = ['0', 'N2', 'fol1', 'fol2', 'doc3'];
-      base['doc3'].shortPath = ['N2', 'fol1', 'fol2', 'doc3'];
       base['fol1'].lastActivityAt = base['fol2'].lastActivityAt;
       return base;
     }
@@ -729,13 +723,9 @@ export const folderScenarios: Scenario[] = [
     expected(bulk) {
       const base = baseData(bulk);
       base['fol2'].fullPath = ['0', 'N2', 'fol3', 'fol2'];
-      base['fol2'].shortPath = ['N2', 'fol3', 'fol2'];
       base['doc1'].fullPath = ['0', 'N2', 'fol3', 'fol2', 'doc1'];
-      base['doc1'].shortPath = ['N2', 'fol3', 'fol2', 'doc1'];
       base['doc2'].fullPath = ['0', 'N2', 'fol3', 'fol2', 'doc2'];
-      base['doc2'].shortPath = ['N2', 'fol3', 'fol2', 'doc2'];
       base['doc3'].fullPath = ['0', 'N2', 'fol3', 'fol2', 'doc3'];
-      base['doc3'].shortPath = ['N2', 'fol3', 'fol2', 'doc3'];
       return base;
     }
   },
@@ -762,9 +752,9 @@ export const folderScenarios: Scenario[] = [
     expected(bulk) {
       const base = baseData(bulk);
       base['fol4'].fullPath = ['N5', 'fol4'];
-      base['fol4'].shortPath = ['N5', 'fol4'];
+      base['fol4'].nearestNotebookId = 'N5';
       base['doc7'].fullPath = ['N5', 'fol4', 'doc7'];
-      base['doc7'].shortPath = ['N5', 'fol4', 'doc7'];
+      base['doc7'].nearestNotebookId = 'N5';
       base['N5'].lastActivityAt = base['fol4'].lastActivityAt;
       base['N6'].lastActivityAt = base['fol5'].lastActivityAt;
       return base;
@@ -793,7 +783,7 @@ export const folderScenarios: Scenario[] = [
     expected(bulk) {
       const base = baseData(bulk);
       base['fol3'].fullPath = ['0', 'N3', 'fol3'];
-      base['fol3'].shortPath = ['N3', 'fol3'];
+      base['fol3'].nearestNotebookId = 'N3';
       base['N2'].lastActivityAt = base['fol2'].lastActivityAt;
       return base;
     }
@@ -938,11 +928,8 @@ export const folderScenarios: Scenario[] = [
       const base = baseData(bulk) as any;
       delete base['fol2'];
       base['doc1'].fullPath = ['0', 'N2', 'doc1'];
-      base['doc1'].shortPath = ['N2', 'doc1'];
       base['doc2'].fullPath = ['0', 'N2', 'doc2'];
-      base['doc2'].shortPath = ['N2', 'doc2'];
       base['doc3'].fullPath = ['0', 'N2', 'doc3'];
-      base['doc3'].shortPath = ['N2', 'doc3'];
       return base;
     }
   }

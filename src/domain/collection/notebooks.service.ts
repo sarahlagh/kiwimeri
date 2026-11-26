@@ -41,7 +41,8 @@ class NotebooksService {
     space.transaction(() => {
       space.setPartialRow(P, id, {
         fullPath: [id],
-        shortPath: [id]
+        nearestNotebookId: id,
+        lastActivityAt: item.updatedAt
       });
       space.setRow(C, id, row);
     });

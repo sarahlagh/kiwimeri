@@ -58,7 +58,7 @@ function ActionsFromBrowserToolbarWrapped(props: any) {
   );
 }
 interface CollectionItemBrowserListProps {
-  parent: string;
+  parentId: string;
 }
 
 const CollectionItemBrowserListToolbar = ({
@@ -161,7 +161,7 @@ const modeLabels = defineI18nMap<BrowserQueryMode>([
 ]);
 
 export const CollectionItemBrowserList = ({
-  parent: folder
+  parentId: folderId
 }: CollectionItemBrowserListProps) => {
   const navigate = useNavigate();
   const { i18n } = useLingui();
@@ -170,13 +170,13 @@ export const CollectionItemBrowserList = ({
   const openedDocument = searchParams?.document;
   const hasConflicts = useHasLocalConflicts();
 
-  const sort = useFolderEffectiveSort(folder);
+  const sort = useFolderEffectiveSort(folderId);
   const modeIdx = useNotebookLastBrowserMode();
 
   const currentMode = hasConflicts ? 'conflicts' : browserModes[modeIdx];
   const items: BrowsableItemResult[] = useCollectionItemBrowserListResults(
     currentMode,
-    folder,
+    folderId,
     sort
   );
 
@@ -190,7 +190,7 @@ export const CollectionItemBrowserList = ({
   useEffect(() => {
     // eslint-disable-next-line @eslint-react/set-state-in-effect
     setRenamingItemId(undefined);
-  }, [folder]);
+  }, [folderId]);
 
   const [presentActions, dismissActions] = useIonPopover(
     ActionsFromBrowserToolbarWrapped,
@@ -224,7 +224,7 @@ export const CollectionItemBrowserList = ({
         <>
           {currentMode === 'browser' ? (
             <CollectionItemBreadcrumb
-              folder={folder}
+              folderId={folderId}
               onClick={item => {
                 navigate(GET_ITEM_ROUTE(item, openedDocument, query));
               }}
@@ -260,7 +260,7 @@ export const CollectionItemBrowserList = ({
       }}
       footer={
         <CollectionItemBrowserListToolbar
-          folderId={folder}
+          folderId={folderId}
           openedDocument={openedDocument}
           searchText={searchText}
           setSearchText={setSearchText}

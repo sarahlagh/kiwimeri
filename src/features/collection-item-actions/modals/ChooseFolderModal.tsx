@@ -125,7 +125,7 @@ const ChooseFolderModal = ({
       <CollectionItemList
         header={
           <CollectionItemBreadcrumb
-            folder={parent}
+            folderId={parent}
             onClick={itemId => {
               setParent(itemId);
               setSelected(null);

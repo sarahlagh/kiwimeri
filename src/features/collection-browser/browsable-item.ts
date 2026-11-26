@@ -22,5 +22,4 @@ export type BrowsableItemResult = Pick<
   Required<Pick<CollectionItem, 'id'>> & {
     lastOpenedAt?: number;
     previewText?: string;
-    breadcrumb?: string[];
   };

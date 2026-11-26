@@ -631,6 +631,7 @@ describe('local changes listeners', () => {
                 fakeRow.parentId as string,
                 {
                   fullPath: ['0'],
+                  nearestNotebookId: '0',
                   lastActivityAt: 0
                 }
               );

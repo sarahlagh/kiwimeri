@@ -3,6 +3,7 @@ import { space } from '@/core/db/store';
 import { SpaceTables } from '@/core/db/store-constants';
 import { MetaField } from '@/core/db/types';
 import { settingsService } from '../collection/collection-settings.service';
+import collectionService from '../collection/collection.service';
 import { statsService } from './stats-service';
 
 export function statsOnPlainTextCallback(
@@ -11,11 +12,7 @@ export function statsOnPlainTextCallback(
   content_meta: MetaField
 ) {
   const parentId = space.getCell(SpaceTables.Collection, rowId, 'parentId')!;
-  const breadcrumb = space.getCell(
-    SpaceTables.ProjectedState,
-    parentId,
-    'shortPath'
-  ) as string[];
+  const breadcrumb = collectionService.getBreadcrumb(parentId);
   if (parentId === ROOT_COLLECTION) return; // mostly for tests, no document is supposed to be under root
   if (!breadcrumb || breadcrumb.length === 0)
     throw new Error('undefined ancestry: ' + parentId);

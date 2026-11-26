@@ -39,7 +39,6 @@ const fetchItemsQuery = new SpaceQueryDefinition<
   select('conflictId');
   select('settings');
   select('content', 'previewText');
-  select('state', 'shortPath').as('breadcrumb');
 
   where(getCell => getCell('itemId') !== params.parentId);
   if (params.recursive === false) {

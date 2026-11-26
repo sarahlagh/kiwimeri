@@ -68,9 +68,9 @@ describe('derived state', () => {
         space.getCell(
           SpaceTables.ProjectedState,
           DEFAULT_NOTEBOOK_ID,
-          'shortPath'
+          'nearestNotebookId'
         )
-      ).toEqual([DEFAULT_NOTEBOOK_ID]);
+      ).toEqual(DEFAULT_NOTEBOOK_ID);
     });
 
     // eslint-disable-next-line vitest/expect-expect
