@@ -17,15 +17,15 @@ export type CollectionItemVersionContentRow = {
 };
 
 export const historySchema = {
-  itemId: { type: 'string' },
-  op: { enum: opValues },
-  createdAt: { type: 'number' },
-  snapshotJson: { type: 'object' },
-  contentId: { type: 'string' }
+  itemId: { type: 'string', required: true },
+  op: { enum: opValues, required: true },
+  createdAt: { type: 'number', required: true },
+  snapshotJson: { type: 'object', required: true },
+  contentId: { type: 'string', required: true }
 } as const satisfies Record<keyof CollectionItemVersionRow, CellSchema>;
 
 export const historyContentSchema = {
-  content: { type: 'string' }
+  content: { type: 'string', required: true }
 } as const satisfies Record<keyof CollectionItemVersionContentRow, CellSchema>;
 
 export type CollectionItemVersion = CollectionItemMetadataVersion &
