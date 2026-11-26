@@ -22,7 +22,7 @@ import {
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
 import { useLingui } from '@lingui/react/macro';
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { useToastContext } from '../context/ToastContext';
 
 export type MainHeaderProps = {
@@ -46,7 +46,6 @@ const MainHeader = ({
 }: MainHeaderProps) => {
   const { t } = useLingui();
   const navigate = useNavigate();
-  const location = useLocation();
   const [isSyncing, setIsSyncing] = useState(false);
   const {
     isPrimaryConnected,

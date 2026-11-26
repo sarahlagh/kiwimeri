@@ -1,10 +1,8 @@
 import { deviceSettings } from '@/domain/device-settings/device-settings.service';
-import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
 import { DocumentEditorHandle } from '@/features/document-editor';
 import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
-import { getSearchParams } from '@/shared/utils';
 import { lazy, Suspense, useRef, useState } from 'react';
-import { useLocation } from 'react-router';
+import { useStableRouteContext } from '../context/RouteContext';
 import useItemTitle from '../hooks/useItemTitle';
 import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
 
@@ -22,11 +20,10 @@ const CollectionItemBrowserList = lazy(() =>
 
 const DocumentEditorPage = () => {
   const editorRef = useRef<DocumentEditorHandle | null>(null);
-  const location = useLocation();
-  const searchParams = getSearchParams(location.search);
-  const notebook = useCurrentNotebook();
-  const docId = searchParams.document || notebook;
-  const parent = searchParams.folder || notebook;
+  const routeCtx = useStableRouteContext();
+  const notebook = routeCtx.notebook;
+  const docId = routeCtx.document || notebook;
+  const parent = routeCtx.folder;
 
   const [showDocumentActions, setShowDocumentActions] = useState(false);
 
@@ -53,6 +50,7 @@ const DocumentEditorPage = () => {
         <Suspense>
           <CollectionItemBrowserList
             parentId={parent}
+            documentId={docId}
           ></CollectionItemBrowserList>
         </Suspense>
       }
@@ -71,7 +69,7 @@ const DocumentEditorPage = () => {
           ref={editorRef}
           docId={docId}
           showActions={showDocumentActions}
-          query={searchParams.query}
+          // query={searchParams.query}
         />
       </Suspense>
     </TemplateCompactableSplitPage>

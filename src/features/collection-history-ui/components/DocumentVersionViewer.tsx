@@ -1,3 +1,4 @@
+import { useSearchQuery } from '@/app/context/RouteContext';
 import { GET_DOCUMENT_ROUTE, GET_VERSIONED_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
 import { CollectionItemSnapshotData } from '@/domain/collection/collection';
@@ -32,7 +33,6 @@ interface DocumentVersionViewerProps {
   docVersion: string;
   showActions?: boolean;
   folder: string;
-  query?: string;
 }
 
 const DocumentVersionFooter = ({
@@ -56,14 +56,14 @@ const DocumentVersionViewer = ({
   docId,
   docVersion,
   showActions = false,
-  folder,
-  query
+  folder
 }: DocumentVersionViewerProps) => {
   const navigate = useNavigate();
   const [showDocumentActions, setShowDocumentActions] =
     useState<boolean>(false);
   const [toggleSearch, setToggleSearch] = useState(false);
   const [toggleSearchAutoFocus, setToggleSearchAutoFocus] = useState(true);
+  const query = useSearchQuery();
   const searchText = query ? decodeURI(query) : '';
   // TODO refactor
   useEffect(() => {

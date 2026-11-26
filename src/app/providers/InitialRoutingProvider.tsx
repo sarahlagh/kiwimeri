@@ -8,11 +8,10 @@ import { ROOT_COLLECTION } from '@/constants';
 import collectionService from '@/domain/collection/collection.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 import { resumeService } from '@/domain/collection/resume-state.service';
-import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
 import useDeviceSetting from '@/shared/hooks/useDeviceSetting';
-import { getSearchParams } from '@/shared/utils';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useMemo } from 'react';
 import { Navigate, useLocation } from 'react-router';
+import RouteContext from '../context/RouteContext';
 
 type InitialRoutingProviderProps = {
   readonly children?: ReactNode;
@@ -20,20 +19,35 @@ type InitialRoutingProviderProps = {
 
 const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
   const location = useLocation();
-  const searchParams = getSearchParams(location.search);
-  const notebook = useCurrentNotebook();
-  const folder = searchParams.folder ? searchParams.folder : notebook;
+  const searchParams = new URLSearchParams(location.search);
+  const route = location.pathname;
+  const notebook = notebooksService.getCurrentNotebook();
+  const folder = searchParams.get('folder') || notebook;
+  const document = searchParams.get('document') || undefined;
+  const docVersion = searchParams.get('docVersion') || undefined;
+  const query = searchParams.get('query') || undefined;
   const rememberLastRoute = useDeviceSetting('rememberLastRoute');
 
-  useEffect(() => {
-    if (isCollectionRoute(location.pathname)) {
-      resumeService.setLastFolder(folder);
-      resumeService.setLastDocument(searchParams.document);
-    }
-    // eslint-disable-next-line @eslint-react/exhaustive-deps
-  }, [folder, searchParams.document]);
+  const routeContext = useMemo(
+    () => ({
+      route,
+      notebook,
+      folder,
+      document,
+      docVersion,
+      query
+    }),
+    [route, notebook, folder, document, docVersion, query]
+  );
 
-  if (location.pathname === INIT_ROUTE) {
+  useEffect(() => {
+    if (isCollectionRoute(route)) {
+      resumeService.setLastFolder(folder);
+      resumeService.setLastDocument(document);
+    }
+  }, [route, folder, document]);
+
+  if (route === INIT_ROUTE) {
     if (rememberLastRoute) {
       const state = resumeService.getNotebookResumeState(notebook);
       const document = state?.lastDocument;
@@ -48,12 +62,9 @@ const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
     }
     return <Navigate to={GET_FOLDER_ROUTE(notebook)} />;
   }
-  if (isCollectionRoute(location.pathname)) {
+  if (isCollectionRoute(route)) {
     // if no folder, or if folder but doesn't exist
-    if (
-      !searchParams.folder ||
-      !collectionService.itemExists(searchParams.folder)
-    ) {
+    if (!folder || !collectionService.itemExists(folder)) {
       if (collectionService.itemExists(notebook)) {
         return <Navigate to={GET_FOLDER_ROUTE(notebook)} />;
       }
@@ -63,14 +74,11 @@ const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
       return <Navigate to={GET_FOLDER_ROUTE(notebookId)} />;
     }
     // if document but doesn't exist
-    if (
-      searchParams.document &&
-      !collectionService.itemExists(searchParams.document)
-    ) {
+    if (document && !collectionService.itemExists(document)) {
       return <Navigate to={GET_FOLDER_ROUTE(folder)} />;
     }
   }
-  return <>{children}</>;
+  return <RouteContext value={routeContext}>{children}</RouteContext>;
 };
 
 export default InitialRoutingProvider;

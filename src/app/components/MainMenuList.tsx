@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 
 import useShowDevTools from '@/app/hooks/useShowDevTools';
 import {
@@ -32,6 +32,7 @@ import {
 } from '@ionic/react';
 import { useLingui } from '@lingui/react/macro';
 import { useMemo } from 'react';
+import { useCurrentRoute } from '../context/RouteContext';
 import fetchNotificationsQuery from '../queries/fetchNotificationsQuery';
 
 interface AppPage {
@@ -44,19 +45,19 @@ interface AppPage {
 
 const MainMenuList = () => {
   const { t } = useLingui();
-  const location = useLocation();
   const navigate = useNavigate();
+  const route = useCurrentRoute();
   const theme = useDeviceSetting('theme');
   const showDevTools = useShowDevTools();
   const notifications = useQueryResults(fetchNotificationsQuery);
-  const isCollectionRouteActive = isCollectionRoute(location.pathname);
+  const isCollectionRouteActive = isCollectionRoute(route);
 
   function isActive(appPage: AppPage) {
     if (appPage.isActive) {
       return appPage.isActive();
     }
     const idx = appPage.url.indexOf('?');
-    return location.pathname.startsWith(
+    return route.startsWith(
       idx >= 0 ? appPage.url.substring(0, idx) : appPage.url
     );
   }

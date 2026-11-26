@@ -1,9 +1,8 @@
 import { GET_DOCUMENT_ROUTE, VERSION_ROUTE } from '@/app/routes';
 import { historyService } from '@/domain/history/history.service';
-import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
-import { getSearchParams } from '@/shared/utils';
 import { lazy, Suspense, useState } from 'react';
-import { Navigate, useLocation } from 'react-router';
+import { Navigate } from 'react-router';
+import { useStableRouteContext } from '../context/RouteContext';
 import useItemTitle from '../hooks/useItemTitle';
 import NotFoundPage from './NotFoundPage';
 import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
@@ -21,27 +20,19 @@ const CollectionItemBrowserList = lazy(() =>
 );
 
 const VersionedItemPage = () => {
-  const location = useLocation();
-  const notebook = useCurrentNotebook();
-  const searchParams = getSearchParams(location.search);
-  const docId = searchParams.document;
-  const parentFolder = searchParams.folder || notebook;
-  const docVersion = searchParams.docVersion;
+  const routeCtx = useStableRouteContext();
+  const docId = routeCtx.document;
+  const parentFolder = routeCtx.folder;
+  const docVersion = routeCtx.docVersion;
 
   const [showDocumentActions, setShowDocumentActions] = useState(false);
 
   const title = useItemTitle(docId || '');
   const folderTitle = useItemTitle(parentFolder || '');
 
-  if (location.pathname !== VERSION_ROUTE && docId) {
+  if (routeCtx.route !== VERSION_ROUTE && docId) {
     // TODO shouldn't be needed - check why
-    return (
-      <Navigate
-        to={GET_DOCUMENT_ROUTE(parentFolder, docId)}
-        // state={{ from: location }}
-        // replace
-      />
-    );
+    return <Navigate to={GET_DOCUMENT_ROUTE(parentFolder, docId)} />;
   }
 
   if (!docId || !docVersion || !historyService.versionExists(docVersion)) {
@@ -65,6 +56,7 @@ const VersionedItemPage = () => {
         <Suspense>
           <CollectionItemBrowserList
             parentId={parentFolder}
+            documentId={docId}
           ></CollectionItemBrowserList>
         </Suspense>
       }
@@ -76,7 +68,6 @@ const VersionedItemPage = () => {
           docVersion={docVersion}
           showActions={showDocumentActions}
           folder={parentFolder}
-          query={searchParams.query}
         ></DocumentVersionViewer>
       </Suspense>
     </TemplateCompactableSplitPage>

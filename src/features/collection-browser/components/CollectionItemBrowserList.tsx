@@ -1,5 +1,3 @@
-import { useLocation } from 'react-router';
-
 import {
   IonButton,
   IonButtons,
@@ -15,11 +13,11 @@ import { APPICONS } from '@/constants';
 import { CollectionItemType } from '@/domain/collection/collection';
 import collectionService from '@/domain/collection/collection.service';
 import { ExportItemsButton, ImportItemsButton } from '@/features/import-export';
-import { getSearchParams } from '@/shared/utils';
 
 import { settingsService } from '@/domain/collection/collection-settings.service';
 import notebooksService from '@/domain/collection/notebooks.service';
 
+import { useSearchQuery } from '@/app/context/RouteContext';
 import { useHasLocalConflicts } from '@/features/synchronization-ui';
 import { defineI18nMap } from '@/shared/misc/i18n-utils';
 import { msg } from '@lingui/core/macro';
@@ -59,6 +57,7 @@ function ActionsFromBrowserToolbarWrapped(props: any) {
 }
 interface CollectionItemBrowserListProps {
   parentId: string;
+  documentId?: string;
 }
 
 const CollectionItemBrowserListToolbar = ({
@@ -161,13 +160,12 @@ const modeLabels = defineI18nMap<BrowserQueryMode>([
 ]);
 
 export const CollectionItemBrowserList = ({
-  parentId: folderId
+  parentId: folderId,
+  documentId: openedDocument
 }: CollectionItemBrowserListProps) => {
   const navigate = useNavigate();
   const { i18n } = useLingui();
-  const location = useLocation();
-  const searchParams = getSearchParams(location.search);
-  const openedDocument = searchParams?.document;
+  const searchQuery = useSearchQuery();
   const hasConflicts = useHasLocalConflicts();
 
   const sort = useFolderEffectiveSort(folderId);
@@ -216,7 +214,7 @@ export const CollectionItemBrowserList = ({
   const query =
     searchText && searchText.length > 0
       ? searchText
-      : decodeURI(searchParams.query || '');
+      : decodeURI(searchQuery || '');
 
   return (
     <CollectionItemList

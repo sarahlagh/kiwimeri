@@ -1,11 +1,13 @@
+import {
+  useSearchQuery,
+  useStableRouteContext
+} from '@/app/context/RouteContext';
 import { GET_VERSIONED_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
-import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
 import LazyModalTemplate from '@/shared/modals/LazyModalTemplate';
-import { getSearchParams } from '@/shared/utils';
 import { IonButton, IonIcon, useIonModal } from '@ionic/react';
 import { lazy } from 'react';
-import { useLocation, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 
 type ManageHistoryButtonProps = {
   id: string;
@@ -32,15 +34,12 @@ const ManageHistoryButton = ({
   afterRestore
 }: ManageHistoryButtonProps) => {
   const navigate = useNavigate();
-  const notebook = useCurrentNotebook();
-  const location = useLocation(); // warning: location throws error if button in popover
-  const searchParams = getSearchParams(location.search);
-  const query = searchParams.query;
-  const docVersion = searchParams.docVersion;
+  const routeCtx = useStableRouteContext();
+  const query = useSearchQuery();
   const [present, dismiss] = useIonModal(ManageHistoryModalWrapped, {
     id,
     dismiss: (data?: string, role?: string) => dismiss(data, role),
-    docVersion
+    docVersion: routeCtx.docVersion
   });
   return (
     <IonButton
@@ -51,12 +50,7 @@ const ManageHistoryButton = ({
             if (event.detail.role === 'goToVersion' && event.detail.data) {
               const version = event.detail.data as string;
               navigate(
-                GET_VERSIONED_ROUTE(
-                  version,
-                  id,
-                  searchParams.folder || notebook,
-                  query
-                )
+                GET_VERSIONED_ROUTE(version, id, routeCtx.folder, query)
               );
             } else if (event.detail.role === 'restore' && afterRestore) {
               afterRestore(id);

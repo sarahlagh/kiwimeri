@@ -1,10 +1,9 @@
 import { APPMSG } from '@/constants';
-import { useCurrentNotebook } from '@/features/collection-notebooks-ui';
+import notebooksService from '@/domain/collection/notebooks.service';
 import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
-import { getSearchParams } from '@/shared/utils';
 import { useLingui } from '@lingui/react/macro';
 import { lazy, Suspense } from 'react';
-import { useLocation } from 'react-router';
+import { useCurrentFolder } from '../context/RouteContext';
 import useItemTitle from '../hooks/useItemTitle';
 import TemplateMainPage from './TemplateMainPage';
 
@@ -15,11 +14,9 @@ const CollectionItemBrowserList = lazy(() =>
 );
 
 const CollectionListPage = () => {
-  const location = useLocation();
   const { i18n } = useLingui();
-  const searchParams = getSearchParams(location.search);
-  const notebook = useCurrentNotebook();
-  const parent = searchParams?.folder || notebook;
+  const notebook = notebooksService.getCurrentNotebook();
+  const parent = useCurrentFolder();
   const folderTitle = useItemTitle(parent);
 
   const title = notebook !== parent ? folderTitle : i18n._(APPMSG.homeTitle);

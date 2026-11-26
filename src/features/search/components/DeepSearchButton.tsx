@@ -1,3 +1,4 @@
+import { useSearchQuery } from '@/app/context/RouteContext';
 import { GET_UNKNOWN_ITEM_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
 import { plt } from '@/core/infra/platform.service';
@@ -9,7 +10,6 @@ import {
   SearchOptions,
   searchService
 } from '@/features/search';
-import { getSearchParams } from '@/shared/utils';
 import {
   InputCustomEvent,
   IonBadge,
@@ -30,7 +30,7 @@ import {
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 
 const DEEP_SEARCH_RESULTS_HIGHLIGHT_KEY = 'kiwimeri-deep-search-results';
 const CONTENT_LABEL_ID_PREFIX = 'global-search-result-content-';
@@ -241,10 +241,9 @@ const DeepSearchButton = ({
   id = 'global-search-btn'
 }: DeepSearchButtonProps) => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const searchParams = getSearchParams(location.search);
+  const query = useSearchQuery();
   const [present, dismiss] = useIonModal(DeepSearchModal, {
-    query: searchParams.query,
+    query,
     dismiss: (data?: DismissData) => dismiss(data)
   });
 
