@@ -46,12 +46,10 @@ const selectDoc2BtnId = 'test-btn-doc2';
 
 const ParentComponent = ({
   ref,
-  docIds,
-  query
+  docIds
 }: {
   ref: RefObject<DocumentEditorHandle | null>;
   docIds: [string, string];
-  query?: string;
 }) => {
   const [docId, setDocId] = useState(docIds[0]);
   return (
@@ -72,7 +70,7 @@ const ParentComponent = ({
       >
         2
       </button>
-      <DocumentEditor docId={docId} query={query} ref={ref} />
+      <DocumentEditor docId={docId} ref={ref} />
     </div>
   );
 };
