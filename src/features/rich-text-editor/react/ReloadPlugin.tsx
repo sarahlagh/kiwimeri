@@ -112,7 +112,7 @@ export default function ReloadPlugin(data: ReloadPluginProps) {
       unregisterHistory();
     };
     // listening to change on serializedSelection isn't needed
-    // eslint-disable-next-line @eslint-react/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, data.historyId, data.initialState]);
 
   // reload key
@@ -123,7 +123,7 @@ export default function ReloadPlugin(data: ReloadPluginProps) {
     editor.setEditorState(newState, {
       tag: RELOAD_TAG
     });
-    // eslint-disable-next-line @eslint-react/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, data.reloadKey]);
 
   // set updatable state

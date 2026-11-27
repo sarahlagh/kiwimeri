@@ -18,18 +18,12 @@ import { settingsService } from '@/domain/collection/collection-settings.service
 import notebooksService from '@/domain/collection/notebooks.service';
 
 import { useSearchQuery } from '@/app/context/RouteContext';
+import type { ActionsFromBrowserToolbarProps } from '@/features/collection-item-actions';
 import { useHasLocalConflicts } from '@/features/synchronization-ui';
 import { defineI18nMap } from '@/shared/misc/i18n-utils';
 import { msg } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react/macro';
-import {
-  Dispatch,
-  lazy,
-  SetStateAction,
-  Suspense,
-  useEffect,
-  useState
-} from 'react';
+import { Dispatch, lazy, SetStateAction, Suspense, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { BrowsableItemResult } from '../browsable-item';
 import useCollectionItemBrowserListResults, {
@@ -47,8 +41,9 @@ const ActionsFromBrowserToolbar = lazy(() =>
     default: m.ActionsFromBrowserToolbar
   }))
 );
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function ActionsFromBrowserToolbarWrapped(props: any) {
+function ActionsFromBrowserToolbarWrapped(
+  props: ActionsFromBrowserToolbarProps
+) {
   return (
     <Suspense>
       <ActionsFromBrowserToolbar {...props} />
@@ -159,7 +154,7 @@ const modeLabels = defineI18nMap<BrowserQueryMode>([
   ['conflicts', msg`Conflicts`]
 ]);
 
-export const CollectionItemBrowserList = ({
+const PrivateCollectionItemBrowserList = ({
   parentId: folderId,
   documentId: openedDocument
 }: CollectionItemBrowserListProps) => {
@@ -185,28 +180,11 @@ export const CollectionItemBrowserList = ({
     null
   );
 
-  useEffect(() => {
-    // eslint-disable-next-line @eslint-react/set-state-in-effect
-    setRenamingItemId(undefined);
-  }, [folderId]);
-
   const [presentActions, dismissActions] = useIonPopover(
     ActionsFromBrowserToolbarWrapped,
     {
-      id: selectedItem?.id,
-      onClose: (role: string, data?: string) => {
-        if (role === 'rename') {
-          setRenamingItemId(data);
-        }
-        if (role === 'delete') {
-          navigate(data!);
-        }
-        if (role === 'group') {
-          navigate(data!);
-        }
-        dismissActions();
-        setSelectedItem(null);
-      }
+      id: selectedItem?.id || '',
+      onClose: (role?: string, data?: unknown) => dismissActions(data, role)
     }
   );
 
@@ -250,7 +228,20 @@ export const CollectionItemBrowserList = ({
         setRenamingItemId(undefined);
         presentActions({
           event,
-          alignment: 'end'
+          alignment: 'end',
+          onDidDismiss(e) {
+            const { role, data } = e.detail;
+            if (role === 'rename') {
+              setRenamingItemId(e.detail.data);
+            }
+            if (role === 'delete') {
+              navigate(data!);
+            }
+            if (role === 'group') {
+              navigate(data!);
+            }
+            setSelectedItem(null);
+          }
         });
       }}
       onRenamingDone={() => {
@@ -275,4 +266,9 @@ export const CollectionItemBrowserList = ({
   );
 };
 
+export const CollectionItemBrowserList = (
+  props: CollectionItemBrowserListProps
+) => {
+  return <PrivateCollectionItemBrowserList key={props.parentId} {...props} />;
+};
 export default CollectionItemBrowserList;

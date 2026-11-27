@@ -1,4 +1,5 @@
 import { APPICONS } from '@/constants';
+import collectionService from '@/domain/collection/collection.service';
 import tagsService from '@/domain/collection/tags.service';
 import {
   IonButton,
@@ -15,21 +16,55 @@ import {
   IonToolbar
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import React from 'react';
-import useItemTags from './useItemTags';
+import React, { useReducer, useState } from 'react';
 
 type ChooseTagsModalProps = {
   id: string;
   onClose: (tags?: string[]) => void;
 } & React.HTMLAttributes<HTMLIonModalElement>;
 
-const ChooseTagsModal = ({ id, onClose }: ChooseTagsModalProps) => {
-  const { t } = useLingui();
-  const itemTags = useItemTags(id);
+function initializeTags(itemTags: Set<string>) {
   tagsService.reBuildTags();
   const allTags = tagsService.getTags();
-  let inputValue: string | undefined = undefined;
-  const values = [...allTags].map(tag => ({ tag, checked: itemTags.has(tag) }));
+  return [...allTags].map(tag => ({ tag, checked: itemTags.has(tag) }));
+}
+
+function tagsReducer(
+  state: { tag: string; checked: boolean }[],
+  action:
+    | {
+        type: 'check';
+        tag: string;
+        checked: boolean;
+      }
+    | {
+        type: 'add';
+        tag: string;
+      }
+) {
+  if (action.type === 'check') {
+    const tag = state.find(t => t.tag === action.tag);
+    if (tag) tag.checked = action.checked;
+  }
+  switch (action.type) {
+    case 'check':
+      state.find(t => t.tag === action.tag)!.checked = action.checked;
+      return state;
+    case 'add':
+      return [...state, { tag: action.tag, checked: true }];
+  }
+}
+
+const ChooseTagsModal = ({ id, onClose }: ChooseTagsModalProps) => {
+  const { t } = useLingui();
+  const itemTags = collectionService.getItemTags(id);
+  const [inputValue, setInputValue] = useState<string>();
+
+  const [allNotebookTags, dispatch] = useReducer(
+    tagsReducer,
+    itemTags,
+    initializeTags
+  );
 
   return (
     <>
@@ -48,12 +83,12 @@ const ChooseTagsModal = ({ id, onClose }: ChooseTagsModalProps) => {
       </IonHeader>
       <IonContent>
         <IonList>
-          {allTags.length === 0 && (
+          {allNotebookTags.length === 0 && (
             <IonItem>
               <Trans>No tag yet</Trans>
             </IonItem>
           )}
-          {values.map(value => (
+          {allNotebookTags.map(value => (
             <IonItem key={value.tag}>
               <IonInput
                 value={value.tag}
@@ -62,7 +97,7 @@ const ChooseTagsModal = ({ id, onClose }: ChooseTagsModalProps) => {
                   if (
                     newValue &&
                     newValue.length > 0 &&
-                    !allTags.find(t => t === newValue)
+                    !allNotebookTags.find(t => t.tag === newValue)
                   ) {
                     tagsService.renameTag(value.tag, newValue);
                   }
@@ -72,7 +107,11 @@ const ChooseTagsModal = ({ id, onClose }: ChooseTagsModalProps) => {
                 slot="end"
                 checked={value.checked}
                 onIonChange={e => {
-                  value.checked = e.detail.checked;
+                  dispatch({
+                    type: 'check',
+                    tag: value.tag,
+                    checked: e.detail.checked
+                  });
                 }}
               ></IonCheckbox>
             </IonItem>
@@ -89,8 +128,12 @@ const ChooseTagsModal = ({ id, onClose }: ChooseTagsModalProps) => {
             const newValue = e.detail.value;
             if (newValue && !itemTags.has(newValue)) {
               tagsService.addItemTag(id, newValue);
+              dispatch({
+                type: 'add',
+                tag: newValue
+              });
             }
-            inputValue = undefined;
+            setInputValue(undefined); // clears the input
           }}
           maxlength={50}
         ></IonInput>
@@ -101,7 +144,7 @@ const ChooseTagsModal = ({ id, onClose }: ChooseTagsModalProps) => {
             </IonButton>
             <IonButton
               onClick={() =>
-                onClose(values.filter(v => v.checked).map(v => v.tag))
+                onClose(allNotebookTags.filter(v => v.checked).map(v => v.tag))
               }
             >
               <Trans>Confirm</Trans>

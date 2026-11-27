@@ -177,7 +177,7 @@ const ChooseFolderModal = ({
                 onClose(newFolderId, newFolderId);
               }
             }}
-          ></Toolbar>
+          />
         }
       />
     </>

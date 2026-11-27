@@ -21,7 +21,7 @@ import {
 } from '@ionic/react';
 import { IonicReactProps } from '@ionic/react/dist/types/components/IonicReactProps';
 import { Trans } from '@lingui/react/macro';
-import { Fragment, ReactNode, useEffect, useRef, useState } from 'react';
+import { Fragment, ReactNode, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { BrowsableItemResult } from '../browsable-item';
 import useItemsConflictMixIn from '../hooks/useItemsConflictMixIn';
@@ -58,7 +58,7 @@ type CollectionItemListSingleItemProps = {
     confirm: (id: string, callback: ConfirmCallback) => void
   ) => void;
   onSelectedItem?: (selectedItem: BrowsableItemResult) => void;
-  onRenamingDone?: () => void;
+  onRenamingDone?: (newValue: string) => void;
   confirm: (id: string, callback: ConfirmCallback) => void;
 };
 
@@ -108,22 +108,14 @@ const CollectionItemListItem = ({
   confirm
 }: CollectionItemListSingleItemProps) => {
   const labelRef = useRef<HTMLIonLabelElement>(null);
-  const renameInputRef = useRef<HTMLIonInputElement>(null);
-  const [renaming, setRenaming] = useState<boolean>(false);
+  const renaming = itemRenaming === item.id;
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // eslint-disable-next-line @eslint-react/set-state-in-effect
-    setRenaming(itemRenaming === item.id);
-    // eslint-disable-next-line @eslint-react/exhaustive-deps
-  }, [itemRenaming]);
-
-  if (renameInputRef.current) {
-    renameInputRef.current.setFocus();
-  }
+  const handleRenameInput = (input: HTMLIonInputElement | null) => {
+    input?.setFocus();
+  };
 
   const url = getUrl && !renaming ? getUrl(item) : undefined;
-  // const routerDirection = getUrl && !renaming ? 'none' : undefined;
   const icon = item.isConflict
     ? APPICONS.warning
     : item.hasAnnotsConflicts
@@ -188,16 +180,15 @@ const CollectionItemListItem = ({
       {renaming && (
         <IonInput
           className="invisible"
-          ref={renameInputRef}
+          ref={handleRenameInput}
           value={item.title}
           onIonChange={(e: InputCustomEvent) => {
             if (itemRenaming && e.detail.value) {
               collectionService.setItemTitle(itemRenaming, e.detail.value);
-              setRenaming(false);
-              if (onRenamingDone) onRenamingDone();
+              if (onRenamingDone) onRenamingDone(e.detail.value);
             }
           }}
-        ></IonInput>
+        />
       )}
       {!renaming && (
         <IonLabel

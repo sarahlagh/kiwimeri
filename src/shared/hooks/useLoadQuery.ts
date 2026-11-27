@@ -1,4 +1,4 @@
-/* eslint-disable @eslint-react/exhaustive-deps */
+/* eslint-disable react-hooks/exhaustive-deps */
 import { TinybaseQueryDefinition } from '@/core/db/queries-helper';
 import { TableIdFromSchema, WithId } from '@/core/db/types';
 import { useEffect } from 'react';

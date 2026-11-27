@@ -1,4 +1,4 @@
-import { APPICONS, ROOT_COLLECTION } from '@/constants';
+import { APPICONS } from '@/constants';
 import collectionService from '@/domain/collection/collection.service';
 import {
   IonBreadcrumb,
@@ -7,7 +7,7 @@ import {
   IonButtons,
   IonIcon
 } from '@ionic/react';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useMemo, useState } from 'react';
 
 type CollectionItemBreadcrumbProps = {
   folderId: string;
@@ -23,18 +23,13 @@ const CollectionItemBreadcrumb = ({
   minBreadcrumb = 2,
   children
 }: CollectionItemBreadcrumbProps) => {
+  // TODO if rename folder, component not rerendered
   const [maxBreadcrumbs, setMaxBreadcrumbs] = useState<number | undefined>(3);
-  const [breadcrumb, setBreadcrumb] = useState<string[]>([]);
 
-  useEffect(() => {
-    if (folderId !== ROOT_COLLECTION && !breadcrumb.find(b => b === folderId)) {
-      // eslint-disable-next-line @eslint-react/set-state-in-effect
-      setBreadcrumb(collectionService.getBreadcrumb(folderId));
-      // eslint-disable-next-line @eslint-react/set-state-in-effect
-      setMaxBreadcrumbs(3);
-    }
-    // eslint-disable-next-line @eslint-react/exhaustive-deps
-  }, [folderId]);
+  const breadcrumb = useMemo(
+    () => collectionService.getBreadcrumb(folderId),
+    [folderId]
+  );
 
   const checkedBreadcrumb = breadcrumb.filter(id =>
     collectionService.itemExists(id)

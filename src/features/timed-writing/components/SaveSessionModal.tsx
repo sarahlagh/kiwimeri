@@ -1,4 +1,3 @@
-/* eslint-disable @eslint-react/set-state-in-effect */
 import { useQueryResults } from '@/core/db/queries-helper';
 import { store } from '@/core/db/store';
 import {
@@ -25,7 +24,7 @@ import {
 } from '@ionic/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { SerializedEditorState } from 'lexical';
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 export type SavePayload = {
   content: SerializedEditorState;
@@ -39,10 +38,10 @@ type SaveSessionModalProps = {
 
 const SaveSessionModal = ({ onClose }: SaveSessionModalProps) => {
   const { t } = useLingui();
-  const [tempItem, setTempItem] = useState<
-    (CollectionItem & { id: string }) | null
-  >(null);
-  const [item, setItem] = useState<BrowsableItemResult | null>(null);
+
+  const [selectedItem, setSelectedItem] = useState<BrowsableItemResult | null>(
+    null
+  );
   const content = store.getValue('tempDoc');
 
   const query = useFetchBrowsableItemsQuery(
@@ -52,22 +51,18 @@ const SaveSessionModal = ({ onClose }: SaveSessionModalProps) => {
   const [parentId, setParentId] = useFetchBrowsableItemsQueryParamsState(query);
   const items = useQueryResults(query);
 
-  useEffect(() => {
-    if (tempItem === null && parentId !== undefined) {
-      const { item: previewItem, id } =
-        collectionService.getNewDocumentObj(parentId);
-      previewItem.title = t`timed session ` + dateToStr('iso');
-      setTempItem({ ...previewItem, id });
-      if (item === null) {
-        setItem({ ...previewItem, id, lastActivityAt: previewItem.updatedAt });
-      }
-    }
-  }, [tempItem, parentId, t, item]);
+  const tempItem = useMemo(() => {
+    const { item } = collectionService.getNewDocumentObj(parentId);
+    item.title = t`timed session ` + dateToStr('iso');
+    return { ...item, id: '__temp__' };
+  }, [parentId, t]);
 
-  const finalItems =
-    item && item.id === tempItem?.id
-      ? [{ ...item, title: item.title + t` (new)` }, ...items]
-      : [...items];
+  const finalItems = selectedItem
+    ? [...items]
+    : [
+        { ...tempItem, title: tempItem.title + t` (new)`, lastActivityAt: 0 },
+        ...items
+      ];
 
   return (
     <>
@@ -88,17 +83,14 @@ const SaveSessionModal = ({ onClose }: SaveSessionModalProps) => {
         onSelectedItem={selected => {
           if (selected.type === CollectionItemType.folder) {
             setParentId(selected.id);
-          } else if (selected.id === item?.id) {
-            // unselect document
-            setItem({
-              ...tempItem,
-              lastActivityAt: tempItem?.updatedAt || 0
-            } as BrowsableItemResult);
+          } else if (selected.id === selectedItem?.id) {
+            // unselect document -> the temp document will be created
+            setSelectedItem(null);
           } else {
-            setItem(selected);
+            setSelectedItem(selected);
           }
         }}
-        selected={item?.id}
+        selected={selectedItem?.id}
       />
 
       <IonFooter>
@@ -115,31 +107,25 @@ const SaveSessionModal = ({ onClose }: SaveSessionModalProps) => {
           <IonButtons slot="end">
             <IonButton
               color={'primary'}
-              disabled={item === null}
               onClick={() => {
-                if (!item) return;
                 const payload: SavePayload = {
                   content: JSON.parse(content!)
                 };
-                if (item.id === tempItem?.id) {
+                if (!selectedItem) {
                   payload.newItem = { ...tempItem, parentId };
                 } else {
-                  payload.existingItem = item;
+                  payload.existingItem = selectedItem;
                   // merge existing content with new
                   payload.content =
                     collectionService.appendUnsavedLexicalContent(
-                      item.id,
+                      selectedItem.id,
                       payload.content
                     );
                 }
                 onClose(payload);
               }}
             >
-              {item?.id === tempItem?.id ? (
-                <Trans>Save</Trans>
-              ) : (
-                <Trans>Merge</Trans>
-              )}
+              {!selectedItem ? <Trans>Save</Trans> : <Trans>Merge</Trans>}
             </IonButton>
           </IonButtons>
         </IonToolbar>

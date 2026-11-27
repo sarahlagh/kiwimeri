@@ -33,10 +33,10 @@ const viteConfig = defineConfig({
   },
   plugins: [
     react(),
+    lingui({ macroTransform: true }),
     babel({
       presets: [reactCompilerPreset()]
-    }),
-    lingui({ macroTransform: true })
+    })
   ]
 });
 if (process.env.ANALYZE) {

@@ -61,11 +61,12 @@ const SortFilter = ({
           <IonSelect
             style={{ marginLeft: 6 }}
             label={t`Sort`}
-            value={currentSort.by}
-            placeholder={sortLabels.get(i18n, currentSort.by)}
+            value={sort.by}
+            placeholder={sortLabels.get(i18n, sort.by)}
             onIonChange={e => {
-              sort.by = e.detail.value;
-              onSortChange(sort);
+              const newSort = { ...sort };
+              newSort.by = e.detail.value;
+              onSortChange(newSort);
             }}
           >
             {choices.map(sort => (
@@ -80,11 +81,12 @@ const SortFilter = ({
               slot="end"
               fill="clear"
               onClick={() => {
-                sort.descending = !currentSort.descending;
-                onSortChange(sort);
+                const newSort = { ...sort };
+                newSort.descending = !sort.descending;
+                onSortChange(newSort);
               }}
             >
-              {currentSort.descending ? (
+              {sort.descending ? (
                 <IonIcon icon={APPICONS.moveDown}></IonIcon>
               ) : (
                 <IonIcon icon={APPICONS.moveUp}></IonIcon>

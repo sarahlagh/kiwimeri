@@ -3,6 +3,7 @@ import css from '@eslint/css';
 import js from '@eslint/js';
 import vitest from '@vitest/eslint-plugin';
 import pluginLingui from 'eslint-plugin-lingui';
+import reactHooks from 'eslint-plugin-react-hooks';
 import { defineConfig } from 'eslint/config';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
@@ -18,7 +19,8 @@ export default defineConfig([
       js.configs.recommended,
       tseslint.configs.recommended,
       eslintReact.configs['recommended-typescript'],
-      pluginLingui.configs['flat/recommended']
+      pluginLingui.configs['flat/recommended'],
+      reactHooks.configs.flat['recommended']
     ],
 
     languageOptions: {
@@ -67,7 +69,10 @@ export default defineConfig([
             'ImportExpression[source.value=/^@\\/features\\/[^/]+\\/.+/]',
           message: 'Import from feature public API only'
         }
-      ]
+      ],
+      // duplicates with reactHooks rules
+      '@eslint-react/exhaustive-deps': 'off',
+      '@eslint-react/set-state-in-effect': 'off'
     }
   },
 

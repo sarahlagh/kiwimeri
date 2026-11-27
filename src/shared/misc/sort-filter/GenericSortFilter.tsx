@@ -67,8 +67,9 @@ const GenericSortFilter = <SortType extends string>(
             value={props.sort.by}
             placeholder={sortLabels.get(i18n, props.sort.by)}
             onIonChange={e => {
-              props.sort.by = e.detail.value;
-              props.onSortChange(props.sort);
+              const newSort = { ...props.sort };
+              newSort.by = e.detail.value;
+              props.onSortChange(newSort);
             }}
           >
             {props.allowedSorts.map(sortBy => (
@@ -84,8 +85,9 @@ const GenericSortFilter = <SortType extends string>(
               slot="end"
               fill="clear"
               onClick={() => {
-                props.sort.descending = !props.sort.descending;
-                props.onSortChange(props.sort);
+                const newSort = { ...props.sort };
+                newSort.descending = !newSort.descending;
+                props.onSortChange(newSort);
               }}
             >
               {props.sort.descending ? (

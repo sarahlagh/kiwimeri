@@ -1,5 +1,5 @@
 import { IonLabel } from '@ionic/react';
-import { ReactNode } from 'react';
+import { ReactNode, useRef } from 'react';
 
 type CatchClickLabelProps = {
   goalClicks: number;
@@ -13,20 +13,24 @@ const CatchClickLabel = ({
   maxTimeout = 3000,
   children
 }: CatchClickLabelProps) => {
-  let captureClicks = 0;
-  let firstClickTs = 0;
+  const varRef = useRef({
+    captureClicks: 0,
+    firstClickTs: 0
+  });
   return (
     <IonLabel
       onClick={e => {
-        if (captureClicks === 0) firstClickTs = e.timeStamp;
-        if (e.timeStamp - firstClickTs >= maxTimeout) {
-          captureClicks = 0;
-          firstClickTs = 0;
+        if (e.timeStamp - varRef.current.firstClickTs >= maxTimeout) {
+          varRef.current.captureClicks = 0;
+          varRef.current.firstClickTs = 0;
         }
-        if (captureClicks++ >= goalClicks) {
+        if (varRef.current.captureClicks === 0) {
+          varRef.current.firstClickTs = e.timeStamp;
+        }
+        if (varRef.current.captureClicks++ >= goalClicks) {
+          varRef.current.captureClicks = 0;
+          varRef.current.firstClickTs = 0;
           onFinalClick();
-          captureClicks = 0;
-          firstClickTs = 0;
         }
       }}
     >

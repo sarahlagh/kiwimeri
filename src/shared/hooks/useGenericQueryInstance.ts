@@ -29,7 +29,7 @@ const useGenericQueryInstance = <
     return () => {
       query.close();
     };
-    // eslint-disable-next-line @eslint-react/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return query;
 };

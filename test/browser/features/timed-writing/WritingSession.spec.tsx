@@ -557,6 +557,7 @@ describe('WritingSession', () => {
       );
       expect(docs).toHaveLength(2);
       expect(docs[0].previewText).toBe('abc def');
+      expect(docs[0].id).not.toBe('__temp__');
       expect(docs[1].id).toBe(docId);
 
       expect(navigateToList).toHaveLength(1);

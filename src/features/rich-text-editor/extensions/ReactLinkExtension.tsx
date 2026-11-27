@@ -38,7 +38,7 @@ import { createLinkMatcherWithRegExp } from '@lexical/react/LexicalAutoLinkPlugi
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { ReactExtension } from '@lexical/react/ReactExtension';
 import { useLingui } from '@lingui/react/macro';
-import { useEffect, useRef, useState } from 'react';
+import { RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import { CREATE_LINK_AT_WORD_UNDER_CURSOR_COMMAND } from '../commands/word-under-cursor-commands';
 import { useSelectionContext } from '../hooks';
 import { getSelectedNode } from '../utils/getSelectedNode';
@@ -58,12 +58,15 @@ export const OPEN_LINK_MODAL_COMMAND: LexicalCommand<void> = createCommand(
   'OPEN_LINK_MODAL_COMMAND'
 );
 
-type ModalResultPayload = {
+type ModalInputs = {
   textChanged: boolean;
   urlChanged: boolean;
-  isTextOrElementSelection: boolean;
   linkText?: string;
-  linkUrl?: string;
+  linkUrl?: string | null;
+};
+
+type FullResultPayload = ModalInputs & {
+  isTextOrElementSelection: boolean;
   isTextWordUnderCursor?: boolean;
   wordUnderCursor?: SelectionContext['wordUnderCursor'];
 };
@@ -79,7 +82,7 @@ function getLinkParentNode(selection: RangeSelection) {
 
 const handleLinkSubmission = (
   editor: LexicalEditor,
-  payload: ModalResultPayload
+  payload: FullResultPayload
 ) => {
   editor.dispatchCommand(
     payload.isTextWordUnderCursor !== true
@@ -122,7 +125,7 @@ const handleLinkSubmission = (
 
 const handleAutoLinkSubmission = (
   editor: LexicalEditor,
-  payload: ModalResultPayload
+  payload: FullResultPayload
 ) => {
   editor.update(() => {
     const selection = $getSelection();
@@ -166,37 +169,31 @@ const handleAutoLinkSubmission = (
   });
 };
 
-const OpenLinkModalPlugin = () => {
-  const [editor] = useLexicalComposerContext();
-  const selection = useSelectionContext();
-  const linkContext = selection.links;
+function EditLinkPopover({
+  inputsRef,
+  payload,
+  linkContext,
+  dismiss
+}: {
+  inputsRef: RefObject<ModalInputs>;
+  payload: { linkText: string; linkUrl?: string };
+  linkContext: SelectionContext['links'];
+  dismiss: () => void;
+}) {
   const { t } = useLingui();
   const [textWillChange, setTextWillChange] = useState(false);
-  const payloadRef = useRef<ModalResultPayload>({
-    isTextOrElementSelection: false,
-    textChanged: false,
-    urlChanged: false
-  });
-  payloadRef.current.isTextOrElementSelection =
-    selection.isTextOrElementSelection;
-  payloadRef.current.linkUrl = linkContext.linkUrl;
-  payloadRef.current.linkText =
-    linkContext.linkText ||
-    (selection.wordUnderCursor ? selection.wordUnderCursor[2] : '');
-  payloadRef.current.wordUnderCursor = selection.wordUnderCursor;
-  payloadRef.current.isTextWordUnderCursor =
-    !linkContext.isLink && !linkContext.linkText;
-  const [present, dismiss] = useIonPopover(
+
+  return (
     <IonList lines="none" className="inner-list">
       <IonItem className="inner-item">
         <IonInput
           label={t`Text`}
-          value={payloadRef.current.linkText}
+          value={payload.linkText}
           disabled={linkContext.isAutoLink && textWillChange !== true}
           onIonInput={(e: InputCustomEvent) => {
             if (e.detail.value) {
-              payloadRef.current.textChanged = true;
-              payloadRef.current.linkText = e.detail.value;
+              inputsRef.current.textChanged = true;
+              inputsRef.current.linkText = e.detail.value;
             }
           }}
         />
@@ -216,23 +213,22 @@ const OpenLinkModalPlugin = () => {
         <IonInput
           label={t`Link`}
           placeholder="https://"
-          value={payloadRef.current.linkUrl}
+          value={payload.linkUrl}
           onIonInput={(e: InputCustomEvent) => {
             if (e.detail.value) {
-              payloadRef.current.urlChanged = true;
-              payloadRef.current.linkUrl = e.detail.value;
+              inputsRef.current.urlChanged = true;
+              inputsRef.current.linkUrl = e.detail.value;
             }
           }}
         />
         {(linkContext.isAutoLink ||
-          (payloadRef.current.linkUrl &&
-            payloadRef.current.linkUrl !== '')) && (
+          (payload.linkUrl && payload.linkUrl !== '')) && (
           <IonButton
             fill="clear"
             aria-label={t`Toggle`}
             onClick={() => {
-              payloadRef.current.urlChanged = true;
-              delete payloadRef.current.linkUrl;
+              inputsRef.current.urlChanged = true;
+              inputsRef.current.linkUrl = null;
               dismiss();
             }}
           >
@@ -248,6 +244,36 @@ const OpenLinkModalPlugin = () => {
       </IonItem>
     </IonList>
   );
+}
+
+const OpenLinkModalPlugin = () => {
+  const [editor] = useLexicalComposerContext();
+  const selection = useSelectionContext();
+  const linkContext = selection.links;
+
+  const payload = useMemo(
+    () => ({
+      isTextOrElementSelection: selection.isTextOrElementSelection,
+      linkUrl: linkContext.linkUrl,
+      linkText:
+        linkContext.linkText ||
+        (selection.wordUnderCursor ? selection.wordUnderCursor[2] : ''),
+      wordUnderCursor: selection.wordUnderCursor,
+      isTextWordUnderCursor: !linkContext.isLink && !linkContext.linkText
+    }),
+    [linkContext, selection]
+  );
+  const inputsRef = useRef<ModalInputs>({
+    textChanged: false,
+    urlChanged: false
+  });
+
+  const [present, dismiss] = useIonPopover(EditLinkPopover, {
+    inputsRef,
+    payload,
+    linkContext,
+    dismiss: () => dismiss()
+  });
   useEffect(() => {
     return editor.registerCommand(
       OPEN_LINK_MODAL_COMMAND,
@@ -255,30 +281,22 @@ const OpenLinkModalPlugin = () => {
         present({
           htmlAttributes: { role: 'dialog' },
           cssClass: 'larger-width',
-          onDidDismiss() {
-            if (
-              payloadRef.current.textChanged ||
-              payloadRef.current.urlChanged
-            ) {
+          onDidDismiss: () => {
+            const finalPayload = { ...payload, ...inputsRef.current };
+            if (finalPayload.textChanged || finalPayload.urlChanged) {
               if (linkContext.isAutoLink) {
-                handleAutoLinkSubmission(editor, payloadRef.current);
+                handleAutoLinkSubmission(editor, finalPayload);
               } else {
-                handleLinkSubmission(editor, payloadRef.current);
+                handleLinkSubmission(editor, finalPayload);
               }
             }
-            payloadRef.current = {
-              textChanged: false,
-              urlChanged: false,
-              isTextOrElementSelection: selection.isTextOrElementSelection
-            };
-            setTextWillChange(false);
           }
         });
         return false;
       },
       COMMAND_PRIORITY_EDITOR
     );
-  }, [editor, present, linkContext, selection.isTextOrElementSelection]);
+  }, [editor, present, linkContext, payload]);
 
   return null;
 };
