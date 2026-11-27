@@ -2,7 +2,7 @@ import { GET_DOCUMENT_ROUTE, VERSION_ROUTE } from '@/app/routes';
 import { historyService } from '@/domain/history/history.service';
 import { lazy, Suspense, useState } from 'react';
 import { Navigate } from 'react-router';
-import { useStableRouteContext } from '../context/RouteContext';
+import { useRouteContext } from '../context/RouteContext';
 import useItemTitle from '../hooks/useItemTitle';
 import NotFoundPage from './NotFoundPage';
 import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
@@ -20,7 +20,7 @@ const CollectionItemBrowserList = lazy(() =>
 );
 
 const VersionedItemPage = () => {
-  const routeCtx = useStableRouteContext();
+  const routeCtx = useRouteContext();
   const docId = routeCtx.document;
   const parentFolder = routeCtx.folder;
   const docVersion = routeCtx.docVersion;
@@ -67,6 +67,7 @@ const VersionedItemPage = () => {
           docId={docId}
           docVersion={docVersion}
           showActions={showDocumentActions}
+          setShowActions={setShowDocumentActions}
           folder={parentFolder}
         ></DocumentVersionViewer>
       </Suspense>

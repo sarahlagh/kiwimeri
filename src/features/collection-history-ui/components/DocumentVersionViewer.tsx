@@ -6,6 +6,7 @@ import collectionService from '@/domain/collection/collection.service';
 import { unminimizeContentFromStorage } from '@/domain/collection/compress-file-content';
 import { RichTextEditor } from '@/features/rich-text-editor';
 import { SearchActionsToolbar } from '@/features/search';
+import { noop } from '@/shared/utils';
 import {
   IonButton,
   IonContent,
@@ -18,7 +19,7 @@ import {
   IonTitle,
   IonToolbar
 } from '@ionic/react';
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { useNavigate } from 'react-router';
 import useVersion from '../hooks/useVersion';
 
@@ -32,6 +33,7 @@ interface DocumentVersionViewerProps {
   docId: string;
   docVersion: string;
   showActions?: boolean;
+  setShowActions?: (showActions: boolean) => void;
   folder: string;
 }
 
@@ -52,24 +54,17 @@ const DocumentVersionFooter = ({
   );
 };
 
-const DocumentVersionViewer = ({
+const PrivateDocumentVersionViewer = ({
   docId,
   docVersion,
   showActions = false,
+  setShowActions = noop,
   folder
 }: DocumentVersionViewerProps) => {
   const navigate = useNavigate();
-  const [showDocumentActions, setShowDocumentActions] =
-    useState<boolean>(false);
   const [toggleSearch, setToggleSearch] = useState(false);
   const [toggleSearchAutoFocus, setToggleSearchAutoFocus] = useState(true);
-  const query = useSearchQuery();
-  const searchText = query ? decodeURI(query) : '';
-  // TODO refactor
-  useEffect(() => {
-    // eslint-disable-next-line @eslint-react/set-state-in-effect
-    setShowDocumentActions(showActions);
-  }, [showActions]);
+  const query = useSearchQuery() || '';
 
   const versionedDoc = useVersion(docVersion);
   const content = versionedDoc?.content
@@ -78,15 +73,6 @@ const DocumentVersionViewer = ({
   const versionData = versionedDoc?.snapshotJson;
   const documentTitle = versionData?.title;
   const parentId = collectionService.getItemParent(docId);
-
-  useEffect(() => {
-    if (searchText) {
-      // eslint-disable-next-line @eslint-react/set-state-in-effect
-      setToggleSearch(searchText.length > 0);
-      // eslint-disable-next-line @eslint-react/set-state-in-effect
-      setToggleSearchAutoFocus(false);
-    }
-  }, [searchText, docId]);
 
   return (
     <>
@@ -101,32 +87,32 @@ const DocumentVersionViewer = ({
             fill="clear"
             color={'dark'}
             onClick={() => {
-              setShowDocumentActions(!showDocumentActions);
+              setShowActions(!showActions);
               setToggleSearch(false);
             }}
           >
             <IonIcon icon={APPICONS.itemActions}></IonIcon>
           </IonButton>
         </IonToolbar>
-        {showDocumentActions && (
+        {showActions && (
           <Suspense>
             <ActionsFromDocumentVersionViewerToolbar
               docId={docId}
               getBackRoute={() => GET_DOCUMENT_ROUTE(parentId, docId, query)}
               onSearch={() => {
-                setShowDocumentActions(false);
+                setShowActions(false);
                 setToggleSearch(true);
                 setToggleSearchAutoFocus(true);
               }}
               onClose={() => {
-                setShowDocumentActions(false);
+                setShowActions(false);
               }}
             />
           </Suspense>
         )}
         {toggleSearch && (
           <SearchActionsToolbar
-            searchText={searchText}
+            searchText={query}
             setToggleSearch={setToggleSearch}
             toggleSearchAutoFocus={toggleSearchAutoFocus}
             onValue={val => {
@@ -146,12 +132,16 @@ const DocumentVersionViewer = ({
             enableHistory={false}
             enableOnChange={false}
             initialState={content}
-            searchText={toggleSearch ? searchText : undefined}
+            searchText={query}
           />
         )}
       </IonContent>
       {versionData && <DocumentVersionFooter versionData={versionData} />}
     </>
   );
+};
+
+const DocumentVersionViewer = (props: DocumentVersionViewerProps) => {
+  return <PrivateDocumentVersionViewer key={props.docVersion} {...props} />;
 };
 export default DocumentVersionViewer;

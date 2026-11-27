@@ -1,7 +1,4 @@
-import {
-  useSearchQuery,
-  useStableRouteContext
-} from '@/app/context/RouteContext';
+import { useRouteContext, useSearchQuery } from '@/app/context/RouteContext';
 import { GET_VERSIONED_ROUTE } from '@/app/routes';
 import { APPICONS } from '@/constants';
 import LazyModalTemplate from '@/shared/modals/LazyModalTemplate';
@@ -34,7 +31,7 @@ const ManageHistoryButton = ({
   afterRestore
 }: ManageHistoryButtonProps) => {
   const navigate = useNavigate();
-  const routeCtx = useStableRouteContext();
+  const routeCtx = useRouteContext();
   const query = useSearchQuery();
   const [present, dismiss] = useIonModal(ManageHistoryModalWrapped, {
     id,

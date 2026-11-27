@@ -32,7 +32,7 @@ const SearchActionsToolbar = ({
   const inputRef = useRef<HTMLIonInputElement>(null);
   useEffect(() => {
     if (!toggleSearchAutoFocus || !inputRef.current) return;
-    const timeout = setTimeout(() => inputRef.current!.setFocus());
+    const timeout = setTimeout(() => inputRef.current?.setFocus());
     return () => clearTimeout(timeout);
   }, [toggleSearchAutoFocus]);
   return (

@@ -83,9 +83,7 @@ const CollectionItemBrowserListToolbar = ({
       sortEnabled={mode === 'browser' && openFilters}
       searchEnabled={openFilters}
       searchText={searchText || ''}
-      onSearch={val => {
-        setSearchText(val);
-      }}
+      onSearch={setSearchText}
     >
       <IonItem lines="none">
         <IonToolbar>
@@ -160,7 +158,6 @@ const PrivateCollectionItemBrowserList = ({
 }: CollectionItemBrowserListProps) => {
   const navigate = useNavigate();
   const { i18n } = useLingui();
-  const searchQuery = useSearchQuery();
   const hasConflicts = useHasLocalConflicts();
 
   const sort = useFolderEffectiveSort(folderId);
@@ -189,10 +186,9 @@ const PrivateCollectionItemBrowserList = ({
   );
 
   const [searchText, setSearchText] = useState<string | null>();
+  const queryFromDocument = useSearchQuery();
   const query =
-    searchText && searchText.length > 0
-      ? searchText
-      : decodeURI(searchQuery || '');
+    searchText && searchText.length > 0 ? searchText : queryFromDocument;
 
   return (
     <CollectionItemList

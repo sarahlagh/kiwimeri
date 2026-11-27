@@ -25,7 +25,6 @@ const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
   const folder = searchParams.get('folder') || notebook;
   const document = searchParams.get('document') || undefined;
   const docVersion = searchParams.get('docVersion') || undefined;
-  const query = searchParams.get('query') || undefined;
   const rememberLastRoute = useDeviceSetting('rememberLastRoute');
 
   const routeContext = useMemo(
@@ -34,10 +33,9 @@ const InitialRoutingProvider = ({ children }: InitialRoutingProviderProps) => {
       notebook,
       folder,
       document,
-      docVersion,
-      query
+      docVersion
     }),
-    [route, notebook, folder, document, docVersion, query]
+    [route, notebook, folder, document, docVersion]
   );
 
   useEffect(() => {

@@ -7,7 +7,7 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: en\n"
 
-#: src/features/timed-writing/components/SaveSessionModal.tsx:69
+#: src/features/timed-writing/components/SaveSessionModal.tsx:63
 msgid " (new)"
 msgstr " (new)"
 
@@ -23,7 +23,7 @@ msgstr "-- conflict --"
 msgid "{v} minutes"
 msgstr "{v} minutes"
 
-#: src/features/timed-writing/components/OngoingSession.tsx:163
+#: src/features/timed-writing/components/OngoingSession.tsx:162
 msgid "{wordCount} words"
 msgstr "{wordCount} words"
 
@@ -114,7 +114,7 @@ msgid "cancel"
 msgstr "cancel"
 
 #: src/features/collection-history-ui/components/ManageHistoryModal.tsx:156
-#: src/features/document-editor/tags/ChooseTagsModal.tsx:100
+#: src/features/document-editor/tags/ChooseTagsModal.tsx:143
 #: src/features/import-export/buttons/ExportItemsButton.tsx:103
 #: src/features/import-export/buttons/RestoreCollectionButton.tsx:57
 #: src/features/import-export/modals/ConfirmFileImportModal.tsx:75
@@ -156,7 +156,7 @@ msgstr "Choose a new folder"
 msgid "Choose a session length"
 msgstr "Choose a session length"
 
-#: src/features/timed-writing/components/SaveSessionModal.tsx:76
+#: src/features/timed-writing/components/SaveSessionModal.tsx:71
 msgid "Choose where to save your work"
 msgstr "Choose where to save your work"
 
@@ -165,7 +165,7 @@ msgstr "Choose where to save your work"
 msgid "close"
 msgstr "close"
 
-#: src/features/timed-writing/components/SaveSessionModal.tsx:112
+#: src/features/timed-writing/components/SaveSessionModal.tsx:104
 msgid "Close"
 msgstr "Close"
 
@@ -187,7 +187,7 @@ msgstr "Configure where to synchronize your collection"
 
 #: src/features/collection-history-ui/components/ManageHistoryModal.tsx:160
 #: src/features/collection-notebooks-ui/components/ManageNotebooksModal.tsx:103
-#: src/features/document-editor/tags/ChooseTagsModal.tsx:107
+#: src/features/document-editor/tags/ChooseTagsModal.tsx:150
 #: src/features/import-export/buttons/ExportItemsButton.tsx:110
 #: src/features/import-export/buttons/RestoreCollectionButton.tsx:64
 #: src/features/import-export/modals/ConfirmFileImportModal.tsx:78
@@ -197,7 +197,7 @@ msgid "Confirm"
 msgstr "Confirm"
 
 #: src/constants.ts:151
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:159
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:152
 msgid "Conflicts"
 msgstr "Conflicts"
 
@@ -282,7 +282,7 @@ msgstr "Device Settings"
 msgid "Device Token"
 msgstr "Device Token"
 
-#: src/features/timed-writing/components/OngoingSession.tsx:186
+#: src/features/timed-writing/components/OngoingSession.tsx:185
 msgid "Discard"
 msgstr "Discard"
 
@@ -310,7 +310,7 @@ msgstr "Document History"
 msgid "Download Logs"
 msgstr "Download Logs"
 
-#: src/features/rich-text-editor/extensions/ReactLinkExtension.tsx:206
+#: src/features/rich-text-editor/extensions/ReactLinkExtension.tsx:203
 msgid "Edit text"
 msgstr "Edit text"
 
@@ -374,7 +374,7 @@ msgstr "File not supported"
 msgid "Format {formatType}"
 msgstr "Format {formatType}"
 
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:99
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:92
 msgid "go to current folder"
 msgstr "go to current folder"
 
@@ -466,7 +466,7 @@ msgstr "Kiwimeri format (content only)"
 msgid "Kiwimeri format (with history & stats)"
 msgstr "Kiwimeri format (with history & stats)"
 
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:158
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:151
 msgid "Last consulted documents"
 msgstr "Last consulted documents"
 
@@ -475,7 +475,7 @@ msgstr "Last consulted documents"
 msgid "Last Updated"
 msgstr "Last Updated"
 
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:157
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:150
 msgid "Last updated documents"
 msgstr "Last updated documents"
 
@@ -487,7 +487,7 @@ msgstr "Leave empty for root"
 msgid "Less dangerous mode (session is still timed but you will not lose progress on pause)"
 msgstr "Less dangerous mode (session is still timed but you will not lose progress on pause)"
 
-#: src/features/rich-text-editor/extensions/ReactLinkExtension.tsx:217
+#: src/features/rich-text-editor/extensions/ReactLinkExtension.tsx:214
 msgid "Link"
 msgstr "Link"
 
@@ -548,7 +548,7 @@ msgstr "Markdown (Kiwimeri flavor)"
 msgid "Max log history"
 msgstr "Max log history"
 
-#: src/features/timed-writing/components/SaveSessionModal.tsx:141
+#: src/features/timed-writing/components/SaveSessionModal.tsx:128
 msgid "Merge"
 msgstr "Merge"
 
@@ -601,7 +601,7 @@ msgstr "New folder name: "
 msgid "New notebook name: "
 msgstr "New notebook name: "
 
-#: src/features/document-editor/tags/ChooseTagsModal.tsx:85
+#: src/features/document-editor/tags/ChooseTagsModal.tsx:124
 msgid "New tag"
 msgstr "New tag"
 
@@ -613,7 +613,7 @@ msgstr "no"
 msgid "No pending tasks"
 msgstr "No pending tasks"
 
-#: src/features/document-editor/tags/ChooseTagsModal.tsx:53
+#: src/features/document-editor/tags/ChooseTagsModal.tsx:88
 msgid "No tag yet"
 msgstr "No tag yet"
 
@@ -762,11 +762,11 @@ msgstr "Rich text editor"
 msgid "Run Now"
 msgstr "Run Now"
 
-#: src/features/timed-writing/components/SaveSessionModal.tsx:139
+#: src/features/timed-writing/components/SaveSessionModal.tsx:128
 msgid "Save"
 msgstr "Save"
 
-#: src/features/timed-writing/components/OngoingSession.tsx:181
+#: src/features/timed-writing/components/OngoingSession.tsx:180
 msgid "Save your work"
 msgstr "Save your work"
 
@@ -794,7 +794,7 @@ msgstr "Search input"
 msgid "select a note"
 msgstr "select a note"
 
-#: src/features/document-editor/tags/ChooseTagsModal.tsx:39
+#: src/features/document-editor/tags/ChooseTagsModal.tsx:74
 msgid "Select item tags"
 msgstr "Select item tags"
 
@@ -820,7 +820,7 @@ msgstr "Show details"
 msgid "Show Filters"
 msgstr "Show Filters"
 
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:112
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:105
 msgid "show search sort filters"
 msgstr "show search sort filters"
 
@@ -833,7 +833,7 @@ msgstr "Sort"
 msgid "Sort descending by default"
 msgstr "Sort descending by default"
 
-#: src/shared/misc/sort-filter/GenericSortFilter.tsx:83
+#: src/shared/misc/sort-filter/GenericSortFilter.tsx:84
 msgid "Sort direction"
 msgstr "Sort direction"
 
@@ -882,7 +882,7 @@ msgstr "Syncing is disabled on the web version."
 msgid "Tags"
 msgstr "Tags"
 
-#: src/features/rich-text-editor/extensions/ReactLinkExtension.tsx:193
+#: src/features/rich-text-editor/extensions/ReactLinkExtension.tsx:190
 msgid "Text"
 msgstr "Text"
 
@@ -926,7 +926,7 @@ msgstr "This will reset all values that can be reset."
 msgid "This will reset this change"
 msgstr "This will reset this change"
 
-#: src/features/timed-writing/components/SaveSessionModal.tsx:59
+#: src/features/timed-writing/components/SaveSessionModal.tsx:56
 msgid "timed session "
 msgstr "timed session "
 
@@ -943,7 +943,7 @@ msgstr "Timed Writing Session"
 msgid "Title"
 msgstr "Title"
 
-#: src/features/rich-text-editor/extensions/ReactLinkExtension.tsx:232
+#: src/features/rich-text-editor/extensions/ReactLinkExtension.tsx:228
 msgid "Toggle"
 msgstr "Toggle"
 
@@ -951,7 +951,7 @@ msgstr "Toggle"
 msgid "Toggle actions"
 msgstr "Toggle actions"
 
-#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:120
+#: src/features/collection-browser/components/CollectionItemBrowserList.tsx:113
 msgid "toggle browser mode"
 msgstr "toggle browser mode"
 

@@ -30,11 +30,14 @@ import {
   useCallback,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState
 } from 'react';
 import { useNavigate } from 'react-router';
 
+import { useSearchQuery } from '@/app/context/RouteContext';
+import useItemTitle from '@/app/hooks/useItemTitle';
 import {
   getChangedBlocks,
   OnChangePluginPayload,
@@ -42,6 +45,7 @@ import {
   RichTextEditorHandle,
   serializeSelection
 } from '@/features/rich-text-editor';
+import { noop } from '@/shared/utils';
 import DocumentBottomSheet, { DocSheet } from './DocumentBottomSheet';
 import './DocumentEditor.scss';
 
@@ -58,7 +62,7 @@ export type DocumentEditorHandle = {
 interface DocumentEditorProps {
   docId: string;
   showActions?: boolean;
-  query?: string;
+  setShowActions?: (showActions: boolean) => void;
   ref: RefObject<DocumentEditorHandle | null>;
 }
 
@@ -68,18 +72,16 @@ function onZoomChange(zoomLevel: number) {
 
 const DocumentEditor = (props: DocumentEditorProps) => {
   const editorRef = useRef<RichTextEditorHandle | null>(null);
-  const contentRef = useRef('');
   const [key, setKey] = useState(0);
 
-  const { docId, showActions = false, query } = { ...props };
+  const { docId, showActions = false, setShowActions = noop, ref } = props;
 
   const refreshContent = useCallback(() => {
-    contentRef.current = collectionService.getDocumentContent(docId);
     setKey(key + 1);
-  }, [key, setKey, docId]);
+  }, [key, setKey]);
 
   useImperativeHandle(
-    props.ref,
+    ref,
     () => ({
       getEditor() {
         return editorRef.current?.getEditor() || null;
@@ -96,41 +98,22 @@ const DocumentEditor = (props: DocumentEditorProps) => {
   );
 
   const parentId = collectionService.getItemParent(docId);
-  const searchText = query ? decodeURI(query) : '';
+  const searchText = useSearchQuery() || '';
 
   const navigate = useNavigate();
-  const [showDocumentActions, setShowDocumentActions] =
-    useState<boolean>(false);
   const [showBottomSheet, setShowBottomSheet] = useState(showActions);
   const [bottomSheet, setBottomSheet] = useState<DocSheet>('info');
   const [toggleSearch, setToggleSearch] = useState(false);
   const [toggleSearchAutoFocus, setToggleSearchAutoFocus] = useState(true);
   const hasConflicts = useHasLocalConflicts();
-  // TODO refactor
-  useEffect(() => {
-    // eslint-disable-next-line @eslint-react/set-state-in-effect
-    setShowDocumentActions(showActions);
-  }, [showActions]);
 
-  contentRef.current = collectionService.getDocumentContent(docId);
-  const documentTitle = collectionService.getItemTitle(docId);
+  const documentTitle = useItemTitle(docId);
   const onTitleChange = onTitleChangeFn(docId);
-
-  const resumeState = resumeService.getDocumentResumeState(docId);
 
   useEffect(() => {
     collectionService.setLastOpenedAt(docId, Date.now());
     schedule.flushByName(TaskNames.FAST_WRITE);
   }, [docId]);
-
-  useEffect(() => {
-    if (searchText) {
-      // eslint-disable-next-line @eslint-react/set-state-in-effect
-      setToggleSearch(searchText.length > 0);
-      // eslint-disable-next-line @eslint-react/set-state-in-effect
-      setToggleSearchAutoFocus(false);
-    }
-  }, [searchText, docId]);
 
   const onChange: (change: OnChangePluginPayload) => void = useCallback(
     payload => {
@@ -151,6 +134,17 @@ const DocumentEditor = (props: DocumentEditorProps) => {
       );
     },
     [docId]
+  );
+
+  const initialValueBag = useMemo(
+    () => ({
+      initialState: collectionService.getDocumentContent(docId),
+      resumeState: resumeService.getDocumentResumeState(docId),
+      resumeLastSelection: deviceSettings.get('resumeLastSelection'),
+      initialZoom: deviceSettings.get('globalZoom')
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [docId, key]
   );
 
   return (
@@ -174,14 +168,14 @@ const DocumentEditor = (props: DocumentEditorProps) => {
             fill="clear"
             color={'dark'}
             onClick={() => {
-              setShowDocumentActions(!showDocumentActions);
+              setShowActions(!showActions);
               setToggleSearch(false);
             }}
           >
             <IonIcon icon={APPICONS.itemActions}></IonIcon>
           </IonButton>
         </IonToolbar>
-        {showDocumentActions && (
+        {showActions && (
           <Suspense
             fallback={
               <IonToolbar color="medium" style={{ height: 56 + 'px' }} />
@@ -193,17 +187,17 @@ const DocumentEditor = (props: DocumentEditorProps) => {
                 if (role === 'info' || role === 'stats') {
                   setBottomSheet(role);
                   setShowBottomSheet(true);
-                  setShowDocumentActions(false);
+                  setShowActions(false);
                 } else if (role === 'restore') {
                   refreshContent();
                 } else if (role === 'group') {
                   navigate(data!);
                 } else {
-                  setShowDocumentActions(false);
+                  setShowActions(false);
                 }
               }}
               onSearch={() => {
-                setShowDocumentActions(false);
+                setShowActions(false);
                 setToggleSearch(true);
                 setToggleSearchAutoFocus(true);
               }}
@@ -223,26 +217,24 @@ const DocumentEditor = (props: DocumentEditorProps) => {
       </IonHeader>
 
       <IonContent>
-        {contentRef.current && (
-          <RichTextEditor
-            ref={editorRef}
-            instanceType="DocumentEditor"
-            reloadKey={key}
-            additionalClassNames={'document-editor'}
-            historyId={docId}
-            initialState={contentRef.current}
-            initialSelection={resumeState?.lastSelection || null}
-            enableHistory={true}
-            enableToolbar={!showDocumentActions && !toggleSearch}
-            enableDebugTree={appConfig.DEV_ENABLE_LEXICAL_DEBUG_TREE}
-            searchText={toggleSearch ? searchText : undefined}
-            ignoreSelectionChange={false}
-            resumeLastSelection={deviceSettings.get('resumeLastSelection')}
-            initialZoom={deviceSettings.get('globalZoom')}
-            onZoomChange={onZoomChange}
-            onChange={onChange}
-          />
-        )}
+        <RichTextEditor
+          ref={editorRef}
+          instanceType="DocumentEditor"
+          reloadKey={key}
+          additionalClassNames={'document-editor'}
+          historyId={docId}
+          initialState={initialValueBag.initialState}
+          initialSelection={initialValueBag.resumeState?.lastSelection || null}
+          enableHistory={true}
+          enableToolbar={!showActions && !toggleSearch}
+          enableDebugTree={appConfig.DEV_ENABLE_LEXICAL_DEBUG_TREE}
+          searchText={toggleSearch ? searchText : undefined}
+          ignoreSelectionChange={false}
+          resumeLastSelection={initialValueBag.resumeLastSelection}
+          initialZoom={initialValueBag.initialZoom}
+          onZoomChange={onZoomChange}
+          onChange={onChange}
+        />
       </IonContent>
       {showBottomSheet && (
         <DocumentBottomSheet

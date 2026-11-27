@@ -1,5 +1,9 @@
 import { AnyData, DbSerializableData } from '@/core/db/types';
 
+export function noop() {
+  /**/
+}
+
 export function fastHash(input: string): number {
   let hash = 0;
   for (let i = 0; i < input.length; i++) {

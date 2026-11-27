@@ -2,7 +2,7 @@ import { deviceSettings } from '@/domain/device-settings/device-settings.service
 import { DocumentEditorHandle } from '@/features/document-editor';
 import { onTitleChangeFn } from '@/shared/misc/onTitleChangeFn';
 import { lazy, Suspense, useRef, useState } from 'react';
-import { useStableRouteContext } from '../context/RouteContext';
+import { useRouteContext } from '../context/RouteContext';
 import useItemTitle from '../hooks/useItemTitle';
 import TemplateCompactableSplitPage from './TemplateCompactableSplitPage';
 
@@ -20,7 +20,7 @@ const CollectionItemBrowserList = lazy(() =>
 
 const DocumentEditorPage = () => {
   const editorRef = useRef<DocumentEditorHandle | null>(null);
-  const routeCtx = useStableRouteContext();
+  const routeCtx = useRouteContext();
   const notebook = routeCtx.notebook;
   const docId = routeCtx.document || notebook;
   const parent = routeCtx.folder;
@@ -69,7 +69,7 @@ const DocumentEditorPage = () => {
           ref={editorRef}
           docId={docId}
           showActions={showDocumentActions}
-          // query={searchParams.query}
+          setShowActions={setShowDocumentActions}
         />
       </Suspense>
     </TemplateCompactableSplitPage>
