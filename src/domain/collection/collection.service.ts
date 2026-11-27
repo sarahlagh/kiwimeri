@@ -148,13 +148,13 @@ class CollectionService {
     );
   }
 
-  public getAllChildren(parent: string, sort?: CollectionItemSort) {
+  public getAllChildren(parentId: string, sort?: CollectionItemSort) {
     if (!sort) {
       sort = settingsService.getNotebookDefaultSort();
     }
     return fetchItemsQuery.getResults(
       {
-        parentId: parent,
+        parentId,
         recursive: true
       },
       sort.by,
@@ -467,7 +467,7 @@ class CollectionService {
 
     const projectionEngine = new ProjectionEngine();
     space.transaction(() => {
-      const row = { ...item, itemId: rowId } as CollectionItemRow;
+      const row: CollectionItemRow = { ...item };
       projectionEngine.$setCollectionRow(rowId, row);
       projectionEngine.$setAncestryPath(rowId);
       projectionEngine.__updateAncestryLastActivityAt(item.updatedAt, rowId);
@@ -499,12 +499,15 @@ class CollectionService {
       items.forEach(item => {
         const id = item.id || getUniqueId();
         const oldRow = projectionEngine.$getCollectionRow(id);
-        const newRow = { ...oldRow, ...item, itemId: id } as CollectionItemRow;
-        projectionEngine.$setCollectionRow(id, newRow);
+        const newRow: CollectionItemRow = {
+          ...oldRow,
+          ...item
+        } as CollectionItemRow;
         allIds.push(id);
         if (item.type === CollectionItemType.document) {
           allDocs.set(id, item.content!);
         }
+        projectionEngine.$setCollectionRow(id, newRow);
       });
       // backfill all for now - should optimize
       projectionEngine.__backfillProjectedStates();

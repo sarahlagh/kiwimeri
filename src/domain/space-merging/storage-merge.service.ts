@@ -108,8 +108,7 @@ class StorageMergeService {
   ): SpacePortableData {
     const items = this.toTable<BaseCollectionItem, CollectionItemRow>(
       localSpaceContent[0][C],
-      localSpaceDocContentContent[0][CC],
-      row => ({ ...row, itemId: undefined })
+      localSpaceDocContentContent[0][CC]
     );
     const annots = this.toTable<BaseDocAnnotation, DocAnnotationRow>(
       localSpaceContent[0][A],
@@ -177,7 +176,6 @@ class StorageMergeService {
       document_annotation_content: docContent[0].document_annotation_content
     };
     // remove keys
-    this.excludeKey(baseTables, C, 'itemId');
     this.excludeKey(baseTables, CC, 'plainText');
     this.excludeKey(baseTables, AC, 'plainText');
 
@@ -460,10 +458,6 @@ class StorageMergeService {
     withUserPrefs: boolean,
     beforeTransactionEnds?: () => void
   ) {
-    // fill-in itemIds
-    Object.keys(content.items).forEach(
-      rowId => ((content.items[rowId] as CollectionItemRow).itemId = rowId)
-    );
     const projectionEngine = new ProjectionEngine(content.items);
     spaceDocContent.startTransaction();
     space.startTransaction();

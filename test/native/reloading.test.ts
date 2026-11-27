@@ -82,8 +82,7 @@ describe('reloading from native backups tests', () => {
 
   test('if space is not empty, do not reload', async () => {
     (await getStoreModule()).space.setRow('collection', DEFAULT_NOTEBOOK_ID, {
-      ...notebooksService.getNewNotebookObj(ROOT_COLLECTION).item,
-      itemId: DEFAULT_NOTEBOOK_ID
+      ...notebooksService.getNewNotebookObj(ROOT_COLLECTION).item
     });
     window.nativeContentMap.clear();
     vi.resetModules();

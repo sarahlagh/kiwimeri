@@ -58,15 +58,15 @@ export class ProjectionEngine {
     return this._nextProjection[rowId]?.fullPath !== undefined;
   }
 
-  public $setAncestryPath(id: Id) {
+  public $setAncestryPath(rowId: Id) {
     const { fullPath, nearestNotebookId } = this.computePaths(
-      id,
+      rowId,
       this._nextCollection
     );
-    if (!this._nextProjection[id]) this._nextProjection[id] = {};
-    this._nextProjection[id].fullPath = fullPath;
-    this._nextProjection[id].nearestNotebookId = nearestNotebookId;
-    space.setPartialRow(P, id, {
+    if (!this._nextProjection[rowId]) this._nextProjection[rowId] = {};
+    this._nextProjection[rowId].fullPath = fullPath;
+    this._nextProjection[rowId].nearestNotebookId = nearestNotebookId;
+    space.setPartialRow(P, rowId, {
       fullPath,
       nearestNotebookId
     });
@@ -106,9 +106,6 @@ export class ProjectionEngine {
     // TODO can optimize by sorting by depth
     // computing top levels first, then taking parent's fullPath + rowId in descendants
     rowIds.forEach(rowId => {
-      if (this._nextCollection[rowId].itemId !== rowId) {
-        space.setCell(C, rowId, 'itemId', rowId);
-      }
       this.$setAncestryPath(rowId);
     });
   }
@@ -125,33 +122,28 @@ export class ProjectionEngine {
       const depth2 = this._nextProjection[id2].fullPath?.length || 0;
       return depth2 - depth1;
     });
-    // space.startTransaction();
-    try {
-      rowIds.forEach(rowId => {
-        const row = this._nextCollection[rowId];
-        let lastActivityAt: number;
-        if (isDocument(row.type)) {
-          this.__recalcDocumentLastActivityAt(rowId, annotIndex);
-        } else {
-          const descendants = index.get(rowId) || [];
-          lastActivityAt = Math.max(
-            ...descendants
-              .values()
-              .map(
-                cId =>
-                  this._nextProjection[cId].lastActivityAt ||
-                  this._nextCollection[cId].updatedAt ||
-                  0
-              ),
-            row.updatedAt || 0
-          );
-          this._nextProjection[rowId].lastActivityAt = lastActivityAt;
-          space.setCell(P, rowId, 'lastActivityAt', lastActivityAt);
-        }
-      });
-    } finally {
-      // space.finishTransaction();
-    }
+    rowIds.forEach(rowId => {
+      const row = this._nextCollection[rowId];
+      let lastActivityAt: number;
+      if (isDocument(row.type)) {
+        this.__recalcDocumentLastActivityAt(rowId, annotIndex);
+      } else {
+        const descendants = index.get(rowId) || [];
+        lastActivityAt = Math.max(
+          ...descendants
+            .values()
+            .map(
+              cId =>
+                this._nextProjection[cId].lastActivityAt ||
+                this._nextCollection[cId].updatedAt ||
+                0
+            ),
+          row.updatedAt || 0
+        );
+        this._nextProjection[rowId].lastActivityAt = lastActivityAt;
+        space.setCell(P, rowId, 'lastActivityAt', lastActivityAt);
+      }
+    });
   }
 
   // TODO optimize

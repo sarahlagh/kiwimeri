@@ -39,7 +39,7 @@ class NotebooksService {
     const id = DEFAULT_NOTEBOOK_ID;
     const row = { ...item, itemId: id };
     space.transaction(() => {
-      space.setPartialRow(P, id, {
+      space.setRow(P, id, {
         fullPath: [id],
         nearestNotebookId: id,
         lastActivityAt: item.updatedAt

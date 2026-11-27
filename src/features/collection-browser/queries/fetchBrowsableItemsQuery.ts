@@ -34,8 +34,8 @@ const fetchBrowsableItemsQuery = new SpaceQueryDefinition<
       withPreview: param('withPreview') as boolean,
       withLastOpenedAt: param('withLastOpenedAt') as boolean
     };
+    if (params.recursive === undefined) params.recursive = false;
 
-    // works but only because stats and collection have same id for global stats
     join(SpaceTables.CollectionItemView, (getCell, itemId) => itemId).as(
       'view'
     );
@@ -59,31 +59,6 @@ const fetchBrowsableItemsQuery = new SpaceQueryDefinition<
       select('view', 'lastOpenedAt');
     }
 
-    if (params.itemsConflicts || params.annotsConflicts) {
-      where(getCell => {
-        const id = getCell('itemId')!;
-        const isConflict = getCell('conflictId') !== undefined;
-        const itemsConflicts = params.itemsConflicts || [];
-        const annotsConflicts = params.annotsConflicts || [];
-        const { hasConflict, hasAnnotsConflicts: hasNoteConflicts } =
-          conflictsService.itemHasConflicts(
-            id,
-            itemsConflicts,
-            annotsConflicts
-          );
-        return isConflict || hasConflict || hasNoteConflicts;
-      });
-    }
-
-    where(getCell => getCell('itemId') !== params.parentId);
-    if (!params.recursive) {
-      where('parentId', params.parentId);
-    } else if (params.parentId !== ROOT_COLLECTION) {
-      where(getCell => {
-        const fullPath = getCell('state', 'fullPath') as string[];
-        return fullPath?.includes(params.parentId);
-      });
-    }
     if (params.restrictType !== undefined) {
       where('type', params.restrictType);
     }
@@ -93,6 +68,38 @@ const fetchBrowsableItemsQuery = new SpaceQueryDefinition<
           getCell('type') as CollectionItemTypeValues
         )
       );
+    }
+
+    if (params.itemsConflicts || params.annotsConflicts) {
+      where(getCell => {
+        const isConflict = getCell('conflictId') !== undefined;
+        if (isConflict) return true;
+        const fullPath = getCell('state', 'fullPath') as string[];
+        if (!fullPath) return false; // can happen in queries
+        const itemId = fullPath[fullPath.length - 1];
+        const itemsConflicts = params.itemsConflicts || [];
+        const annotsConflicts = params.annotsConflicts || [];
+        const { hasConflict, hasAnnotsConflicts: hasNoteConflicts } =
+          conflictsService.itemHasConflicts(
+            itemId,
+            itemsConflicts,
+            annotsConflicts
+          );
+        return hasConflict || hasNoteConflicts;
+      });
+    }
+
+    if (params.parentId !== ROOT_COLLECTION || !params.recursive) {
+      where(getCell => {
+        const parentId = getCell('parentId') as string;
+        const fullPath = getCell('state', 'fullPath') as string[];
+        if (!fullPath) return false; // can happen in queries
+        if (fullPath[fullPath.length - 1] === params.parentId) return false; // never return self
+        if (!params.recursive) {
+          return parentId === params.parentId;
+        }
+        return fullPath.includes(params.parentId);
+      });
     }
   }
 );

@@ -961,7 +961,7 @@ describe('collection synchronizer', () => {
     });
 
     it('should include documents with conflicts and their source in fetchItemsQuery with onlyConflicts=true', async () => {
-      const items = [oneNotebook(), oneDocument()];
+      const items = [oneNotebook(), oneDocument(), oneDocument()];
       const docId = items[1].id!;
       await driver.setCollectionContent(items, items[1].updatedAt);
       await synchronizer.sync();
@@ -1024,7 +1024,7 @@ describe('collection synchronizer', () => {
     });
 
     it('should include documents with conflicts in notes in fetchItemsQuery with onlyConflicts=true', async () => {
-      const items = [oneNotebook(), oneDocument()];
+      const items = [oneNotebook(), oneDocument(), oneDocument()];
       const notes = [oneNote(items[1].id!)];
       const docId = items[1].id!;
       const noteId = notes[0].id;

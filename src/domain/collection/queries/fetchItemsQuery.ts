@@ -40,13 +40,16 @@ const fetchItemsQuery = new SpaceQueryDefinition<
   select('settings');
   select('content', 'previewText');
 
-  where(getCell => getCell('itemId') !== params.parentId);
-  if (params.recursive === false) {
-    where('parentId', params.parentId);
-  } else if (params.parentId !== ROOT_COLLECTION) {
+  if (params.parentId !== ROOT_COLLECTION || !params.recursive) {
     where(getCell => {
+      const parentId = getCell('parentId') as string;
       const fullPath = getCell('state', 'fullPath') as string[];
-      return fullPath?.includes(params.parentId);
+      if (!fullPath) return false; // shouldn't happen
+      if (fullPath[fullPath.length - 1] === params.parentId) return false; // never return self
+      if (!params.recursive) {
+        return parentId === params.parentId;
+      }
+      return fullPath.includes(params.parentId);
     });
   }
   if (params.restrictType !== undefined) {

@@ -34,7 +34,11 @@ const fetchNotebooksQuery = new SpaceQueryDefinition<
     select('state', 'lastActivityAt').as('lastActivityAt');
     select('order');
 
-    where(getCell => getCell('itemId') !== params.parentId);
+    where(getCell => {
+      const fullPath = getCell('state', 'fullPath') as string[];
+      if (!fullPath) return false;
+      return fullPath[fullPath.length - 1] !== params.parentId; // last id is the item id
+    });
     where('parentId', params.parentId);
     where('type', CollectionItemType.notebook);
   }

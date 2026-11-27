@@ -14,7 +14,6 @@ export const itemTypes = ['n', 'f', 'd'] as const;
 export type CollectionItemTypeValues = (typeof itemTypes)[number];
 
 export type CollectionItemRow = {
-  itemId: string;
   parentId: string;
   parentId_meta: MetaField;
   type: CollectionItemTypeValues;
@@ -32,7 +31,6 @@ export type CollectionItemRow = {
 };
 
 export const collectionSchema = {
-  itemId: { type: 'string', required: true },
   title: { type: 'string', required: true },
   title_meta: { type: 'object', default: metaSchemaDefault },
   parentId: { type: 'string', required: true },
@@ -51,8 +49,7 @@ export const collectionSchema = {
 
 ////////////////////
 
-export type BaseCollectionItem = Omit<CollectionItemRow, 'itemId'> &
-  Partial<ContentAddition>;
+export type BaseCollectionItem = CollectionItemRow & Partial<ContentAddition>;
 export type CollectionItem = WithId<BaseCollectionItem>;
 
 export type CollectionItemFieldEnum = keyof Required<BaseCollectionItem>;
